@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="spotify_client_id">edb61ec6b4254f54b63512f9289705fc</string>
+    <string-array name="spotify_scopes">
+        <item>playlist-read-private</item>
+        <item>user-library-read</item>
+        <item>user-read-private</item>
+        <item>streaming</item>
+    </string-array>
+    <string name="spotify_callback_uri_scheme">spotifytv</string>
+    <string name="spotify_callback_uri_host">spotify_login_callback</string>
+</resources>

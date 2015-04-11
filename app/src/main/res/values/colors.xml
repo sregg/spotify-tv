@@ -1,0 +1,10 @@
+<resources>
+    <color name="default_background">#3d3d3d</color>
+    <color name="fastlane_background">#ff699600</color>
+    <color name="search_opaque">#ff000000</color>
+    <color name="card_default_bg">@color/default_background</color>
+    <color name="control_on">#ff96ce00</color>
+    <color name="control_bg">@color/default_background</color>
+    <color name="card_info_area_default">@color/default_background</color>
+    <color name="card_info_area_selected_default">#ff699600</color>
+</resources>

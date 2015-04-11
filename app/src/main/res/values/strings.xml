@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TV Player for Spotify</string>
+    <string name="browse_title">@string/app_name</string>
+    <string name="playlists">Playlists</string>
+    <string name="songs">Songs</string>
+    <string name="albums">Albums</string>
+    <string name="artists">Artists</string>
+    <string name="starred">Starred</string>
+    <string name="artists_album_type_album">Albums</string>
+    <string name="artists_album_type_single">Singles</string>
+    <string name="artists_album_type_appears_on">Appears On</string>
+    <string name="artists_album_type_compilation">Compilations</string>
+    <string name="artists_top_tracks">Top Tracks</string>
+    <string name="artists_related_artists">Related Artists</string>
+    <string name="controls">Controls</string>
+    <plurals name="playlist_nb_tracks">
+        <item quantity="zero">no tracks</item>
+        <item quantity="one">1 track</item>
+        <item quantity="other">%d tracks</item>
+    </plurals>
+    <plurals name="artists_nb_albums">
+        <item quantity="zero">no albums</item>
+        <item quantity="one">1 album</item>
+        <item quantity="other">%d albums</item>
+    </plurals>
+</resources>

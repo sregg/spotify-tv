@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.sregg.android.tv.spotify">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+    <uses-feature
+            android:name="android.hardware.touchscreen"
+            android:required="false"/>
+    <uses-feature
+            android:name="android.software.leanback"
+            android:required="true"/>
+
+    <uses-feature
+            android:name="android.hardware.microphone"
+            android:required="false"/>
+
+    <application
+            android:name=".SpotifyTvApplication"
+            android:allowBackup="true"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Leanback">
+        <activity
+                android:name=".activities.MainActivity"
+                android:icon="@drawable/banner"
+                android:label="@string/app_name"
+                android:logo="@drawable/banner"
+                android:screenOrientation="landscape"
+                android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.spotify.sdk.android.authentication.LoginActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+
+        <activity android:name=".activities.SearchActivity"/>
+        <activity android:name=".activities.ArtistsAlbumsActivity"/>
+    </application>
+
+</manifest>

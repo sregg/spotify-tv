@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <android.support.v17.leanback.widget.ImageCardView
+            android:id="@+id/image_card_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:layout_width="200dp"
+            tools:layout_height="300dp"/>
+
+    <FrameLayout
+            android:layout_width="@dimen/card_image_view_size"
+            android:layout_height="@dimen/card_image_view_size">
+
+        <ImageView
+                android:id="@+id/card_badge"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_card_badge_bg"
+                android:scaleType="center"/>
+
+        <com.sregg.android.tv.spotify.views.NowPlayingIndicatorView
+                android:id="@+id/card_now_playing"
+                android:layout_gravity="center"
+                android:layout_width="35dp"
+                android:layout_height="35dp"/>
+
+    </FrameLayout>
+
+</merge>

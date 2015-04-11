@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="now_playing_anim_duration">70</integer>
+</resources>

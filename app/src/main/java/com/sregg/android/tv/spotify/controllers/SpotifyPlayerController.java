@@ -12,6 +12,11 @@ import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.enums.Control;
 import com.sregg.android.tv.spotify.events.*;
 import com.sregg.android.tv.spotify.utils.Utils;
+
+import de.umass.lastfm.Authenticator;
+import de.umass.lastfm.Session;
+import de.umass.lastfm.scrobble.ScrobbleData;
+import de.umass.lastfm.scrobble.ScrobbleResult;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.Pager;
@@ -132,7 +137,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 break;
             case TRACK_START:
                 BusProvider.post(new OnTrackStart(currentObjectUri));
-                updateNowPlayingMetadata(playerState.trackUri);
+                trackNowPlayingTrack(playerState.trackUri);
                 break;
             case TRACK_END:
                 BusProvider.post(new OnTrackEnd(currentObjectUri));
@@ -146,33 +151,14 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         }
     }
 
-    private void updateNowPlayingMetadata(String currentTrackUri) {
-        // laod track from id (from uri)
+    private void trackNowPlayingTrack(String currentTrackUri) {
+        // load track from id (from uri)
         mSpotifyService.getTrack(Utils.getIdFromUri(currentTrackUri), new Callback<Track>() {
             @Override
             public void success(final Track track, Response response) {
-                MediaMetadata.Builder metadataBuilder = new MediaMetadata.Builder();
+                updateNowPlayingMetadata(track);
 
-                // track title
-                metadataBuilder.putString(MediaMetadata.METADATA_KEY_TITLE,
-                        track.name);
-
-                // artists
-                metadataBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST,
-                        Utils.getTrackArtists(track));
-
-                // album picture
-                try {
-                    Bitmap bitmap = Picasso.with(SpotifyTvApplication.getInstance().getApplicationContext())
-                            .load(track.album.images.get(0).url)
-                            .get();
-                    metadataBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART,
-                            bitmap);
-                } catch (IOException e) {
-                    Log.e(TAG, "Error downloading track picture for now playing card", e);
-                }
-
-                mNowPlayingSession.setMetadata(metadataBuilder.build());
+                trackLastFm(track);
             }
 
             @Override
@@ -180,6 +166,40 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
 
             }
         });
+    }
+
+    private void updateNowPlayingMetadata(Track track) {
+        MediaMetadata.Builder metadataBuilder = new MediaMetadata.Builder();
+
+        // track title
+        metadataBuilder.putString(MediaMetadata.METADATA_KEY_TITLE,
+                track.name);
+
+        // artists
+        metadataBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST,
+                Utils.getTrackArtists(track));
+
+        // album picture
+        try {
+            Bitmap bitmap = Picasso.with(SpotifyTvApplication.getInstance().getApplicationContext())
+                    .load(track.album.images.get(0).url)
+                    .get();
+            metadataBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART,
+                    bitmap);
+        } catch (IOException e) {
+            Log.e(TAG, "Error downloading track picture for now playing card", e);
+        }
+
+        mNowPlayingSession.setMetadata(metadataBuilder.build());
+    }
+
+    private void trackLastFm(final Track track) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LastFmApi.getInstance().scrobbleSpotifyTrack(track);
+            }
+        }).start();
     }
 
     @Override

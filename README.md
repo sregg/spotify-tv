@@ -29,3 +29,7 @@ Here are some basic rules to follow to ensure timely addition of your request:
 - If its a feature, bugfix, or anything please only change code to what you specify. DO NOT do this: Ex: Title "Fixes Crash Related to Bug" includes other files that were changed without explanation or doesn't relate to the bug you fixed. Or another example is a non-descriptive title "Fixes Stuff".
 - Pull requests must be made against develop branch.
 - Have fun!
+- 
+# License
+MIT License
+This open source app complies with the [Spotify TOS](https://developer.spotify.com/developer-terms-of-use/)

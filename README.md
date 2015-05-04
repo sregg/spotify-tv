@@ -31,6 +31,6 @@ Here are some basic rules to follow to ensure timely addition of your request:
 - Have fun!
 
 # License
-MIT License
+GPL v2
 
 This open source app complies with the [Spotify TOS](https://developer.spotify.com/developer-terms-of-use/)

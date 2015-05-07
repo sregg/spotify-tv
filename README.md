@@ -10,8 +10,8 @@ Unofficial Spotify app for Android TV
 
 # TODO
 - Tracklist screen (Playlist/Album details screen)
-- Current Queue
-- Last FM (already started in lastfm branch)
+- Current Queue (already started in [current_queue branch](https://github.com/sregg/spotify-tv/tree/current_queue))
+- Last FM (already started in [lastfm branch](https://github.com/sregg/spotify-tv/tree/lastfm))
 - Manage Playlist (create, edit, delete, etc...)
 - Recently Played
 - Friends

@@ -20,11 +20,16 @@ import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.*;
 import android.util.Log;
 import android.view.View;
+
+import com.squareup.otto.Subscribe;
+import com.sregg.android.tv.spotify.BusProvider;
 import com.sregg.android.tv.spotify.Constants;
 import com.sregg.android.tv.spotify.R;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.activities.SearchActivity;
 import com.sregg.android.tv.spotify.enums.Control;
+import com.sregg.android.tv.spotify.events.OnQueueChanged;
+import com.sregg.android.tv.spotify.events.OnTrackEnd;
 import com.sregg.android.tv.spotify.presenters.*;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.*;
@@ -48,6 +53,14 @@ public class MainFragment extends BrowseFragment {
     private ArrayObjectAdapter mSavedArtistsAdapter;
     private ArrayObjectAdapter mRowsAdapter;
     private ArrayObjectAdapter mControlsAdapter;
+    private ArrayObjectAdapter mQueueAdapter;
+
+    @SuppressWarnings("unused")
+    @Subscribe
+    public void onQueueChanged(OnQueueChanged onQueueChanged) {
+        mQueueAdapter.clear();
+        mQueueAdapter.addAll(0, onQueueChanged.getTracks());
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -65,6 +78,8 @@ public class MainFragment extends BrowseFragment {
         loadUserLibraryRows();
 
         loadControlsRow();
+
+        loadQueueRow();
     }
 
     private void setupMainAdapter() {
@@ -248,5 +263,25 @@ public class MainFragment extends BrowseFragment {
         mControlsAdapter.add(Control.NEXT);
 
         mRowsAdapter.add(new ListRow(controlsHeader, mControlsAdapter));
+    }
+
+    private void loadQueueRow() {
+
+        // Queue row
+        mQueueAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
+        HeaderItem queueHeader = new HeaderItem(0, getString(R.string.queue), null);
+        mRowsAdapter.add(new ListRow(queueHeader, mQueueAdapter));
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        BusProvider.register(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        BusProvider.unregister(this);
+        super.onDestroy();
     }
 }

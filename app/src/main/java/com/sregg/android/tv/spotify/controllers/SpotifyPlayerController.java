@@ -3,6 +3,8 @@ package com.sregg.android.tv.spotify.controllers;
 import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.spotify.sdk.android.player.ConnectionStateCallback;
@@ -15,20 +17,28 @@ import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotify.BusProvider;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.enums.Control;
-import com.sregg.android.tv.spotify.events.*;
+import com.sregg.android.tv.spotify.events.OnPause;
+import com.sregg.android.tv.spotify.events.OnPlay;
+import com.sregg.android.tv.spotify.events.OnQueueChanged;
+import com.sregg.android.tv.spotify.events.OnShuffleChanged;
+import com.sregg.android.tv.spotify.events.OnTrackEnd;
+import com.sregg.android.tv.spotify.events.OnTrackStart;
 import com.sregg.android.tv.spotify.utils.Utils;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.Track;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <p>Plays tracks, playlists and albums into the Spotify SDK</p>
@@ -66,19 +76,35 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     public void play(Object spotifyObject) {
         mCurrentSpotifyObject = spotifyObject;
 
-        if (spotifyObject instanceof Track || spotifyObject instanceof Playlist) {
-            mPlayer.play(getCurrentObjectUri());
+        if (spotifyObject instanceof Track) {
+            Track track = (Track) spotifyObject;
+            playTracks(Collections.singletonList(track));
+        } else if (spotifyObject instanceof Playlist) {
+            // get playlist's tracks
+            Playlist playlist = (Playlist) spotifyObject;
+            SpotifyTvApplication.getInstance().getSpotifyService().getPlaylistTracks(SpotifyTvApplication.getInstance().getCurrentUserId(), playlist.id, new Callback<Pager<PlaylistTrack>>() {
+                @Override
+                public void success(Pager<PlaylistTrack> trackPager, Response response) {
+                    // transform PlaylistTracks into Tracks
+                    List<Track> tracks = new ArrayList<>(trackPager.items.size());
+                    for (PlaylistTrack playlistTrack : trackPager.items) {
+                        tracks.add(playlistTrack.track);
+                    }
+                    playTracks(tracks);
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+
+                }
+            });
         } else if (spotifyObject instanceof AlbumSimple) {
             // get album's tracks
             AlbumSimple albumSimple = (AlbumSimple) spotifyObject;
             SpotifyTvApplication.getInstance().getSpotifyService().getAlbumTracks(albumSimple.id, new Callback<Pager<Track>>() {
                 @Override
                 public void success(Pager<Track> trackPager, Response response) {
-                    List<String> trackUris = new ArrayList<>(trackPager.total);
-                    for (Track track : trackPager.items) {
-                        trackUris.add(track.uri);
-                    }
-                    mPlayer.play(trackUris);
+                    playTracks(trackPager.items);
                 }
 
                 @Override
@@ -91,6 +117,25 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         if (!mNowPlayingSession.isActive()) {
             mNowPlayingSession.setActive(true);
         }
+    }
+
+    private void playTracks(final List<Track> tracks) {
+        // play track uris in Player
+        List<String> trackUris = new ArrayList<>(tracks.size());
+        for (Track track : tracks) {
+            trackUris.add(track.uri);
+        }
+        mPlayer.play(trackUris);
+
+        // update current queue (on UI thread)
+        new Handler(Looper.getMainLooper())
+                .post(new Runnable() {
+                    @Override
+                    public void run() {
+                        BusProvider.post(new OnQueueChanged(tracks));
+
+                    }
+                });
     }
 
     public void togglePauseResume() {

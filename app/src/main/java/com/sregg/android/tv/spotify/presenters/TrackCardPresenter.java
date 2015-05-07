@@ -40,6 +40,9 @@ public class TrackCardPresenter extends AbsCardPresenter {
 
         String artists = Utils.getTrackArtists(track);
         imageCardView.setContentText(artists);
-        cardViewHolder.updateCardViewImage(URI.create(track.album.images.get(0).url));
+
+        if (track.album != null && track.album.images != null && !track.album.images.isEmpty()) {
+            cardViewHolder.updateCardViewImage(URI.create(track.album.images.get(0).url));
+        }
     }
 }

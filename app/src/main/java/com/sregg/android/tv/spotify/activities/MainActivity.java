@@ -25,6 +25,10 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.sregg.android.tv.spotify.R;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.controllers.SpotifyPlayerController;
+import com.sregg.android.tv.spotify.utils.SpotifyUriLoader;
+
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 /*
  * MainActivity class that loads MainFragment
@@ -47,6 +51,20 @@ public class MainActivity extends Activity {
 
     private void init() {
         setContentView(R.layout.activity_main);
+
+        if (getIntent() != null && getIntent().getData() != null) {
+            SpotifyUriLoader.loadObjectFromUri(SpotifyTvApplication.getInstance().getSpotifyService(), getIntent().getData().toString(), new SpotifyUriLoader.SpotifyObjectLoaderCallback() {
+                @Override
+                public void success(Object object, Response response) {
+                    SpotifyTvApplication.getInstance().onItemClick(MainActivity.this, object);
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+
+                }
+            });
+        }
     }
 
     private void login() {

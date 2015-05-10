@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.*;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import com.sregg.android.tv.spotify.Constants;
@@ -33,6 +34,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,8 @@ public class MainFragment extends BrowseFragment {
     private static final String TAG = "MainFragment";
 
     private SpotifyService mSpotifyService;
+    private ArrayObjectAdapter mNewReleasesAdapter;
+    private ArrayObjectAdapter mFeaturedPlaylistsAdapter;
     private ArrayObjectAdapter mPlaylistsAdapter;
     private ArrayObjectAdapter mSavedSongsAdapter;
     private ArrayObjectAdapter mSavedAlbumsAdapter;
@@ -61,6 +65,10 @@ public class MainFragment extends BrowseFragment {
         setupEventListeners();
 
         setupMainAdapter();
+
+        setupFeaturedPlaylists();
+
+        setupNewReleases();
 
         loadUserLibraryRows();
 
@@ -107,6 +115,51 @@ public class MainFragment extends BrowseFragment {
         });
     }
 
+    private void setupFeaturedPlaylists() {
+        mFeaturedPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistSimpleCardPresenter());
+        HeaderItem featuredPlaylistsHeader = new HeaderItem(0, getString(R.string.featured_playlists), null);
+        mRowsAdapter.add(new ListRow(featuredPlaylistsHeader, mFeaturedPlaylistsAdapter));
+    }
+
+    private void loadFeaturedPlaylists(User user) {
+        Map<String, Object> options = new HashMap<>();
+        options.put(SpotifyService.COUNTRY, user.country);
+        options.put("timestamp", DateFormat.format("yyyy-MM-dd'T'HH:mm:ss", new Date()));
+        mSpotifyService.getFeaturedPlaylists(options, new Callback<FeaturedPlaylists>() {
+            @Override
+            public void success(FeaturedPlaylists featuredPlaylists, Response response) {
+                mFeaturedPlaylistsAdapter.addAll(0, featuredPlaylists.playlists.items);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
+    private void setupNewReleases() {
+        mNewReleasesAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
+        HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.new_releases), null);
+        mRowsAdapter.add(new ListRow(newReleasesHeader, mNewReleasesAdapter));
+    }
+
+    private void loadNewReleases(User user) {
+        Map<String, Object> options = new HashMap<>();
+        options.put(SpotifyService.COUNTRY, user.country);
+        mSpotifyService.getNewReleases(options, new Callback<NewReleases>() {
+            @Override
+            public void success(NewReleases newReleases, Response response) {
+                mNewReleasesAdapter.addAll(0, newReleases.albums.items);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
     private void loadUserLibraryRows() {
         // playlist row
         mPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistCardPresenter());
@@ -144,6 +197,8 @@ public class MainFragment extends BrowseFragment {
             public void success(User user, Response response) {
                 SpotifyTvApplication.getInstance().setCurrentUser(user);
                 loadPlaylists(user);
+                loadFeaturedPlaylists(user);
+                loadNewReleases(user);
             }
 
             @Override

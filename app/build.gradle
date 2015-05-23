@@ -83,4 +83,5 @@ if (project.rootProject.file('release.properties').exists()) {
     }
 } else {
     project.logger.warn('WARN: Set the values storeFile, storePassword, keyAlias, and keyPassword in release.properties to sign the release.')
+    android.buildTypes.release.signingConfig = null
 }

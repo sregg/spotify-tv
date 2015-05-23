@@ -23,6 +23,7 @@
     <string name="settings_quality_low">Low (96 kbit/s)</string>
     <string name="settings_quality_normal">Normal (160 kbit/s)</string>
     <string name="settings_quality_high">High (320 kbit/s)</string>
+    <string name="go_to_artist">Go To Artist</string>
     <plurals name="playlist_nb_tracks">
         <item quantity="zero">no tracks</item>
         <item quantity="one">1 track</item>

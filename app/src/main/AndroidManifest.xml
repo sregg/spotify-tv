@@ -45,6 +45,8 @@
 
         <activity android:name=".activities.SearchActivity"/>
         <activity android:name=".activities.ArtistsAlbumsActivity"/>
+        <activity android:name=".activities.AlbumActivity"/>
+        <activity android:name=".activities.PlaylistActivity"/>
 
         <provider
             android:name=".providers.SearchProvider"

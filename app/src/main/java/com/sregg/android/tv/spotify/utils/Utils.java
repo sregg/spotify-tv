@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.Track;
 
 /**
@@ -17,6 +18,8 @@ public class Utils {
             uri = ((Track) spotifyObject).uri;
         } else if (spotifyObject instanceof Playlist) {
             uri = ((Playlist) spotifyObject).uri;
+        } else if (spotifyObject instanceof PlaylistSimple) {
+            uri = ((PlaylistSimple) spotifyObject).uri;
         } else if (spotifyObject instanceof AlbumSimple) {
             uri = ((AlbumSimple) spotifyObject).uri;
         } else if (spotifyObject instanceof ArtistSimple) {

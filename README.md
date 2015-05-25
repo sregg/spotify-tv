@@ -9,16 +9,19 @@ Unofficial Spotify app for Android TV
 - Controls (Shuffle, Previous/Next Track, Play, Pause, Stop)
 
 # TODO
-- Tracklist screen (Playlist/Album details screen)
+- Tracklist screen (Playlist/Album details screen) WIP by @Dahlgren [here](https://github.com/sregg/spotify-tv/pull/4)
 - Current Queue (already started in [current_queue branch](https://github.com/sregg/spotify-tv/tree/current_queue))
 - Last FM (already started in [lastfm branch](https://github.com/sregg/spotify-tv/tree/lastfm))
 - Manage Playlist (create, edit, delete, etc...)
 - Recently Played
 - Friends
-- [Browse (Charts, New Releases, Discover)](https://developer.spotify.com/web-api/browse-endpoints) WIP by @Dahlgren [here](https://github.com/sregg/spotify-tv/pull/2)
 - [Recommendations in Android TV Home](https://developer.android.com/training/tv/discovery/recommendations.html)
-- [Global Search](https://developer.android.com/training/tv/discovery/searchable.html) WIP by @Dahlgren [here](https://github.com/sregg/spotify-tv/pull/1)
 - [Bitrate Settings](https://developer.spotify.com/android-sdk-docs/com/spotify/sdk/android/playback/Player.html#setPlaybackBitrate-com.spotify.sdk.android.playback.PlaybackBitrate-)
+
+# Release build
+Add the values `release.storeFile`, `release.storePassword`, `release.keyAlias`, and `release.keyPassword` to `release.properties`.
+`release.storeFile` should be an absolute path to your keystore, the others should be the string value.
+See `release.properties.sample` for an example file.
 
 # Pull Requests
 I welcome and encourage all pull requests. 
@@ -34,3 +37,6 @@ Here are some basic rules to follow to ensure timely addition of your request:
 GPL v2
 
 This open source app complies with the [Spotify TOS](https://developer.spotify.com/developer-terms-of-use/)
+
+# Travis
+![alt text](https://travis-ci.org/sregg/spotify-tv.svg?branch=master)

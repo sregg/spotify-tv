@@ -20,6 +20,11 @@ Unofficial Spotify app for Android TV
 - [Global Search](https://developer.android.com/training/tv/discovery/searchable.html) WIP by @Dahlgren [here](https://github.com/sregg/spotify-tv/pull/1)
 - [Bitrate Settings](https://developer.spotify.com/android-sdk-docs/com/spotify/sdk/android/playback/Player.html#setPlaybackBitrate-com.spotify.sdk.android.playback.PlaybackBitrate-)
 
+# Release build
+Add the values `release.storeFile`, `release.storePassword`, `release.keyAlias`, and `release.keyPassword` to `release.properties`.
+`release.storeFile` should be an absolute path to your keystore, the others should be the string value.
+See `release.properties.sample` for an example file.
+
 # Pull Requests
 I welcome and encourage all pull requests. 
 It usually will take me within 24-48 hours to respond to any issue or request. 

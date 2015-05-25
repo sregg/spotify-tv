@@ -10,14 +10,14 @@ Unofficial Spotify app for Android TV
 
 # TODO
 - Tracklist screen (Playlist/Album details screen)
-- Current Queue
-- Last FM (already started in lastfm branch)
+- Current Queue (already started in [current_queue branch](https://github.com/sregg/spotify-tv/tree/current_queue))
+- Last FM (already started in [lastfm branch](https://github.com/sregg/spotify-tv/tree/lastfm))
 - Manage Playlist (create, edit, delete, etc...)
 - Recently Played
 - Friends
-- [Browse (Charts, New Releases, Discover)](https://developer.spotify.com/web-api/browse-endpoints)
+- [Browse (Charts, New Releases, Discover)](https://developer.spotify.com/web-api/browse-endpoints) WIP by @Dahlgren [here](https://github.com/sregg/spotify-tv/pull/2)
 - [Recommendations in Android TV Home](https://developer.android.com/training/tv/discovery/recommendations.html)
-- [Global Search](https://developer.android.com/training/tv/discovery/searchable.html)
+- [Global Search](https://developer.android.com/training/tv/discovery/searchable.html) WIP by @Dahlgren [here](https://github.com/sregg/spotify-tv/pull/1)
 - [Bitrate Settings](https://developer.spotify.com/android-sdk-docs/com/spotify/sdk/android/playback/Player.html#setPlaybackBitrate-com.spotify.sdk.android.playback.PlaybackBitrate-)
 
 # Pull Requests
@@ -29,3 +29,8 @@ Here are some basic rules to follow to ensure timely addition of your request:
 - If its a feature, bugfix, or anything please only change code to what you specify. DO NOT do this: Ex: Title "Fixes Crash Related to Bug" includes other files that were changed without explanation or doesn't relate to the bug you fixed. Or another example is a non-descriptive title "Fixes Stuff".
 - Pull requests must be made against develop branch.
 - Have fun!
+
+# License
+GPL v2
+
+This open source app complies with the [Spotify TOS](https://developer.spotify.com/developer-terms-of-use/)

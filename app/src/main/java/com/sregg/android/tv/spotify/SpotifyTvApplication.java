@@ -2,9 +2,9 @@ package com.sregg.android.tv.spotify;
 
 import android.app.Activity;
 import android.app.Application;
-import com.spotify.sdk.android.Spotify;
-import com.spotify.sdk.android.playback.Config;
-import com.spotify.sdk.android.playback.Player;
+import com.spotify.sdk.android.player.Spotify;
+import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.Player;
 import com.sregg.android.tv.spotify.activities.ArtistsAlbumsActivity;
 import com.sregg.android.tv.spotify.controllers.SpotifyPlayerController;
 import com.sregg.android.tv.spotify.utils.Utils;

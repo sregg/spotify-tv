@@ -4,8 +4,13 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.util.Log;
-import com.spotify.sdk.android.Spotify;
-import com.spotify.sdk.android.playback.*;
+
+import com.spotify.sdk.android.player.ConnectionStateCallback;
+import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.PlayerNotificationCallback;
+import com.spotify.sdk.android.player.PlayerState;
+import com.spotify.sdk.android.player.PlayerStateCallback;
+import com.spotify.sdk.android.player.Spotify;
 import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotify.BusProvider;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;

@@ -27,17 +27,14 @@ import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.activities.SearchActivity;
 import com.sregg.android.tv.spotify.enums.Control;
 import com.sregg.android.tv.spotify.presenters.*;
+import com.sregg.android.tv.spotify.settings.QualitySetting;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.*;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class MainFragment extends BrowseFragment {
@@ -52,6 +49,7 @@ public class MainFragment extends BrowseFragment {
     private ArrayObjectAdapter mSavedArtistsAdapter;
     private ArrayObjectAdapter mRowsAdapter;
     private ArrayObjectAdapter mControlsAdapter;
+    private ArrayObjectAdapter mSettingsAdapter;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -73,6 +71,8 @@ public class MainFragment extends BrowseFragment {
         loadUserLibraryRows();
 
         loadControlsRow();
+
+        loadSettingsRow();
     }
 
     private void setupMainAdapter() {
@@ -105,12 +105,7 @@ public class MainFragment extends BrowseFragment {
         setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
             public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
-                SpotifyTvApplication app = SpotifyTvApplication.getInstance();
-                if (item instanceof Control) {
-                    app.getSpotifyPlayerController().onControlClick(((Control) item));
-                } else {
-                    app.onItemClick(getActivity(), item);
-                }
+                SpotifyTvApplication.getInstance().onItemClick(getActivity(), item);
             }
         });
     }
@@ -303,5 +298,16 @@ public class MainFragment extends BrowseFragment {
         mControlsAdapter.add(Control.NEXT);
 
         mRowsAdapter.add(new ListRow(controlsHeader, mControlsAdapter));
+    }
+
+    private void loadSettingsRow() {
+        HeaderItem settingsHeader = new HeaderItem(getString(R.string.settings), null);
+
+        SettingPresenter settingPresenter = new SettingPresenter();
+        mSettingsAdapter = new ArrayObjectAdapter(settingPresenter);
+
+        mSettingsAdapter.add(new QualitySetting());
+
+        mRowsAdapter.add(new ListRow(settingsHeader, mSettingsAdapter));
     }
 }

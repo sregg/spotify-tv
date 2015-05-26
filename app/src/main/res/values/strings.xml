@@ -17,6 +17,8 @@
     <string name="artists_top_tracks">Top Tracks</string>
     <string name="artists_related_artists">Related Artists</string>
     <string name="controls">Controls</string>
+    <string name="settings">Settings</string>
+    <string name="settings_quality">Quality</string>
     <plurals name="playlist_nb_tracks">
         <item quantity="zero">no tracks</item>
         <item quantity="one">1 track</item>

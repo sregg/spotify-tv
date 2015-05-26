@@ -7,6 +7,8 @@ import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
 import com.sregg.android.tv.spotify.activities.ArtistsAlbumsActivity;
 import com.sregg.android.tv.spotify.controllers.SpotifyPlayerController;
+import com.sregg.android.tv.spotify.enums.Control;
+import com.sregg.android.tv.spotify.settings.Setting;
 import com.sregg.android.tv.spotify.utils.Utils;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -81,7 +83,11 @@ public class SpotifyTvApplication extends Application {
     }
 
     public void onItemClick(Activity activity, Object item) {
-        if (item instanceof ArtistSimple) {
+        if (item instanceof Setting) {
+            ((Setting) item).onClick();
+        } else if (item instanceof Control) {
+            getSpotifyPlayerController().onControlClick(((Control) item));
+        } else if (item instanceof ArtistSimple) {
             ArtistSimple artistSimple = (ArtistSimple) item;
             ArtistsAlbumsActivity.launch(activity, artistSimple.id, artistSimple.name);
         } else {

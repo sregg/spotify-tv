@@ -7,6 +7,7 @@ Unofficial Spotify app for Android TV
 - Stream any track of your library
 - Search for artists, albums, songs and playlists
 - Controls (Shuffle, Previous/Next Track, Play, Pause, Stop)
+- Settings (Bitrate)
 
 # TODO
 - Tracklist screen (Playlist/Album details screen) WIP by @Dahlgren [here](https://github.com/sregg/spotify-tv/pull/4)
@@ -16,7 +17,6 @@ Unofficial Spotify app for Android TV
 - Recently Played
 - Friends
 - [Recommendations in Android TV Home](https://developer.android.com/training/tv/discovery/recommendations.html)
-- [Bitrate Settings](https://developer.spotify.com/android-sdk-docs/com/spotify/sdk/android/playback/Player.html#setPlaybackBitrate-com.spotify.sdk.android.playback.PlaybackBitrate-)
 
 # Release build
 Add the values `release.storeFile`, `release.storePassword`, `release.keyAlias`, and `release.keyPassword` to `release.properties`.

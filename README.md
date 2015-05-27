@@ -17,6 +17,7 @@ Unofficial Spotify app for Android TV
 - Recently Played
 - Friends
 - [Recommendations in Android TV Home](https://developer.android.com/training/tv/discovery/recommendations.html)
+- Setting - Customize UI elements (e.g. show or hide Feature playlist and new releases)
 
 # Release build
 Add the values `release.storeFile`, `release.storePassword`, `release.keyAlias`, and `release.keyPassword` to `release.properties`.

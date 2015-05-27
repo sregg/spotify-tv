@@ -17,7 +17,6 @@ public class SettingView extends LinearLayout {
 
     private IconTextView mIconTextView;
     private TextView mTitleTV;
-    private TextView mSubtitleTV;
 
     public SettingView(Context context) {
         super(context);
@@ -52,12 +51,10 @@ public class SettingView extends LinearLayout {
 
         mIconTextView = (IconTextView) findViewById(R.id.setting_icon);
         mTitleTV = (TextView) findViewById(R.id.setting_title);
-        mSubtitleTV = (TextView) findViewById(R.id.setting_subtitle);
     }
 
     public void setSetting(Setting setting) {
         mIconTextView.setText(setting.getFontId());
         mTitleTV.setText(setting.getTitle());
-        mSubtitleTV.setText(setting.getSubtitle());
     }
 }

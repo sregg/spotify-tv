@@ -1,20 +1,20 @@
 package com.sregg.android.tv.spotify.settings;
 
+import android.app.Activity;
+
 /**
  * Created by simonreggiani on 15-05-25.
  */
 public abstract class Setting {
     private String mFontId;
     private String mTitle;
-    private String mSubtitle;
 
-    public Setting(String fontId, String titleRes, String subtitle) {
+    public Setting(String fontId, String titleRes) {
         mFontId = fontId;
         mTitle = titleRes;
-        mSubtitle = subtitle;
     }
 
-    public abstract void onClick();
+    public abstract void onClick(Activity activity);
 
     public String getFontId() {
         return mFontId;
@@ -22,9 +22,5 @@ public abstract class Setting {
 
     public String getTitle() {
         return mTitle;
-    }
-
-    public String getSubtitle() {
-        return mSubtitle;
     }
 }

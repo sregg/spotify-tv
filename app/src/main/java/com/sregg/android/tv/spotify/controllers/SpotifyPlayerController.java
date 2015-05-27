@@ -1,21 +1,18 @@
 package com.sregg.android.tv.spotify.controllers;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.util.Log;
 
-import com.spotify.sdk.android.player.ConnectionStateCallback;
-import com.spotify.sdk.android.player.Player;
-import com.spotify.sdk.android.player.PlayerNotificationCallback;
-import com.spotify.sdk.android.player.PlayerState;
-import com.spotify.sdk.android.player.PlayerStateCallback;
-import com.spotify.sdk.android.player.Spotify;
+import com.spotify.sdk.android.player.*;
 import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotify.BusProvider;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.enums.Control;
 import com.sregg.android.tv.spotify.events.*;
+import com.sregg.android.tv.spotify.settings.UserPreferences;
 import com.sregg.android.tv.spotify.utils.Utils;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.AlbumSimple;
@@ -49,12 +46,15 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     private boolean mIsShuffleOn = false;
 
     public SpotifyPlayerController(Player player, SpotifyService spotifyService) {
+        Context context = SpotifyTvApplication.getInstance().getApplicationContext();
+
         mPlayer = player;
 
         mPlayer.addPlayerNotificationCallback(this);
         mPlayer.addConnectionStateCallback(this);
+        setPlayerBitrate(UserPreferences.getInstance(context).getBitrate());
 
-        mNowPlayingSession = new MediaSession(SpotifyTvApplication.getInstance().getApplicationContext(), TAG);
+        mNowPlayingSession = new MediaSession(context, TAG);
         mNowPlayingSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
@@ -251,6 +251,12 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                     play(mCurrentSpotifyObject);
                 }
                 break;
+        }
+    }
+
+    public void setPlayerBitrate(PlaybackBitrate selectedBitrate) {
+        if (mPlayer != null) {
+            mPlayer.setPlaybackBitrate(selectedBitrate);
         }
     }
 }

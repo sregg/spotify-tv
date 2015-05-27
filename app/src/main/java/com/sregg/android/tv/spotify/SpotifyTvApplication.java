@@ -2,9 +2,9 @@ package com.sregg.android.tv.spotify;
 
 import android.app.Activity;
 import android.app.Application;
-import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.Spotify;
 import com.sregg.android.tv.spotify.activities.ArtistsAlbumsActivity;
 import com.sregg.android.tv.spotify.controllers.SpotifyPlayerController;
 import com.sregg.android.tv.spotify.enums.Control;
@@ -84,7 +84,7 @@ public class SpotifyTvApplication extends Application {
 
     public void onItemClick(Activity activity, Object item) {
         if (item instanceof Setting) {
-            ((Setting) item).onClick();
+            ((Setting) item).onClick(activity);
         } else if (item instanceof Control) {
             getSpotifyPlayerController().onControlClick(((Control) item));
         } else if (item instanceof ArtistSimple) {

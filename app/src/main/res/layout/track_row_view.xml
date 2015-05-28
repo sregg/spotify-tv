@@ -44,6 +44,15 @@
             tools:text="Track Name" />
 
         <TextView
+                style="?android:attr/textAppearanceMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="8dp"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:text="•" />
+
+        <TextView
             android:id="@+id/track_artist"
             style="?android:attr/textAppearanceMedium"
             android:layout_width="wrap_content"

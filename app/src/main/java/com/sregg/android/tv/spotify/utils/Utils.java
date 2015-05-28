@@ -7,6 +7,7 @@ import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TrackSimple;
 
 /**
  * Created by simonreggiani on 15-02-04.
@@ -14,8 +15,8 @@ import kaaes.spotify.webapi.android.models.Track;
 public class Utils {
     public static String getUriFromSpotiyObject(Object spotifyObject) {
         String uri = null;
-        if (spotifyObject instanceof Track) {
-            uri = ((Track) spotifyObject).uri;
+        if (spotifyObject instanceof TrackSimple) {
+            uri = ((TrackSimple) spotifyObject).uri;
         } else if (spotifyObject instanceof Playlist) {
             uri = ((Playlist) spotifyObject).uri;
         } else if (spotifyObject instanceof PlaylistSimple) {
@@ -54,5 +55,10 @@ public class Utils {
             artists.append(artist.name);
         }
         return artists.toString();
+    }
+
+    public static int dpToPx(int dp, Context ctx) {
+        float density = ctx.getResources().getDisplayMetrics().density;
+        return Math.round((float) dp * density);
     }
 }

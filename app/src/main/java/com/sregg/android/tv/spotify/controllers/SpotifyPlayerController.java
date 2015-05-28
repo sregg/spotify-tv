@@ -20,6 +20,7 @@ import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TrackSimple;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -67,7 +68,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     public void play(Object spotifyObject) {
         mCurrentSpotifyObject = spotifyObject;
 
-        if (spotifyObject instanceof Track || spotifyObject instanceof Playlist ||  spotifyObject instanceof PlaylistSimple) {
+        if (spotifyObject instanceof TrackSimple || spotifyObject instanceof Playlist ||  spotifyObject instanceof PlaylistSimple) {
             mPlayer.play(getCurrentObjectUri());
         } else if (spotifyObject instanceof AlbumSimple) {
             // get album's tracks

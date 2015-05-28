@@ -211,6 +211,7 @@ public class MainFragment extends BrowseFragment {
         starredPlaylist.name = getString(R.string.starred);
         starredPlaylist.id = Constants.STARRED_PLAYLIST_ID;
         starredPlaylist.uri = String.format("spotify:user:%s:starred", user.id);
+        starredPlaylist.owner = user;
         starredPlaylist.tracks = new Pager<>(); // TODO
         mPlaylistsAdapter.add(starredPlaylist);
 

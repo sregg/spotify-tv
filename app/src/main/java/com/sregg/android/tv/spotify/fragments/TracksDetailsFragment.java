@@ -136,6 +136,10 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
 
         @Override
         protected Void doInBackground(String... params) {
+            if (mDetailsRow == null || mDetailsPresenter == null) {
+                return null;
+            }
+
             Bitmap cover = null;
             try {
                 cover = Picasso.with(getActivity())

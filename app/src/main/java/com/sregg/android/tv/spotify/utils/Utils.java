@@ -46,7 +46,7 @@ public class Utils {
         return context.getString(getStringResourceIdByName(context, name));
     }
 
-    public static String getTrackArtists(Track track) {
+    public static String getTrackArtists(TrackSimple track) {
         StringBuilder artists = new StringBuilder();
         for (ArtistSimple artist : track.artists) {
             if (artists.length() > 0) {

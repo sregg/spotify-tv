@@ -4,13 +4,15 @@ Unofficial Spotify app for Android TV
 # Features
 - Login in with your username & password
 - List your playlists (including starred), saved albums, artists and songs
+- See the tracklist for each playlist and album (thanks to @Dahlgren)
 - Stream any track of your library
 - Search for artists, albums, songs and playlists
 - Controls (Shuffle, Previous/Next Track, Play, Pause, Stop)
+- Global search (thanks to @Dahlgren)
+- Featured Playlists and New Releases  (thanks to @Dahlgren)
 - Settings (Bitrate)
 
 # TODO
-- Tracklist screen (Playlist/Album details screen) WIP by @Dahlgren [here](https://github.com/sregg/spotify-tv/pull/4)
 - Current Queue (already started in [current_queue branch](https://github.com/sregg/spotify-tv/tree/current_queue))
 - Last FM (already started in [lastfm branch](https://github.com/sregg/spotify-tv/tree/lastfm))
 - Manage Playlist (create, edit, delete, etc...)

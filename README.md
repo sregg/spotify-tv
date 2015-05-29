@@ -9,9 +9,9 @@ Unofficial Spotify app for Android TV
 - Search for artists, albums, songs and playlists
 - Controls (Shuffle, Previous/Next Track, Play, Pause, Stop)
 - Global search (thanks to @Dahlgren)
-- Featured Playlists and New Releases  (thanks to @Dahlgren)
+- Featured Playlists and New Releases (thanks to @Dahlgren)
 - Settings (Bitrate)
-- Recommendations in Android TV Home (based on Featured Playlists in the user's country)
+- Recommendations in Android TV Home (based on Featured Playlists in the user's country) (thanks to @Dahlgren)
 
 # TODO
 - Current Queue (already started in [current_queue branch](https://github.com/sregg/spotify-tv/tree/current_queue))

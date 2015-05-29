@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
+import android.os.Build;
 import android.util.Log;
 
 import com.spotify.sdk.android.player.*;
@@ -55,12 +56,16 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         mPlayer.addConnectionStateCallback(this);
         setPlayerBitrate(UserPreferences.getInstance(context).getBitrate());
 
-        mNowPlayingSession = new MediaSession(context, TAG);
-        mNowPlayingSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS |
-                MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mNowPlayingSession = new MediaSession(context, TAG);
+            mNowPlayingSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS |
+                    MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
-        // for the MediaBrowserService
-        //setSessionToken(mNowPlayingSession.getSessionToken());
+            // for the MediaBrowserService
+            //setSessionToken(mNowPlayingSession.getSessionToken());
+        } else {
+            mNowPlayingSession = null;
+        }
 
         mSpotifyService = spotifyService;
     }
@@ -90,7 +95,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
             });
         }
 
-        if (!mNowPlayingSession.isActive()) {
+        if (mNowPlayingSession != null && !mNowPlayingSession.isActive()) {
             mNowPlayingSession.setActive(true);
         }
     }
@@ -117,7 +122,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     }
 
     public void terminate() {
-        if (mNowPlayingSession.isActive()) {
+        if (mNowPlayingSession != null && mNowPlayingSession.isActive()) {
             mNowPlayingSession.setActive(false);
         }
         Spotify.destroyPlayer(mPlayer);
@@ -145,7 +150,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 BusProvider.post(new OnTrackEnd(currentObjectUri));
                 break;
             case END_OF_CONTEXT:
-                if (mNowPlayingSession.isActive()) {
+                if (mNowPlayingSession != null && mNowPlayingSession.isActive()) {
                     mNowPlayingSession.setActive(false);
                 }
                 mCurrentSpotifyObject = null;
@@ -158,6 +163,10 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         mSpotifyService.getTrack(Utils.getIdFromUri(currentTrackUri), new Callback<Track>() {
             @Override
             public void success(final Track track, Response response) {
+                if (mNowPlayingSession == null) {
+                    return;
+                }
+
                 MediaMetadata.Builder metadataBuilder = new MediaMetadata.Builder();
 
                 // track title
@@ -234,7 +243,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 mPlayer.skipToPrevious();
                 break;
             case STOP:
-                if (mNowPlayingSession.isActive()) {
+                if (mNowPlayingSession != null && mNowPlayingSession.isActive()) {
                     mNowPlayingSession.setActive(false);
                 }
                 mPlayer.pause();

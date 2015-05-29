@@ -52,8 +52,11 @@
             android:name=".providers.SearchProvider"
             android:authorities="com.sregg.android.tv.spotify"
             android:enabled="true"
-            android:exported="true" >
-        </provider>
+            android:exported="true" />
+
+        <service
+            android:name=".services.RecommendationsService"
+            android:enabled="true" />
     </application>
 
 </manifest>

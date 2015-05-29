@@ -25,6 +25,7 @@ import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.sregg.android.tv.spotify.R;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.controllers.SpotifyPlayerController;
+import com.sregg.android.tv.spotify.services.RecommendationsService;
 import com.sregg.android.tv.spotify.utils.SpotifyUriLoader;
 
 import retrofit.RetrofitError;
@@ -51,6 +52,8 @@ public class MainActivity extends Activity {
 
     private void init() {
         setContentView(R.layout.activity_main);
+
+        startService(new Intent(this, RecommendationsService.class));
 
         if (getIntent() != null && getIntent().getData() != null) {
             SpotifyUriLoader.loadObjectFromUri(SpotifyTvApplication.getInstance().getSpotifyService(), getIntent().getData().toString(), new SpotifyUriLoader.SpotifyObjectLoaderCallback() {

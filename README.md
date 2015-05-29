@@ -11,6 +11,7 @@ Unofficial Spotify app for Android TV
 - Global search (thanks to @Dahlgren)
 - Featured Playlists and New Releases  (thanks to @Dahlgren)
 - Settings (Bitrate)
+- Recommendations in Android TV Home (based on Featured Playlists in the user's country)
 
 # TODO
 - Current Queue (already started in [current_queue branch](https://github.com/sregg/spotify-tv/tree/current_queue))
@@ -18,7 +19,7 @@ Unofficial Spotify app for Android TV
 - Manage Playlist (create, edit, delete, etc...)
 - Recently Played
 - Friends
-- [Recommendations in Android TV Home](https://developer.android.com/training/tv/discovery/recommendations.html)
+- Recommendations in Android TV Home (based on user's recommended artists/albums)
 - Setting - Customize UI elements (e.g. show or hide Feature playlist and new releases)
 
 # Release build

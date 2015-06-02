@@ -5,7 +5,9 @@ import android.content.res.Resources;
 import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TrackSimple;
 
 /**
  * Created by simonreggiani on 15-02-04.
@@ -13,10 +15,12 @@ import kaaes.spotify.webapi.android.models.Track;
 public class Utils {
     public static String getUriFromSpotiyObject(Object spotifyObject) {
         String uri = null;
-        if (spotifyObject instanceof Track) {
-            uri = ((Track) spotifyObject).uri;
+        if (spotifyObject instanceof TrackSimple) {
+            uri = ((TrackSimple) spotifyObject).uri;
         } else if (spotifyObject instanceof Playlist) {
             uri = ((Playlist) spotifyObject).uri;
+        } else if (spotifyObject instanceof PlaylistSimple) {
+            uri = ((PlaylistSimple) spotifyObject).uri;
         } else if (spotifyObject instanceof AlbumSimple) {
             uri = ((AlbumSimple) spotifyObject).uri;
         } else if (spotifyObject instanceof ArtistSimple) {
@@ -42,7 +46,7 @@ public class Utils {
         return context.getString(getStringResourceIdByName(context, name));
     }
 
-    public static String getTrackArtists(Track track) {
+    public static String getTrackArtists(TrackSimple track) {
         StringBuilder artists = new StringBuilder();
         for (ArtistSimple artist : track.artists) {
             if (artists.length() > 0) {
@@ -51,5 +55,10 @@ public class Utils {
             artists.append(artist.name);
         }
         return artists.toString();
+    }
+
+    public static int dpToPx(int dp, Context ctx) {
+        float density = ctx.getResources().getDisplayMetrics().density;
+        return Math.round((float) dp * density);
     }
 }

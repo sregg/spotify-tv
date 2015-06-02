@@ -1,16 +1,18 @@
 package com.sregg.android.tv.spotify.controllers;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.util.Log;
-import com.spotify.sdk.android.Spotify;
-import com.spotify.sdk.android.playback.*;
+
+import com.spotify.sdk.android.player.*;
 import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotify.BusProvider;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.enums.Control;
 import com.sregg.android.tv.spotify.events.*;
+import com.sregg.android.tv.spotify.settings.UserPreferences;
 import com.sregg.android.tv.spotify.utils.Utils;
 
 import de.umass.lastfm.Authenticator;
@@ -21,7 +23,9 @@ import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TrackSimple;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -48,12 +52,15 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     private boolean mIsShuffleOn = false;
 
     public SpotifyPlayerController(Player player, SpotifyService spotifyService) {
+        Context context = SpotifyTvApplication.getInstance().getApplicationContext();
+
         mPlayer = player;
 
         mPlayer.addPlayerNotificationCallback(this);
         mPlayer.addConnectionStateCallback(this);
+        setPlayerBitrate(UserPreferences.getInstance(context).getBitrate());
 
-        mNowPlayingSession = new MediaSession(SpotifyTvApplication.getInstance().getApplicationContext(), TAG);
+        mNowPlayingSession = new MediaSession(context, TAG);
         mNowPlayingSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
@@ -66,7 +73,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     public void play(Object spotifyObject) {
         mCurrentSpotifyObject = spotifyObject;
 
-        if (spotifyObject instanceof Track || spotifyObject instanceof Playlist) {
+        if (spotifyObject instanceof TrackSimple || spotifyObject instanceof Playlist ||  spotifyObject instanceof PlaylistSimple) {
             mPlayer.play(getCurrentObjectUri());
         } else if (spotifyObject instanceof AlbumSimple) {
             // get album's tracks
@@ -265,6 +272,12 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                     play(mCurrentSpotifyObject);
                 }
                 break;
+        }
+    }
+
+    public void setPlayerBitrate(PlaybackBitrate selectedBitrate) {
+        if (mPlayer != null) {
+            mPlayer.setPlaybackBitrate(selectedBitrate);
         }
     }
 }

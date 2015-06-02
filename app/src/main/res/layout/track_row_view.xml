@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.sregg.android.tv.spotify.views.TrackRowView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/track_row_background"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="horizontal"
+    android:paddingBottom="8dp"
+    android:paddingTop="8dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <com.sregg.android.tv.spotify.views.NowPlayingIndicatorView
+            android:id="@+id/track_now_playing"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp" />
+
+        <TextView
+            android:id="@+id/track_number"
+            style="?android:attr/textAppearanceMedium"
+            android:layout_width="32dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="8dp"
+            android:gravity="center_vertical|right"
+            android:textColor="@android:color/white"
+            tools:text="1" />
+
+        <TextView
+            android:id="@+id/track_name"
+            style="?android:attr/textAppearanceMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="8dp"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            tools:text="Track Name" />
+
+        <TextView
+                style="?android:attr/textAppearanceMedium"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="8dp"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:text="•" />
+
+        <TextView
+            android:id="@+id/track_artist"
+            style="?android:attr/textAppearanceMedium"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="8dp"
+            android:gravity="center"
+            tools:text="Track Artist Name" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/track_length"
+        style="?android:attr/textAppearanceMedium"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginRight="8dp"
+        android:gravity="center"
+        tools:text="12:34" />
+
+</com.sregg.android.tv.spotify.views.TrackRowView>

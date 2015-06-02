@@ -5,6 +5,7 @@
     <color name="card_default_bg">@color/default_background</color>
     <color name="control_on">#ff96ce00</color>
     <color name="control_bg">@color/default_background</color>
+    <color name="setting_bg">@color/default_background</color>
     <color name="card_info_area_default">@color/default_background</color>
     <color name="card_info_area_selected_default">#ff699600</color>
 </resources>

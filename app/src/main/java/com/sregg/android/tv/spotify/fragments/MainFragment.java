@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
 import android.support.v17.leanback.widget.*;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import com.sregg.android.tv.spotify.Constants;
@@ -26,28 +27,29 @@ import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.activities.SearchActivity;
 import com.sregg.android.tv.spotify.enums.Control;
 import com.sregg.android.tv.spotify.presenters.*;
+import com.sregg.android.tv.spotify.settings.QualitySetting;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.*;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class MainFragment extends BrowseFragment {
     private static final String TAG = "MainFragment";
 
     private SpotifyService mSpotifyService;
+    private ArrayObjectAdapter mNewReleasesAdapter;
+    private ArrayObjectAdapter mFeaturedPlaylistsAdapter;
     private ArrayObjectAdapter mPlaylistsAdapter;
     private ArrayObjectAdapter mSavedSongsAdapter;
     private ArrayObjectAdapter mSavedAlbumsAdapter;
     private ArrayObjectAdapter mSavedArtistsAdapter;
     private ArrayObjectAdapter mRowsAdapter;
     private ArrayObjectAdapter mControlsAdapter;
+    private ArrayObjectAdapter mSettingsAdapter;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -62,9 +64,15 @@ public class MainFragment extends BrowseFragment {
 
         setupMainAdapter();
 
+        setupFeaturedPlaylists();
+
+        setupNewReleases();
+
         loadUserLibraryRows();
 
         loadControlsRow();
+
+        loadSettingsRow();
     }
 
     private void setupMainAdapter() {
@@ -97,12 +105,52 @@ public class MainFragment extends BrowseFragment {
         setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
             public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
-                SpotifyTvApplication app = SpotifyTvApplication.getInstance();
-                if (item instanceof Control) {
-                    app.getSpotifyPlayerController().onControlClick(((Control) item));
-                } else {
-                    app.onItemClick(getActivity(), item);
-                }
+                SpotifyTvApplication.getInstance().onItemClick(getActivity(), item);
+            }
+        });
+    }
+
+    private void setupFeaturedPlaylists() {
+        mFeaturedPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistSimpleCardPresenter());
+        HeaderItem featuredPlaylistsHeader = new HeaderItem(0, getString(R.string.featured_playlists), null);
+        mRowsAdapter.add(new ListRow(featuredPlaylistsHeader, mFeaturedPlaylistsAdapter));
+    }
+
+    private void loadFeaturedPlaylists(User user) {
+        Map<String, Object> options = new HashMap<>();
+        options.put(SpotifyService.COUNTRY, user.country);
+        options.put("timestamp", DateFormat.format("yyyy-MM-dd'T'HH:mm:ss", new Date()));
+        mSpotifyService.getFeaturedPlaylists(options, new Callback<FeaturedPlaylists>() {
+            @Override
+            public void success(FeaturedPlaylists featuredPlaylists, Response response) {
+                mFeaturedPlaylistsAdapter.addAll(0, featuredPlaylists.playlists.items);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
+    private void setupNewReleases() {
+        mNewReleasesAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
+        HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.new_releases), null);
+        mRowsAdapter.add(new ListRow(newReleasesHeader, mNewReleasesAdapter));
+    }
+
+    private void loadNewReleases(User user) {
+        Map<String, Object> options = new HashMap<>();
+        options.put(SpotifyService.COUNTRY, user.country);
+        mSpotifyService.getNewReleases(options, new Callback<NewReleases>() {
+            @Override
+            public void success(NewReleases newReleases, Response response) {
+                mNewReleasesAdapter.addAll(0, newReleases.albums.items);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
             }
         });
     }
@@ -144,6 +192,8 @@ public class MainFragment extends BrowseFragment {
             public void success(User user, Response response) {
                 SpotifyTvApplication.getInstance().setCurrentUser(user);
                 loadPlaylists(user);
+                loadFeaturedPlaylists(user);
+                loadNewReleases(user);
             }
 
             @Override
@@ -161,6 +211,7 @@ public class MainFragment extends BrowseFragment {
         starredPlaylist.name = getString(R.string.starred);
         starredPlaylist.id = Constants.STARRED_PLAYLIST_ID;
         starredPlaylist.uri = String.format("spotify:user:%s:starred", user.id);
+        starredPlaylist.owner = user;
         starredPlaylist.tracks = new Pager<>(); // TODO
         mPlaylistsAdapter.add(starredPlaylist);
 
@@ -248,5 +299,16 @@ public class MainFragment extends BrowseFragment {
         mControlsAdapter.add(Control.NEXT);
 
         mRowsAdapter.add(new ListRow(controlsHeader, mControlsAdapter));
+    }
+
+    private void loadSettingsRow() {
+        HeaderItem settingsHeader = new HeaderItem(getString(R.string.settings), null);
+
+        SettingPresenter settingPresenter = new SettingPresenter();
+        mSettingsAdapter = new ArrayObjectAdapter(settingPresenter);
+
+        mSettingsAdapter.add(new QualitySetting());
+
+        mRowsAdapter.add(new ListRow(settingsHeader, mSettingsAdapter));
     }
 }

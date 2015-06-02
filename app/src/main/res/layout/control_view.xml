@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools">
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <IconTextView
             android:id="@+id/control_icon"
@@ -10,7 +9,6 @@
             android:adjustViewBounds="true"
             android:layout_margin="@dimen/control_view_padding"
             android:gravity="center"
-            android:textSize="50sp"
-            tools:text="@string/font_ic_control_shuffle"/>
+            android:textSize="50sp"/>
 
 </merge>

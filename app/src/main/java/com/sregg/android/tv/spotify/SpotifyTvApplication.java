@@ -2,17 +2,22 @@ package com.sregg.android.tv.spotify;
 
 import android.app.Activity;
 import android.app.Application;
-
-import com.spotify.sdk.android.Spotify;
-import com.spotify.sdk.android.playback.Config;
-import com.spotify.sdk.android.playback.Player;
+import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.Spotify;
+import com.sregg.android.tv.spotify.activities.AlbumActivity;
 import com.sregg.android.tv.spotify.activities.ArtistsAlbumsActivity;
+import com.sregg.android.tv.spotify.activities.PlaylistActivity;
 import com.sregg.android.tv.spotify.controllers.SpotifyPlayerController;
+import com.sregg.android.tv.spotify.enums.Control;
+import com.sregg.android.tv.spotify.settings.Setting;
 import com.sregg.android.tv.spotify.utils.Utils;
-
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
+import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.PlaylistBase;
 import kaaes.spotify.webapi.android.models.User;
 
 /**
@@ -83,9 +88,19 @@ public class SpotifyTvApplication extends Application {
     }
 
     public void onItemClick(Activity activity, Object item) {
-        if (item instanceof ArtistSimple) {
+        if (item instanceof Setting) {
+            ((Setting) item).onClick(activity);
+        } else if (item instanceof Control) {
+            getSpotifyPlayerController().onControlClick(((Control) item));
+        } else if (item instanceof AlbumSimple) {
+            AlbumSimple albumSimple = (AlbumSimple) item;
+            AlbumActivity.launch(activity, albumSimple.id, albumSimple.name);
+        } else if (item instanceof ArtistSimple) {
             ArtistSimple artistSimple = (ArtistSimple) item;
             ArtistsAlbumsActivity.launch(activity, artistSimple.id, artistSimple.name);
+        } else if (item instanceof PlaylistBase) {
+            PlaylistBase playlist = (PlaylistBase) item;
+            PlaylistActivity.launch(activity, playlist.id, playlist.name, playlist.owner.id);
         } else {
             String itemUri = Utils.getUriFromSpotiyObject(item);
             if (itemUri.equals(mSpotifyPlayerController.getCurrentObjectUri())) {

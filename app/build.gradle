@@ -13,13 +13,11 @@ buildscript {
 }
 
 android {
+    lintOptions {
+        abortOnError false
+    }
     signingConfigs {
-        release {
-            storeFile file('/Users/simonreggiani/Documents/dev/keys/android_keystore.key')
-            storePassword file("/Users/simonreggiani/Documents/dev/keys/android_keystore.txt").readLines().get(1)
-            keyAlias file("/Users/simonreggiani/Documents/dev/keys/android_keystore.txt").readLines().get(0)
-            keyPassword file("/Users/simonreggiani/Documents/dev/keys/android_keystore.txt").readLines().get(1)
-        }
+        release
     }
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
@@ -28,8 +26,8 @@ android {
         applicationId "com.sregg.android.tv.spotify"
         minSdkVersion 21
         targetSdkVersion 21
-        versionCode 3
-        versionName "1.2"
+        versionCode 4
+        versionName "1.3"
     }
     buildTypes {
         release {
@@ -52,7 +50,8 @@ dependencies {
     compile 'com.android.support:leanback-v17:21.0.3'
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.squareup.picasso:picasso:2.4.0'
-    compile 'com.spotify.sdk:spotifysdk:1.0.0-beta8@aar'
+    compile 'com.spotify.sdk:spotify-player:1.0.0-beta10@aar'
+    compile 'com.spotify.sdk:spotify-auth:1.0.0-beta10@aar'
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.okhttp:okhttp:2.2.0'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.2.0'
@@ -66,4 +65,24 @@ dependencies {
 play {
     serviceAccountEmail = '724462887271-bk4vi27q9qk9h4g3mideokj3e0bqe3ng@developer.gserviceaccount.com'
     pk12File = file('/Users/simonreggiani/Documents/dev/keys/Google_Play_Android_Developer-0bc22be971a2.p12')
+}
+
+Properties releaseProperties = new Properties()
+if (project.rootProject.file('release.properties').exists()) {
+    releaseProperties.load(project.rootProject.file('release.properties').newDataInputStream())
+    if (releaseProperties.getProperty('storeFile') &&
+            releaseProperties.getProperty('storePassword') &&
+            releaseProperties.getProperty('keyAlias') &&
+            releaseProperties.getProperty('keyPassword')) {
+        android.signingConfigs.release.storeFile = file(releaseProperties.getProperty('storeFile'))
+        android.signingConfigs.release.storePassword = releaseProperties.getProperty('storePassword')
+        android.signingConfigs.release.keyAlias = releaseProperties.getProperty('keyAlias')
+        android.signingConfigs.release.keyPassword = releaseProperties.getProperty('keyPassword')
+    } else {
+        project.logger.warn('WARN: Set the values storeFile, storePassword, keyAlias, and keyPassword in release.properties to sign the release.')
+        android.buildTypes.release.signingConfig = null
+    }
+} else {
+    project.logger.warn('WARN: Set the values storeFile, storePassword, keyAlias, and keyPassword in release.properties to sign the release.')
+    android.buildTypes.release.signingConfig = null
 }

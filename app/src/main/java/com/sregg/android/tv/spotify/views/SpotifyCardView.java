@@ -71,7 +71,7 @@ public class SpotifyCardView extends FrameLayout {
 
     @SuppressWarnings("unused")
     @Subscribe
-    public void onTrackStart(OnTrackChanged onTrackChanged) {
+    public void onTrackChanged(OnTrackChanged onTrackChanged) {
         initNowPlaying(isSelf(onTrackChanged));
     }
 

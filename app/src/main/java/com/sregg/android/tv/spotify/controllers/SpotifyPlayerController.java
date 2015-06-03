@@ -4,16 +4,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
+import android.text.TextUtils;
 import android.util.Log;
 import com.spotify.sdk.android.player.*;
 import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotify.BusProvider;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.enums.Control;
-import com.sregg.android.tv.spotify.events.OnPause;
-import com.sregg.android.tv.spotify.events.OnPlay;
-import com.sregg.android.tv.spotify.events.OnShuffleChanged;
-import com.sregg.android.tv.spotify.events.OnTrackChanged;
+import com.sregg.android.tv.spotify.events.*;
 import com.sregg.android.tv.spotify.settings.UserPreferences;
 import com.sregg.android.tv.spotify.utils.Utils;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -38,8 +36,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     private final MediaSession mNowPlayingSession;
     private final SpotifyService mSpotifyService;
 
-    // can be a playlist, an album, an artist or a track
-    private Object mCurrentSpotifyObject;
+    private PlayingState mPlayingState;
 
     private boolean mIsShuffleOn = false;
 
@@ -60,13 +57,22 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         //setSessionToken(mNowPlayingSession.getSessionToken());
 
         mSpotifyService = spotifyService;
+
+        // init playing state with dummy data
+        resetPlayingState();
+    }
+
+    public void resetPlayingState() {
+        mPlayingState = new PlayingState("", "");
     }
 
     public void play(Object spotifyObject) {
-        mCurrentSpotifyObject = spotifyObject;
+        String currentObjectUri = Utils.getUriFromSpotiyObject(spotifyObject);
+
+        mPlayingState = new PlayingState(currentObjectUri, null);
 
         if (spotifyObject instanceof TrackSimple || spotifyObject instanceof Playlist ||  spotifyObject instanceof PlaylistSimple) {
-            mPlayer.play(getCurrentObjectUri());
+            mPlayer.play(currentObjectUri);
         } else if (spotifyObject instanceof AlbumSimple) {
             // get album's tracks
             AlbumSimple albumSimple = (AlbumSimple) spotifyObject;
@@ -105,8 +111,8 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         });
     }
 
-    public String getCurrentObjectUri() {
-        return Utils.getUriFromSpotiyObject(mCurrentSpotifyObject);
+    public PlayingState getPlayingState() {
+        return mPlayingState;
     }
 
     public boolean isShuffleOn() {
@@ -125,24 +131,24 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         Log.d(TAG, String.format("%s - isPlaying: %s - trackUri: %s - positionInMs:%s",
                 eventType.name(), playerState.playing, playerState.trackUri, playerState.positionInMs));
 
-        String currentObjectUri = getCurrentObjectUri();
+        mPlayingState.setCurrentTrackUri(playerState.trackUri);
 
         switch (eventType) {
             case PLAY:
-                BusProvider.post(new OnPlay(currentObjectUri));
+                BusProvider.post(new OnPlay(mPlayingState));
                 break;
             case PAUSE:
-                BusProvider.post(new OnPause(currentObjectUri));
+                BusProvider.post(new OnPause(mPlayingState));
                 break;
             case TRACK_CHANGED:
-                BusProvider.post(new OnTrackChanged(currentObjectUri));
+                BusProvider.post(new OnTrackChanged(mPlayingState));
                 trackNowPlayingTrack(playerState.trackUri);
                 break;
             case END_OF_CONTEXT:
                 if (mNowPlayingSession.isActive()) {
                     mNowPlayingSession.setActive(false);
                 }
-                mCurrentSpotifyObject = null;
+                resetPlayingState();
                 break;
         }
     }
@@ -248,7 +254,8 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 }
                 mPlayer.pause();
                 mPlayer.clearQueue();
-                mCurrentSpotifyObject = null;
+                resetPlayingState();
+                BusProvider.post(new OnTrackChanged(mPlayingState));
                 break;
             case SHUFFLE:
                 mIsShuffleOn = !mIsShuffleOn;
@@ -256,8 +263,8 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 BusProvider.post(new OnShuffleChanged(mIsShuffleOn));
 
                 // reload current object if not null
-                if (mCurrentSpotifyObject != null) {
-                    play(mCurrentSpotifyObject);
+                if (!TextUtils.isEmpty(mPlayingState.getCurrentObjectUri())) {
+                    play(mPlayingState.getCurrentObjectUri());
                 }
                 break;
         }

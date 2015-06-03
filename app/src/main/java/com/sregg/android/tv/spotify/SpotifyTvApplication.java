@@ -103,7 +103,7 @@ public class SpotifyTvApplication extends Application {
             PlaylistActivity.launch(activity, playlist.id, playlist.name, playlist.owner.id);
         } else {
             String itemUri = Utils.getUriFromSpotiyObject(item);
-            if (itemUri.equals(mSpotifyPlayerController.getCurrentObjectUri())) {
+            if (mSpotifyPlayerController.getPlayingState().isCurrentObjectOrTrack(itemUri)) {
                 mSpotifyPlayerController.togglePauseResume();
             } else {
                 mSpotifyPlayerController.play(item);

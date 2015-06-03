@@ -5,7 +5,7 @@ package com.sregg.android.tv.spotify.events;
 */
 public class OnPause extends AbsPlayingEvent {
 
-    public OnPause(String currentObjectUri) {
-        super(currentObjectUri);
+    public OnPause(PlayingState playingState) {
+        super(playingState);
     }
 }

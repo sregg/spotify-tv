@@ -91,8 +91,10 @@ public abstract class AbsCardPresenter extends Presenter {
         spotifyCardView.setUri(uri);
 
         // init badge and now playing
-        String currentObjectUri = SpotifyTvApplication.getInstance().getSpotifyPlayerController().getCurrentObjectUri();
-        spotifyCardView.initNowPlaying(uri != null && uri.equals(currentObjectUri));
+        spotifyCardView.initNowPlaying(SpotifyTvApplication.getInstance()
+                .getSpotifyPlayerController()
+                .getPlayingState()
+                .isCurrentObjectOrTrack(uri));
     }
 
     @Override

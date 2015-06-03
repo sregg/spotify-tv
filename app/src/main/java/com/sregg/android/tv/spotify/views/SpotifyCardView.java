@@ -92,11 +92,7 @@ public class SpotifyCardView extends FrameLayout {
     }
 
     private boolean isSelf(AbsPlayingEvent playingEvent) {
-        return isSelf(playingEvent.getCurrentObjectUri());
-    }
-
-    private boolean isSelf(String uri) {
-        return mUri != null && mUri.equals(uri);
+        return playingEvent.getPlayingState().isCurrentObjectOrTrack(mUri);
     }
 
     public void initNowPlaying(boolean isSelf) {

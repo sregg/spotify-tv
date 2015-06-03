@@ -2,6 +2,7 @@ package com.sregg.android.tv.spotify.settings;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 import com.spotify.sdk.android.player.PlaybackBitrate;
 
 /**
@@ -10,6 +11,8 @@ import com.spotify.sdk.android.player.PlaybackBitrate;
 public class UserPreferences {
     private static final String SHARED_PREFS_NAME = "UserPrefs";
     private static final String PREF_KEY_BITRATE = "bitrate";
+    private static final String PREF_KEY_LASTFM_USERNAME = "lastfm_username";
+    private static final String PREF_KEY_LASTFM_PASSWORD = "lastfm_password";
     private static UserPreferences INSTANCE;
     private final SharedPreferences mSharedPreferences;
 
@@ -32,5 +35,23 @@ public class UserPreferences {
     public PlaybackBitrate getBitrate() {
         String valueString = mSharedPreferences.getString(PREF_KEY_BITRATE, PlaybackBitrate.BITRATE_NORMAL.name());
         return PlaybackBitrate.valueOf(valueString);
+    }
+
+    public void setLastFmUsername(String username) {
+        mSharedPreferences.edit().putString(PREF_KEY_LASTFM_USERNAME, username).apply();
+    }
+
+    @Nullable
+    public String getLastFmUsername() {
+        return mSharedPreferences.getString(PREF_KEY_LASTFM_USERNAME, null);
+    }
+
+    public void setLastFmPassword(String password) {
+        mSharedPreferences.edit().putString(PREF_KEY_LASTFM_PASSWORD, password).apply();
+    }
+
+    @Nullable
+    public String getLastFmPassword() {
+        return mSharedPreferences.getString(PREF_KEY_LASTFM_PASSWORD, null);
     }
 }

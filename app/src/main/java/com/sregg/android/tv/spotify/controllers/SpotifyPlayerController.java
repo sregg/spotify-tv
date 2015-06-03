@@ -5,27 +5,19 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.util.Log;
-
 import com.spotify.sdk.android.player.*;
 import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotify.BusProvider;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.enums.Control;
-import com.sregg.android.tv.spotify.events.*;
+import com.sregg.android.tv.spotify.events.OnPause;
+import com.sregg.android.tv.spotify.events.OnPlay;
+import com.sregg.android.tv.spotify.events.OnShuffleChanged;
+import com.sregg.android.tv.spotify.events.OnTrackChanged;
 import com.sregg.android.tv.spotify.settings.UserPreferences;
 import com.sregg.android.tv.spotify.utils.Utils;
-
-import de.umass.lastfm.Authenticator;
-import de.umass.lastfm.Session;
-import de.umass.lastfm.scrobble.ScrobbleData;
-import de.umass.lastfm.scrobble.ScrobbleResult;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.AlbumSimple;
-import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.Playlist;
-import kaaes.spotify.webapi.android.models.PlaylistSimple;
-import kaaes.spotify.webapi.android.models.Track;
-import kaaes.spotify.webapi.android.models.TrackSimple;
+import kaaes.spotify.webapi.android.models.*;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -142,12 +134,9 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
             case PAUSE:
                 BusProvider.post(new OnPause(currentObjectUri));
                 break;
-            case TRACK_START:
-                BusProvider.post(new OnTrackStart(currentObjectUri));
+            case TRACK_CHANGED:
+                BusProvider.post(new OnTrackChanged(currentObjectUri));
                 trackNowPlayingTrack(playerState.trackUri);
-                break;
-            case TRACK_END:
-                BusProvider.post(new OnTrackEnd(currentObjectUri));
                 break;
             case END_OF_CONTEXT:
                 if (mNowPlayingSession.isActive()) {
@@ -259,7 +248,6 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 }
                 mPlayer.pause();
                 mPlayer.clearQueue();
-                BusProvider.post(new OnTrackEnd(getCurrentObjectUri()));
                 mCurrentSpotifyObject = null;
                 break;
             case SHUFFLE:

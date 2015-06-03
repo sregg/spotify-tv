@@ -1,21 +1,16 @@
 package com.sregg.android.tv.spotify.views;
 
 import android.content.Context;
-import android.support.v17.leanback.widget.ImageCardView;
 import android.util.AttributeSet;
-import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.squareup.otto.Subscribe;
 import com.sregg.android.tv.spotify.BusProvider;
 import com.sregg.android.tv.spotify.R;
 import com.sregg.android.tv.spotify.events.AbsPlayingEvent;
 import com.sregg.android.tv.spotify.events.OnPause;
 import com.sregg.android.tv.spotify.events.OnPlay;
-import com.sregg.android.tv.spotify.events.OnTrackEnd;
-import com.sregg.android.tv.spotify.events.OnTrackStart;
+import com.sregg.android.tv.spotify.events.OnTrackChanged;
 
 public class TrackRowView extends LinearLayout {
 
@@ -75,16 +70,8 @@ public class TrackRowView extends LinearLayout {
 
     @SuppressWarnings("unused")
     @Subscribe
-    public void onTrackStart(OnTrackStart onTrackStart) {
-        if (isSelf(onTrackStart)) {
-            initNowPlaying(isSelf(onTrackStart));
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe
-    public void onTrackEnd(OnTrackEnd onTrackEnd) {
-        mNowPlayingView.stopAnimations();
+    public void onTrackStart(OnTrackChanged onTrackChanged) {
+        initNowPlaying(isSelf(onTrackChanged));
     }
 
     @SuppressWarnings("unused")

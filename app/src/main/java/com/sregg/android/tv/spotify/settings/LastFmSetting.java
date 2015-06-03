@@ -5,16 +5,10 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import com.spotify.sdk.android.player.PlaybackBitrate;
 import com.sregg.android.tv.spotify.R;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.controllers.LastFmApi;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by simonreggiani on 15-05-25.
@@ -26,8 +20,6 @@ public class LastFmSetting extends Setting {
 
     @Override
     public void onClick(final Activity activity) {
-
-
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
         View inputView = LayoutInflater.from(activity).inflate(R.layout.setting_dialog_lastfm, null, false);
@@ -47,6 +39,7 @@ public class LastFmSetting extends Setting {
                     public void onClick(DialogInterface dialog, int which) {
                         prefs.setLastFmUsername(usernameET.getText().toString());
                         prefs.setLastFmPassword(passwordET.getText().toString());
+                        LastFmApi.getInstance().resetSession();
                     }
                 })
         .setNegativeButton(android.R.string.cancel, null);

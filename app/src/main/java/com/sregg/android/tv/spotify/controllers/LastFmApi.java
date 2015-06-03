@@ -1,6 +1,6 @@
 package com.sregg.android.tv.spotify.controllers;
 
-import android.util.Log;
+import android.text.TextUtils;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.settings.UserPreferences;
 import de.umass.lastfm.Authenticator;
@@ -8,7 +8,6 @@ import de.umass.lastfm.Caller;
 import de.umass.lastfm.Session;
 import de.umass.lastfm.cache.MemoryCache;
 import de.umass.lastfm.scrobble.ScrobbleData;
-import de.umass.lastfm.scrobble.ScrobbleResult;
 import kaaes.spotify.webapi.android.models.Track;
 
 /**
@@ -42,7 +41,7 @@ public class LastFmApi {
             String lastFmPassword = prefs.getLastFmPassword();
 
             // if not set, don't do anything
-            if (lastFmUsername == null || lastFmPassword == null) {
+            if (TextUtils.isEmpty(lastFmUsername) || TextUtils.isEmpty(lastFmPassword)) {
                 return;
             }
 
@@ -61,5 +60,9 @@ public class LastFmApi {
 
         de.umass.lastfm.Track.updateNowPlaying(scrobbleData, mLastFmSession);
         de.umass.lastfm.Track.scrobble(scrobbleData, mLastFmSession);
+    }
+
+    public void resetSession() {
+        mLastFmSession = null;
     }
 }

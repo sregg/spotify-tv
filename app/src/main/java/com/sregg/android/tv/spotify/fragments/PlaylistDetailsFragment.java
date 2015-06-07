@@ -111,7 +111,7 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
                 ACTION_PLAY_PLAYLIST,
                 getResources().getString(R.string.lb_playback_controls_play),
                 null,
-                getActivity().getDrawable(R.drawable.lb_ic_play)
+                getActivity().getResources().getDrawable(R.drawable.lb_ic_play)
         ));
 
         setDetailsRow(detailsRow);

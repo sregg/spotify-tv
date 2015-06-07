@@ -119,7 +119,7 @@ public class MainFragment extends BrowseFragment {
     private void loadFeaturedPlaylists(User user) {
         Map<String, Object> options = new HashMap<>();
         options.put(SpotifyService.COUNTRY, user.country);
-        options.put("timestamp", DateFormat.format("yyyy-MM-dd'T'HH:mm:ss", new Date()));
+        options.put("timestamp", DateFormat.format("yyyy-MM-dd'T'hh:mm:ss", new Date()));
         mSpotifyService.getFeaturedPlaylists(options, new Callback<FeaturedPlaylists>() {
             @Override
             public void success(FeaturedPlaylists featuredPlaylists, Response response) {

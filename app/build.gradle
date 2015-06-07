@@ -24,8 +24,10 @@ android {
 
     defaultConfig {
         applicationId "com.sregg.android.tv.spotify"
-        minSdkVersion 21
+        minSdkVersion 17
         targetSdkVersion 21
+        renderscriptTargetApi 17
+        renderscriptSupportModeEnabled true
         versionCode 4
         versionName "1.3"
     }

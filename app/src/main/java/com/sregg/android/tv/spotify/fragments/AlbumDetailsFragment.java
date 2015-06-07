@@ -112,7 +112,7 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
                 ACTION_PLAY_ALBUM,
                 getResources().getString(R.string.lb_playback_controls_play),
                 null,
-                getActivity().getDrawable(R.drawable.lb_ic_play)
+                getActivity().getResources().getDrawable(R.drawable.lb_ic_play)
         ));
         detailsRow.addAction(new Action(
                 ACTION_VIEW_ARTIST, getResources().getString(R.string.go_to_artist),

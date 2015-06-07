@@ -16,10 +16,12 @@ import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotify.R;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.activities.MainActivity;
+import com.sregg.android.tv.spotify.utils.Utils;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -27,6 +29,7 @@ import kaaes.spotify.webapi.android.models.FeaturedPlaylists;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.User;
+import retrofit.RetrofitError;
 
 public class RecommendationsService extends IntentService {
     private static final String TAG = "RecommendationsService";
@@ -45,8 +48,20 @@ public class RecommendationsService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        if (!Utils.isRunningOnAndroidTV(getApplicationContext())) {
+            return;
+        }
+
         Log.d(TAG, "Updating recommendation");
 
+        try {
+            loadRecommendationsData();
+        } catch (RetrofitError error) {
+            error.printStackTrace();
+        }
+    }
+
+    private void loadRecommendationsData() throws RetrofitError {
         SpotifyTvApplication app = SpotifyTvApplication.getInstance();
         SpotifyService spotifyService = app.getSpotifyService();
         User user = spotifyService.getMe();
@@ -57,7 +72,7 @@ public class RecommendationsService extends IntentService {
 
         Map<String, Object> options = new HashMap<>();
         options.put(SpotifyService.COUNTRY, user.country);
-        options.put("timestamp", DateFormat.format("yyyy-MM-dd'T'HH:mm:ss", new Date()));
+        options.put("timestamp", DateFormat.format("yyyy-MM-dd'T'hh:mm:ss", new Date()));
         FeaturedPlaylists featuredPlaylists = spotifyService.getFeaturedPlaylists(options);
 
         if (featuredPlaylists == null) {

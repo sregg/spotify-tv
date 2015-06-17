@@ -66,8 +66,10 @@ public abstract class AbsTrackRowPresenter extends RowPresenter {
         trackRowview.setUri(uri);
 
         // init badge and now playing
-        String currentObjectUri = SpotifyTvApplication.getInstance().getSpotifyPlayerController().getCurrentObjectUri();
-        trackRowview.initNowPlaying(uri != null && uri.equals(currentObjectUri));
+        trackRowview.initNowPlaying(SpotifyTvApplication.getInstance()
+                .getSpotifyPlayerController()
+                .getPlayingState()
+                .isCurrentObjectOrTrack(uri));
 
         trackRowview.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -8,7 +8,10 @@ import android.widget.FrameLayout;
 import com.squareup.otto.Subscribe;
 import com.sregg.android.tv.spotify.BusProvider;
 import com.sregg.android.tv.spotify.R;
-import com.sregg.android.tv.spotify.events.*;
+import com.sregg.android.tv.spotify.events.AbsPlayingEvent;
+import com.sregg.android.tv.spotify.events.OnPause;
+import com.sregg.android.tv.spotify.events.OnPlay;
+import com.sregg.android.tv.spotify.events.OnTrackChanged;
 
 /**
  * Created by simonreggiani on 15-02-04.
@@ -68,18 +71,8 @@ public class SpotifyCardView extends FrameLayout {
 
     @SuppressWarnings("unused")
     @Subscribe
-    public void onTrackStart(OnTrackStart onTrackStart) {
-        if (isSelf(onTrackStart)) {
-            initNowPlaying(isSelf(onTrackStart));
-        }
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe
-    public void onTrackEnd(OnTrackEnd onTrackEnd) {
-        mBadgeView.setVisibility(GONE);
-        mNowPlayingView.setVisibility(GONE);
-        mNowPlayingView.stopAnimations();
+    public void onTrackChanged(OnTrackChanged onTrackChanged) {
+        initNowPlaying(isSelf(onTrackChanged));
     }
 
     @SuppressWarnings("unused")
@@ -99,11 +92,7 @@ public class SpotifyCardView extends FrameLayout {
     }
 
     private boolean isSelf(AbsPlayingEvent playingEvent) {
-        return isSelf(playingEvent.getCurrentObjectUri());
-    }
-
-    private boolean isSelf(String uri) {
-        return mUri != null && mUri.equals(uri);
+        return playingEvent.getPlayingState().isCurrentObjectOrTrack(mUri);
     }
 
     public void initNowPlaying(boolean isSelf) {

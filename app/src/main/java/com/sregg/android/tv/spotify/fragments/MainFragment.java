@@ -27,6 +27,7 @@ import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.activities.SearchActivity;
 import com.sregg.android.tv.spotify.enums.Control;
 import com.sregg.android.tv.spotify.presenters.*;
+import com.sregg.android.tv.spotify.settings.LastFmSetting;
 import com.sregg.android.tv.spotify.settings.QualitySetting;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.*;
@@ -48,8 +49,6 @@ public class MainFragment extends BrowseFragment {
     private ArrayObjectAdapter mSavedAlbumsAdapter;
     private ArrayObjectAdapter mSavedArtistsAdapter;
     private ArrayObjectAdapter mRowsAdapter;
-    private ArrayObjectAdapter mControlsAdapter;
-    private ArrayObjectAdapter mSettingsAdapter;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -289,26 +288,27 @@ public class MainFragment extends BrowseFragment {
         HeaderItem controlsHeader = new HeaderItem(getString(R.string.controls), null);
 
         ControlPresenter controlPresenter = new ControlPresenter();
-        mControlsAdapter = new ArrayObjectAdapter(controlPresenter);
+        ArrayObjectAdapter controlsAdapter = new ArrayObjectAdapter(controlPresenter);
 
-        mControlsAdapter.add(Control.SHUFFLE);
-        mControlsAdapter.add(Control.PREVIOUS);
-        mControlsAdapter.add(Control.PLAY);
-        mControlsAdapter.add(Control.PAUSE);
-        mControlsAdapter.add(Control.STOP);
-        mControlsAdapter.add(Control.NEXT);
+        controlsAdapter.add(Control.SHUFFLE);
+        controlsAdapter.add(Control.PREVIOUS);
+        controlsAdapter.add(Control.PLAY);
+        controlsAdapter.add(Control.PAUSE);
+        controlsAdapter.add(Control.STOP);
+        controlsAdapter.add(Control.NEXT);
 
-        mRowsAdapter.add(new ListRow(controlsHeader, mControlsAdapter));
+        mRowsAdapter.add(new ListRow(controlsHeader, controlsAdapter));
     }
 
     private void loadSettingsRow() {
         HeaderItem settingsHeader = new HeaderItem(getString(R.string.settings), null);
 
         SettingPresenter settingPresenter = new SettingPresenter();
-        mSettingsAdapter = new ArrayObjectAdapter(settingPresenter);
+        ArrayObjectAdapter settingsAdapter = new ArrayObjectAdapter(settingPresenter);
 
-        mSettingsAdapter.add(new QualitySetting());
+        settingsAdapter.add(new QualitySetting());
+        settingsAdapter.add(new LastFmSetting());
 
-        mRowsAdapter.add(new ListRow(settingsHeader, mSettingsAdapter));
+        mRowsAdapter.add(new ListRow(settingsHeader, settingsAdapter));
     }
 }

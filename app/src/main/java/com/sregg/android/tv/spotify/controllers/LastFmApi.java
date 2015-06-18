@@ -1,6 +1,8 @@
 package com.sregg.android.tv.spotify.controllers;
 
 import android.text.TextUtils;
+import android.util.Log;
+
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.settings.UserPreferences;
 import de.umass.lastfm.Authenticator;
@@ -34,6 +36,7 @@ public class LastFmApi {
     }
 
     public void scrobbleSpotifyTrack(Track track) {
+        // start session if not started
         if (mLastFmSession == null) {
 
             UserPreferences prefs = UserPreferences.getInstance(SpotifyTvApplication.getInstance().getApplicationContext());
@@ -45,14 +48,13 @@ public class LastFmApi {
                 return;
             }
 
-            // Last fm API set up
-            Caller lastFmCaller = Caller.getInstance();
-            lastFmCaller.setUserAgent(System.getProperties().getProperty("http.agent"));
-            lastFmCaller.setDebugMode(true);
-            lastFmCaller.setCache(new MemoryCache());
+            startLastFmSession(lastFmUsername, lastFmPassword);
+        }
 
-            // Start session
-            mLastFmSession = Authenticator.getMobileSession(lastFmUsername, lastFmPassword, API_KEY, API_SECRET);
+        if (mLastFmSession == null) {
+            // if the session is still null, that means that we couldn't authenticate the user on last.fm
+            // (e.g. username/password is incorrect)
+            return;
         }
 
         int now = (int) (System.currentTimeMillis() / 1000);
@@ -62,7 +64,20 @@ public class LastFmApi {
         de.umass.lastfm.Track.scrobble(scrobbleData, mLastFmSession);
     }
 
-    public void resetSession() {
-        mLastFmSession = null;
+    public boolean startLastFmSession(String lastFmUsername, String lastFmPassword) {
+        // Last fm API set up
+        Caller lastFmCaller = Caller.getInstance();
+        lastFmCaller.setUserAgent(System.getProperties().getProperty("http.agent"));
+        lastFmCaller.setDebugMode(true);
+        lastFmCaller.setCache(new MemoryCache());
+
+        try {
+            mLastFmSession = Authenticator.getMobileSession(lastFmUsername, lastFmPassword, API_KEY, API_SECRET);
+        } catch (Exception e) {
+            Log.e(TAG, "Error while getting last.fm session", e);
+            return false;
+        }
+
+        return mLastFmSession != null;
     }
 }

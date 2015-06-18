@@ -25,6 +25,9 @@
     <string name="settings_quality_high">High (320 kbit/s)</string>
     <string name="settings_lastfm">last.fm</string>
     <string name="settings_lastfm_dialog">Scrobble to last.fm</string>
+    <string name="settings_lastfm_error_username_empty">Please enter a username</string>
+    <string name="settings_lastfm_error_password_empty">Please enter a password</string>
+    <string name="settings_lastfm_error_invalid">Invalid username or password</string>
     <string name="settings_lastfm_username">Username</string>
     <string name="settings_lastfm_password">Password</string>
     <string name="go_to_artist">Go To Artist</string>

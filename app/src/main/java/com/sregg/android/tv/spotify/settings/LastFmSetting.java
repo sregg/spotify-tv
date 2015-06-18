@@ -2,10 +2,13 @@ package com.sregg.android.tv.spotify.settings;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+
 import com.sregg.android.tv.spotify.R;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.controllers.LastFmApi;
@@ -34,16 +37,57 @@ public class LastFmSetting extends Setting {
 
         builder.setTitle(R.string.settings_lastfm_dialog)
                 .setView(inputView)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        prefs.setLastFmUsername(usernameET.getText().toString());
-                        prefs.setLastFmPassword(passwordET.getText().toString());
-                        LastFmApi.getInstance().resetSession();
-                    }
-                })
-        .setNegativeButton(android.R.string.cancel, null);
+                .setPositiveButton(android.R.string.ok, null)
+                .setNegativeButton(android.R.string.cancel, null);
 
-        builder.create().show();
+        final AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
+        Button okBtn = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Context context = SpotifyTvApplication.getInstance().getApplicationContext();
+
+                final String username = usernameET.getText().toString();
+                final String password = passwordET.getText().toString();
+
+                if (username.isEmpty()) {
+                    usernameET.setError(context.getString(R.string.settings_lastfm_error_username_empty));
+                    return;
+                }
+
+                if (password.isEmpty()) {
+                    passwordET.setError(context.getString(R.string.settings_lastfm_error_password_empty));
+                    return;
+                }
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean success = LastFmApi.getInstance().startLastFmSession(username, password);
+
+                        if (!success) {
+                            passwordET.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    passwordET.setError(context.getString(R.string.settings_lastfm_error_invalid));
+                                }
+                            });
+                            return;
+                        }
+
+                        // if login successful, save username/password in prefs
+                        prefs.setLastFmUsername(username);
+                        prefs.setLastFmPassword(password);
+
+                        // and close dialog
+                        alertDialog.dismiss();
+                    }
+                }).start();
+
+
+            }
+        });
     }
 }

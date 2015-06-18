@@ -74,13 +74,14 @@ public abstract class AbsTrackRowPresenter extends RowPresenter {
         trackRowview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getOnItemClickedListener() != null) {
-                    getOnItemClickedListener().onItemClicked(trackRow.getTrack(), trackRow);
-                }
-
-                if (getOnItemViewClickedListener() != null) {
-                    getOnItemViewClickedListener().onItemClicked(trackViewHolder, trackRow.getTrack(), trackViewHolder, trackRow);
-                }
+                // TODO getOnItemClickedListener() and getOnItemViewClickedListener() are not available anymore...
+//                if (getOnItemClickedListener() != null) {
+//                    getOnItemClickedListener().onItemClicked(trackRow.getTrack(), trackRow);
+//                }
+//
+//                if (getOnItemViewClickedListener() != null) {
+//                    getOnItemViewClickedListener().onItemClicked(trackViewHolder, trackRow.getTrack(), trackViewHolder, trackRow);
+//                }
             }
         });
     }

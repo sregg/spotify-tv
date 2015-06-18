@@ -111,7 +111,7 @@ public class MainFragment extends BrowseFragment {
 
     private void setupFeaturedPlaylists() {
         mFeaturedPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistSimpleCardPresenter());
-        HeaderItem featuredPlaylistsHeader = new HeaderItem(0, getString(R.string.featured_playlists), null);
+        HeaderItem featuredPlaylistsHeader = new HeaderItem(0, getString(R.string.featured_playlists));
         mRowsAdapter.add(new ListRow(featuredPlaylistsHeader, mFeaturedPlaylistsAdapter));
     }
 
@@ -134,7 +134,7 @@ public class MainFragment extends BrowseFragment {
 
     private void setupNewReleases() {
         mNewReleasesAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
-        HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.new_releases), null);
+        HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.new_releases));
         mRowsAdapter.add(new ListRow(newReleasesHeader, mNewReleasesAdapter));
     }
 
@@ -157,22 +157,22 @@ public class MainFragment extends BrowseFragment {
     private void loadUserLibraryRows() {
         // playlist row
         mPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistCardPresenter());
-        HeaderItem playListHeader = new HeaderItem(0, getString(R.string.playlists), null);
+        HeaderItem playListHeader = new HeaderItem(0, getString(R.string.playlists));
         mRowsAdapter.add(new ListRow(playListHeader, mPlaylistsAdapter));
 
         // Albums row
         mSavedAlbumsAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
-        HeaderItem albumsHeader = new HeaderItem(0, getString(R.string.albums), null);
+        HeaderItem albumsHeader = new HeaderItem(0, getString(R.string.albums));
         mRowsAdapter.add(new ListRow(albumsHeader, mSavedAlbumsAdapter));
 
         // Artists row
         mSavedArtistsAdapter = new ArrayObjectAdapter(new ArtistCardPresenter());
-        HeaderItem artistsHeader = new HeaderItem(0, getString(R.string.artists), null);
+        HeaderItem artistsHeader = new HeaderItem(0, getString(R.string.artists));
         mRowsAdapter.add(new ListRow(artistsHeader, mSavedArtistsAdapter));
 
         // Songs row
         mSavedSongsAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
-        HeaderItem songsHeader = new HeaderItem(0, getString(R.string.songs), null);
+        HeaderItem songsHeader = new HeaderItem(0, getString(R.string.songs));
         mRowsAdapter.add(new ListRow(songsHeader, mSavedSongsAdapter));
 
         setAdapter(mRowsAdapter);
@@ -285,7 +285,7 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void loadControlsRow() {
-        HeaderItem controlsHeader = new HeaderItem(getString(R.string.controls), null);
+        HeaderItem controlsHeader = new HeaderItem(getString(R.string.controls));
 
         ControlPresenter controlPresenter = new ControlPresenter();
         ArrayObjectAdapter controlsAdapter = new ArrayObjectAdapter(controlPresenter);
@@ -301,7 +301,7 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void loadSettingsRow() {
-        HeaderItem settingsHeader = new HeaderItem(getString(R.string.settings), null);
+        HeaderItem settingsHeader = new HeaderItem(getString(R.string.settings));
 
         SettingPresenter settingPresenter = new SettingPresenter();
         ArrayObjectAdapter settingsAdapter = new ArrayObjectAdapter(settingPresenter);

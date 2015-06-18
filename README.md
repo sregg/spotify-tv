@@ -12,10 +12,10 @@ Unofficial Spotify app for Android TV
 - Featured Playlists and New Releases (thanks to @Dahlgren)
 - Settings (Bitrate)
 - Recommendations in Android TV Home (based on Featured Playlists in the user's country) (thanks to @Dahlgren)
+- Last.fm scrobbling
 
 # TODO
 - Current Queue (already started in [current_queue branch](https://github.com/sregg/spotify-tv/tree/current_queue))
-- Last FM (already started in [lastfm branch](https://github.com/sregg/spotify-tv/tree/lastfm))
 - Manage Playlist (create, edit, delete, etc...)
 - Recently Played
 - Friends

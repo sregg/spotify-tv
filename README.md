@@ -34,7 +34,7 @@ Here are some basic rules to follow to ensure timely addition of your request:
 
 - Match coding style (braces, spacing, etc.) This is best achieved using CMD+Option+L (Reformat code) on Mac (not sure for Windows) with Android Studio defaults.
 - If its a feature, bugfix, or anything please only change code to what you specify. DO NOT do this: Ex: Title "Fixes Crash Related to Bug" includes other files that were changed without explanation or doesn't relate to the bug you fixed. Or another example is a non-descriptive title "Fixes Stuff".
-- Pull requests must be made against develop branch.
+- Pull requests must be made against latest master branch.
 - Have fun!
 
 # License

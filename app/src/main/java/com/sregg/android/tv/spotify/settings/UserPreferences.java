@@ -3,6 +3,7 @@ package com.sregg.android.tv.spotify.settings;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.Nullable;
+
 import com.spotify.sdk.android.player.PlaybackBitrate;
 
 /**
@@ -13,6 +14,7 @@ public class UserPreferences {
     private static final String PREF_KEY_BITRATE = "bitrate";
     private static final String PREF_KEY_LASTFM_USERNAME = "lastfm_username";
     private static final String PREF_KEY_LASTFM_PASSWORD = "lastfm_password";
+    private static final String PREF_KEY_SECTION_ENABLED = "section_enabled";
     private static UserPreferences INSTANCE;
     private final SharedPreferences mSharedPreferences;
 
@@ -53,5 +55,13 @@ public class UserPreferences {
     @Nullable
     public String getLastFmPassword() {
         return mSharedPreferences.getString(PREF_KEY_LASTFM_PASSWORD, null);
+    }
+
+    public boolean isSectionEnabled(String section) {
+        return mSharedPreferences.getBoolean(PREF_KEY_SECTION_ENABLED + section, true);
+    }
+
+    public void setSectionEnabled(String section, boolean enabled) {
+        mSharedPreferences.edit().putBoolean(PREF_KEY_SECTION_ENABLED + section, enabled).apply();
     }
 }

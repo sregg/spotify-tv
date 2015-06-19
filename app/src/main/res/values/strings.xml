@@ -30,6 +30,16 @@
     <string name="settings_lastfm_error_invalid">Invalid username or password</string>
     <string name="settings_lastfm_username">Username</string>
     <string name="settings_lastfm_password">Password</string>
+    <string name="settings_customize">Sections</string>
+    <string name="settings_customize_dialog">Show or hide the sections of the app</string>
+    <string-array name="settings_customize_dialog_choices">
+        <item>@string/featured_playlists</item>
+        <item>@string/new_releases</item>
+        <item>@string/playlists</item>
+        <item>@string/albums</item>
+        <item>@string/artists</item>
+        <item>@string/songs</item>
+    </string-array>
     <string name="go_to_artist">Go To Artist</string>
     <plurals name="playlist_nb_tracks">
         <item quantity="zero">no tracks</item>

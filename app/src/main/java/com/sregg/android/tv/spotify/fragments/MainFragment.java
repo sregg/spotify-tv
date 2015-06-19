@@ -21,14 +21,20 @@ import android.support.v17.leanback.widget.*;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+
+import com.squareup.otto.Subscribe;
+import com.sregg.android.tv.spotify.BusProvider;
 import com.sregg.android.tv.spotify.Constants;
 import com.sregg.android.tv.spotify.R;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.activities.SearchActivity;
 import com.sregg.android.tv.spotify.enums.Control;
 import com.sregg.android.tv.spotify.presenters.*;
+import com.sregg.android.tv.spotify.settings.CustomizeUiSetting;
 import com.sregg.android.tv.spotify.settings.LastFmSetting;
 import com.sregg.android.tv.spotify.settings.QualitySetting;
+import com.sregg.android.tv.spotify.settings.UserPreferences;
+
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.*;
 import retrofit.Callback;
@@ -42,12 +48,12 @@ public class MainFragment extends BrowseFragment {
     private static final String TAG = "MainFragment";
 
     private SpotifyService mSpotifyService;
-    private ArrayObjectAdapter mNewReleasesAdapter;
-    private ArrayObjectAdapter mFeaturedPlaylistsAdapter;
-    private ArrayObjectAdapter mPlaylistsAdapter;
-    private ArrayObjectAdapter mSavedSongsAdapter;
-    private ArrayObjectAdapter mSavedAlbumsAdapter;
-    private ArrayObjectAdapter mSavedArtistsAdapter;
+    private ArrayObjectAdapter mNewReleasesAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
+    private ArrayObjectAdapter mFeaturedPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistSimpleCardPresenter());
+    private ArrayObjectAdapter mPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistCardPresenter());
+    private ArrayObjectAdapter mSavedSongsAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
+    private ArrayObjectAdapter mSavedAlbumsAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
+    private ArrayObjectAdapter mSavedArtistsAdapter = new ArrayObjectAdapter(new ArtistCardPresenter());
     private ArrayObjectAdapter mRowsAdapter;
 
     @Override
@@ -61,6 +67,10 @@ public class MainFragment extends BrowseFragment {
         setupUIElements();
         setupEventListeners();
 
+        setupSections();
+    }
+
+    private void setupSections() {
         setupMainAdapter();
 
         setupFeaturedPlaylists();
@@ -72,6 +82,13 @@ public class MainFragment extends BrowseFragment {
         loadControlsRow();
 
         loadSettingsRow();
+
+        setAdapter(mRowsAdapter);
+    }
+
+    @Subscribe
+    public void onCustomizeUiSettingChanged(CustomizeUiSetting.OnCustomizeUiSettingChanged event) {
+        setupSections();
     }
 
     private void setupMainAdapter() {
@@ -109,10 +126,15 @@ public class MainFragment extends BrowseFragment {
         });
     }
 
+    private boolean isSectionEnabled(int sectionResId) {
+        return UserPreferences.getInstance(getActivity()).isSectionEnabled(getString(sectionResId));
+    }
+
     private void setupFeaturedPlaylists() {
-        mFeaturedPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistSimpleCardPresenter());
-        HeaderItem featuredPlaylistsHeader = new HeaderItem(0, getString(R.string.featured_playlists), null);
-        mRowsAdapter.add(new ListRow(featuredPlaylistsHeader, mFeaturedPlaylistsAdapter));
+        if (isSectionEnabled(R.string.featured_playlists)) {
+            HeaderItem featuredPlaylistsHeader = new HeaderItem(0, getString(R.string.featured_playlists), null);
+            mRowsAdapter.add(new ListRow(featuredPlaylistsHeader, mFeaturedPlaylistsAdapter));
+        }
     }
 
     private void loadFeaturedPlaylists(User user) {
@@ -133,9 +155,10 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void setupNewReleases() {
-        mNewReleasesAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
-        HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.new_releases), null);
-        mRowsAdapter.add(new ListRow(newReleasesHeader, mNewReleasesAdapter));
+        if (isSectionEnabled(R.string.new_releases)) {
+            HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.new_releases), null);
+            mRowsAdapter.add(new ListRow(newReleasesHeader, mNewReleasesAdapter));
+        }
     }
 
     private void loadNewReleases(User user) {
@@ -156,26 +179,29 @@ public class MainFragment extends BrowseFragment {
 
     private void loadUserLibraryRows() {
         // playlist row
-        mPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistCardPresenter());
-        HeaderItem playListHeader = new HeaderItem(0, getString(R.string.playlists), null);
-        mRowsAdapter.add(new ListRow(playListHeader, mPlaylistsAdapter));
+        if (isSectionEnabled(R.string.playlists)) {
+            HeaderItem playListHeader = new HeaderItem(0, getString(R.string.playlists), null);
+            mRowsAdapter.add(new ListRow(playListHeader, mPlaylistsAdapter));
+        }
 
         // Albums row
-        mSavedAlbumsAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
-        HeaderItem albumsHeader = new HeaderItem(0, getString(R.string.albums), null);
-        mRowsAdapter.add(new ListRow(albumsHeader, mSavedAlbumsAdapter));
+        if (isSectionEnabled(R.string.albums)) {
+            HeaderItem albumsHeader = new HeaderItem(0, getString(R.string.albums), null);
+            mRowsAdapter.add(new ListRow(albumsHeader, mSavedAlbumsAdapter));
+        }
 
         // Artists row
-        mSavedArtistsAdapter = new ArrayObjectAdapter(new ArtistCardPresenter());
-        HeaderItem artistsHeader = new HeaderItem(0, getString(R.string.artists), null);
-        mRowsAdapter.add(new ListRow(artistsHeader, mSavedArtistsAdapter));
+        if (isSectionEnabled(R.string.artists)) {
+            HeaderItem artistsHeader = new HeaderItem(0, getString(R.string.artists), null);
+            mRowsAdapter.add(new ListRow(artistsHeader, mSavedArtistsAdapter));
+        }
+
 
         // Songs row
-        mSavedSongsAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
-        HeaderItem songsHeader = new HeaderItem(0, getString(R.string.songs), null);
-        mRowsAdapter.add(new ListRow(songsHeader, mSavedSongsAdapter));
-
-        setAdapter(mRowsAdapter);
+        if (isSectionEnabled(R.string.songs)) {
+            HeaderItem songsHeader = new HeaderItem(0, getString(R.string.songs), null);
+            mRowsAdapter.add(new ListRow(songsHeader, mSavedSongsAdapter));
+        }
 
         // load playlists (need to load current user first)
         loadCurrentUser();
@@ -190,9 +216,18 @@ public class MainFragment extends BrowseFragment {
             @Override
             public void success(User user, Response response) {
                 SpotifyTvApplication.getInstance().setCurrentUser(user);
-                loadPlaylists(user);
-                loadFeaturedPlaylists(user);
-                loadNewReleases(user);
+
+                if (isSectionEnabled(R.string.playlists)) {
+                    loadPlaylists(user);
+                }
+
+                if (isSectionEnabled(R.string.featured_playlists)) {
+                    loadFeaturedPlaylists(user);
+                }
+
+                if (isSectionEnabled(R.string.new_releases)) {
+                    loadNewReleases(user);
+                }
             }
 
             @Override
@@ -308,7 +343,22 @@ public class MainFragment extends BrowseFragment {
 
         settingsAdapter.add(new QualitySetting());
         settingsAdapter.add(new LastFmSetting());
+        settingsAdapter.add(new CustomizeUiSetting());
 
         mRowsAdapter.add(new ListRow(settingsHeader, settingsAdapter));
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        BusProvider.getInstance().register(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        BusProvider.getInstance().unregister(this);
+
+        super.onDestroy();
     }
 }

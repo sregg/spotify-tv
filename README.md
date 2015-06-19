@@ -20,7 +20,7 @@ Unofficial Spotify app for Android TV
 - Recently Played
 - Friends
 - Recommendations in Android TV Home (based on user's recommended artists/albums)
-- Setting - Customize UI elements (e.g. show or hide Feature playlist and new releases)
+- Setting - Customize UI elements (e.g. show or hide Feature playlist and new releases) (done, waiting for next release)
 
 # Release build
 Add the values `release.storeFile`, `release.storePassword`, `release.keyAlias`, and `release.keyPassword` to `release.properties`.

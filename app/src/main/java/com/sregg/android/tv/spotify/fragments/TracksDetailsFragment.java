@@ -114,25 +114,13 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
         }
     }
 
-    protected void loadBackgroundImage(final String imageUrl) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                Picasso.with(getActivity())
-                        .load(imageUrl)
-                        .transform(new BlurTransformation(getActivity()))
-                        .resize(mMetrics.widthPixels, mMetrics.heightPixels)
-                        .centerCrop()
-                        .into(new BackgroundTarget());
-            }
-        });
-    }
-
     protected void loadDetailsRowImage(String imageUrl) {
-        new DetailRowImageLoader().execute(imageUrl);
+        new ImageLoader().execute(imageUrl);
     }
 
-    private class DetailRowImageLoader extends AsyncTask<String, Void, Void> {
+    private class ImageLoader extends AsyncTask<String, Void, Void> {
+
+        private Bitmap mBackground;
 
         @Override
         protected Void doInBackground(String... params) {
@@ -141,6 +129,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
             }
 
             Bitmap cover = null;
+            Bitmap background = null;
             try {
                 cover = Picasso.with(getActivity())
                         .load(params[0])
@@ -163,6 +152,13 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
                 if (swatch != null) {
                     mDetailsPresenter.setBackgroundColor(swatch.getRgb());
                 }
+
+                mBackground = Picasso.with(getActivity())
+                        .load(params[0])
+                        .transform(new BlurTransformation(getActivity()))
+                        .resize(mMetrics.widthPixels, mMetrics.heightPixels)
+                        .centerCrop()
+                        .get();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -172,29 +168,8 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
 
         @Override
         protected void onPostExecute(Void aVoid) {
+            mBackgroundManager.setBitmap(mBackground);
             setAdapter(mRowsAdapter);
-        }
-    }
-
-    private class BackgroundTarget implements Target {
-        @Override
-        public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom from) {
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    mBackgroundManager.setBitmap(bitmap);
-                }
-            });
-        }
-
-        @Override
-        public void onBitmapFailed(Drawable errorDrawable) {
-
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-
         }
     }
 }

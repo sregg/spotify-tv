@@ -7,6 +7,7 @@ import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.Spotify;
 import com.sregg.android.tv.spotify.activities.AlbumActivity;
 import com.sregg.android.tv.spotify.activities.ArtistsAlbumsActivity;
+import com.sregg.android.tv.spotify.activities.CategoryActivity;
 import com.sregg.android.tv.spotify.activities.PlaylistActivity;
 import com.sregg.android.tv.spotify.controllers.SpotifyPlayerController;
 import com.sregg.android.tv.spotify.enums.Control;
@@ -16,6 +17,7 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
+import kaaes.spotify.webapi.android.models.Category;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistBase;
 import kaaes.spotify.webapi.android.models.User;
@@ -101,6 +103,9 @@ public class SpotifyTvApplication extends Application {
         } else if (item instanceof PlaylistBase) {
             PlaylistBase playlist = (PlaylistBase) item;
             PlaylistActivity.launch(activity, playlist.id, playlist.name, playlist.owner.id);
+        } else if (item instanceof Category) {
+            Category category = (Category) item;
+            CategoryActivity.launch(activity, category.id, category.name);
         } else {
             String itemUri = Utils.getUriFromSpotiyObject(item);
             if (mSpotifyPlayerController.getPlayingState().isCurrentObjectOrTrack(itemUri)) {

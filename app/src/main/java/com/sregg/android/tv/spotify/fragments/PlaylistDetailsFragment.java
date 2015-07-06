@@ -92,7 +92,6 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
 
                 if (playlist.images.size() > 0) {
                     String imageUrl = playlist.images.get(0).url;
-                    loadBackgroundImage(imageUrl);
                     loadDetailsRowImage(imageUrl);
                 }
             }

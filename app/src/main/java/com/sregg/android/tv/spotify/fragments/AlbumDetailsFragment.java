@@ -93,7 +93,6 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
 
                 if (album.images.size() > 0) {
                     String imageUrl = album.images.get(0).url;
-                    loadBackgroundImage(imageUrl);
                     loadDetailsRowImage(imageUrl);
                 }
             }

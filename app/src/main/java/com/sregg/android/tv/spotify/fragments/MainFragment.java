@@ -50,6 +50,7 @@ public class MainFragment extends BrowseFragment {
     private SpotifyService mSpotifyService;
     private ArrayObjectAdapter mNewReleasesAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
     private ArrayObjectAdapter mFeaturedPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistSimpleCardPresenter());
+    private ArrayObjectAdapter mCategoriesAdapter = new ArrayObjectAdapter(new CategoryCardPresenter());
     private ArrayObjectAdapter mPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistCardPresenter());
     private ArrayObjectAdapter mSavedSongsAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
     private ArrayObjectAdapter mSavedAlbumsAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
@@ -76,6 +77,8 @@ public class MainFragment extends BrowseFragment {
         setupFeaturedPlaylists();
 
         setupNewReleases();
+
+        setupCategories();
 
         loadUserLibraryRows();
 
@@ -177,6 +180,29 @@ public class MainFragment extends BrowseFragment {
         });
     }
 
+    private void setupCategories() {
+        if (isSectionEnabled(R.string.categories)) {
+            HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.categories), null);
+            mRowsAdapter.add(new ListRow(newReleasesHeader, mCategoriesAdapter));
+        }
+    }
+
+    private void loadCategories(User user) {
+        Map<String, Object> options = new HashMap<>();
+        options.put(SpotifyService.COUNTRY, user.country);
+        mSpotifyService.getCategories(options, new Callback<CategoriesPager>() {
+            @Override
+            public void success(CategoriesPager categoriesPager, Response response) {
+                mCategoriesAdapter.addAll(0, categoriesPager.categories.items);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
     private void loadUserLibraryRows() {
         // playlist row
         if (isSectionEnabled(R.string.playlists)) {
@@ -227,6 +253,10 @@ public class MainFragment extends BrowseFragment {
 
                 if (isSectionEnabled(R.string.new_releases)) {
                     loadNewReleases(user);
+                }
+
+                if (isSectionEnabled(R.string.categories)) {
+                    loadCategories(user);
                 }
             }
 

@@ -5,6 +5,7 @@
     <string name="browse_title">@string/app_name</string>
     <string name="new_releases">New Releases</string>
     <string name="featured_playlists">Featured Playlists</string>
+    <string name="categories">Categories</string>
     <string name="playlists">Playlists</string>
     <string name="songs">Songs</string>
     <string name="albums">Albums</string>
@@ -35,6 +36,7 @@
     <string-array name="settings_customize_dialog_choices">
         <item>@string/featured_playlists</item>
         <item>@string/new_releases</item>
+        <item>@string/categories</item>
         <item>@string/playlists</item>
         <item>@string/albums</item>
         <item>@string/artists</item>

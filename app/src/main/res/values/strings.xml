@@ -6,10 +6,10 @@
     <string name="new_releases">New Releases</string>
     <string name="featured_playlists">Featured Playlists</string>
     <string name="categories">Categories</string>
-    <string name="playlists">Playlists</string>
-    <string name="songs">Songs</string>
-    <string name="albums">Albums</string>
-    <string name="artists">Artists</string>
+    <string name="playlists">My Playlists</string>
+    <string name="songs">My Songs</string>
+    <string name="albums">My Albums</string>
+    <string name="artists">My Artists</string>
     <string name="starred">Starred</string>
     <string name="artists_album_type_album">Albums</string>
     <string name="artists_album_type_single">Singles</string>

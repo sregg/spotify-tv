@@ -291,15 +291,6 @@ public class MainFragment extends BrowseFragment {
     private void loadPlaylists(final User user) {
         mPlaylistsAdapter.clear();
 
-        // add Starred playlist by default
-        Playlist starredPlaylist = new Playlist();
-        starredPlaylist.name = getString(R.string.starred);
-        starredPlaylist.id = Constants.STARRED_PLAYLIST_ID;
-        starredPlaylist.uri = String.format("spotify:user:%s:starred", user.id);
-        starredPlaylist.owner = user;
-        starredPlaylist.tracks = new Pager<>(); // TODO
-        mPlaylistsAdapter.add(starredPlaylist);
-
         mSpotifyService.getPlaylists(user.id, new Callback<Pager<Playlist>>() {
             @Override
             public void success(Pager<Playlist> playlistPager, Response response) {

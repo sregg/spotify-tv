@@ -54,14 +54,9 @@ public class PlaylistSimpleCardPresenter extends AbsCardPresenter {
         }
         imageCardView.setContentText(totalTracksString);
 
-        // get tracks of playlist and build album mosaic
+        // playlist mosaic
         if (playlist.images != null && !playlist.images.isEmpty()) {
             cardViewHolder.updateCardViewImage(URI.create(playlist.images.get(0).url));
-        } else if (playlist.id.equals(Constants.STARRED_PLAYLIST_ID)) {
-            // starred
-            IconDrawable starIconDrawable = new IconDrawable(imageCardView.getContext(), Iconify.IconValue.fa_star);
-            starIconDrawable.color(Color.WHITE);
-            imageCardView.setMainImage(starIconDrawable);
         }
     }
 }

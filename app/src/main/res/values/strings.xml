@@ -14,7 +14,6 @@
     <string name="songs">Songs</string>
     <string name="albums">Albums</string>
     <string name="artists">Artists</string>
-    <string name="starred">Starred</string>
     <string name="artists_album_type_album">Albums</string>
     <string name="artists_album_type_single">Singles</string>
     <string name="artists_album_type_appears_on">Appears On</string>
@@ -41,10 +40,10 @@
         <item>@string/featured_playlists</item>
         <item>@string/new_releases</item>
         <item>@string/categories</item>
-        <item>@string/playlists</item>
-        <item>@string/albums</item>
-        <item>@string/artists</item>
-        <item>@string/songs</item>
+        <item>@string/my_playlists</item>
+        <item>@string/my_albums</item>
+        <item>@string/my_artists</item>
+        <item>@string/my_songs</item>
     </string-array>
     <string name="go_to_artist">Go To Artist</string>
     <plurals name="playlist_nb_tracks">

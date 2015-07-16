@@ -14,16 +14,14 @@
 
 package com.sregg.android.tv.spotify.presenters;
 
-import android.graphics.Color;
 import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
-import com.joanzapata.android.iconify.IconDrawable;
-import com.joanzapata.android.iconify.Iconify;
-import com.sregg.android.tv.spotify.Constants;
+
 import com.sregg.android.tv.spotify.R;
-import kaaes.spotify.webapi.android.models.Playlist;
 
 import java.net.URI;
+
+import kaaes.spotify.webapi.android.models.Playlist;
 
 /*
  * A CardPresenter is used to generate Views and bind Objects to them on demand. 
@@ -53,14 +51,9 @@ public class PlaylistCardPresenter extends AbsCardPresenter {
         }
         imageCardView.setContentText(totalTracksString);
 
-        // get tracks of playlist and build album mosaic
+        // playlist mosaic
         if (playlist.images != null && !playlist.images.isEmpty()) {
             cardViewHolder.updateCardViewImage(URI.create(playlist.images.get(0).url));
-        } else if (playlist.id.equals(Constants.STARRED_PLAYLIST_ID)) {
-            // starred
-            IconDrawable starIconDrawable = new IconDrawable(imageCardView.getContext(), Iconify.IconValue.fa_star);
-            starIconDrawable.color(Color.WHITE);
-            imageCardView.setMainImage(starIconDrawable);
         }
     }
 }

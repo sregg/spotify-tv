@@ -37,6 +37,7 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
     private String mPlaylistId;
     private String mUserId;
     private Playlist mPlaylist;
+    private List<String> mPlaylistTrackUris;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,10 +71,20 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
             @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == ACTION_PLAY_PLAYLIST) {
-                    mApp.getSpotifyPlayerController().play(mPlaylist);
+                    mApp.getSpotifyPlayerController().play(mPlaylist.uri, mPlaylistTrackUris);
                 }
             }
         });
+    }
+
+    @Override
+    protected List<String> getTrackUris() {
+        return mPlaylistTrackUris;
+    }
+
+    @Override
+    protected String getObjectUri() {
+        return mPlaylist.uri;
     }
 
     private void loadPlaylist() {
@@ -84,9 +95,11 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
                 mPlaylist = playlist;
                 setupDetails(playlist);
 
-                List<TrackSimple> tracks = new ArrayList<TrackSimple>();
+                List<TrackSimple> tracks = new ArrayList<>(playlist.tracks.items.size());
+                mPlaylistTrackUris = new ArrayList<>(playlist.tracks.items.size());
                 for (PlaylistTrack playlistTrack : playlist.tracks.items) {
                     tracks.add(playlistTrack.track);
+                    mPlaylistTrackUris.add(playlistTrack.track.uri);
                 }
                 setupTracksRows(tracks);
 

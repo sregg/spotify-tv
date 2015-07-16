@@ -4,11 +4,15 @@ import android.app.UiModeManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
+import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
-import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TrackSimple;
 
 /**
@@ -67,5 +71,13 @@ public class Utils {
     public static boolean isRunningOnAndroidTV(Context context) {
         UiModeManager uiModeManager = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
         return uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION;
+    }
+
+    public static List<String> getTrackUrisFromTrackPager(Pager<TrackSimple> trackPager) {
+        List<String> trackUris = new ArrayList<>(trackPager.items.size());
+        for (TrackSimple trackSimple : trackPager.items) {
+            trackUris.add(trackSimple.uri);
+        }
+        return trackUris;
     }
 }

@@ -1,5 +1,6 @@
 package com.sregg.android.tv.spotify.controllers;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaMetadata;
@@ -7,23 +8,34 @@ import android.media.session.MediaSession;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
-import com.spotify.sdk.android.player.*;
+
+import com.spotify.sdk.android.player.ConnectionStateCallback;
+import com.spotify.sdk.android.player.PlaybackBitrate;
+import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.PlayerNotificationCallback;
+import com.spotify.sdk.android.player.PlayerState;
+import com.spotify.sdk.android.player.PlayerStateCallback;
+import com.spotify.sdk.android.player.Spotify;
 import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotify.BusProvider;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.enums.Control;
-import com.sregg.android.tv.spotify.events.*;
+import com.sregg.android.tv.spotify.events.OnPause;
+import com.sregg.android.tv.spotify.events.OnPlay;
+import com.sregg.android.tv.spotify.events.OnShuffleChanged;
+import com.sregg.android.tv.spotify.events.OnTrackChanged;
+import com.sregg.android.tv.spotify.events.PlayingState;
 import com.sregg.android.tv.spotify.settings.UserPreferences;
 import com.sregg.android.tv.spotify.utils.Utils;
+
+import java.io.IOException;
+import java.util.List;
+
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.*;
+import kaaes.spotify.webapi.android.models.Track;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * <p>Plays tracks, playlists and albums into the Spotify SDK</p>
@@ -68,38 +80,27 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     }
 
     public void resetPlayingState() {
-        mPlayingState = new PlayingState("", "");
+        mPlayingState = new PlayingState("", "", null);
     }
 
-    public void play(Object spotifyObject) {
-        String currentObjectUri = Utils.getUriFromSpotiyObject(spotifyObject);
+    public void play(String currentObjectUri, List<String> trackUris) {
+        mPlayingState = new PlayingState(currentObjectUri, trackUris.get(0), trackUris);
+        mPlayer.play(trackUris);
+        startNowPlayingSession();
+    }
 
-        mPlayingState = new PlayingState(currentObjectUri, null);
-
-        if (spotifyObject instanceof TrackSimple || spotifyObject instanceof Playlist ||  spotifyObject instanceof PlaylistSimple) {
-            mPlayer.play(currentObjectUri);
-        } else if (spotifyObject instanceof AlbumSimple) {
-            // get album's tracks
-            AlbumSimple albumSimple = (AlbumSimple) spotifyObject;
-            SpotifyTvApplication.getInstance().getSpotifyService().getAlbumTracks(albumSimple.id, new Callback<Pager<Track>>() {
-                @Override
-                public void success(Pager<Track> trackPager, Response response) {
-                    List<String> trackUris = new ArrayList<>(trackPager.total);
-                    for (Track track : trackPager.items) {
-                        trackUris.add(track.uri);
-                    }
-                    mPlayer.play(trackUris);
-                }
-
-                @Override
-                public void failure(RetrofitError error) {
-
-                }
-            });
-        }
-
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void startNowPlayingSession() {
         if (mNowPlayingSession != null && !mNowPlayingSession.isActive()) {
             mNowPlayingSession.setActive(true);
+        }
+    }
+
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void stopNowPlayingSession() {
+        if (mNowPlayingSession != null && mNowPlayingSession.isActive()) {
+            mNowPlayingSession.setActive(false);
         }
     }
 
@@ -125,9 +126,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     }
 
     public void terminate() {
-        if (mNowPlayingSession != null && mNowPlayingSession.isActive()) {
-            mNowPlayingSession.setActive(false);
-        }
+        stopNowPlayingSession();
         Spotify.destroyPlayer(mPlayer);
     }
 
@@ -150,9 +149,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 trackNowPlayingTrack(playerState.trackUri);
                 break;
             case END_OF_CONTEXT:
-                if (mNowPlayingSession != null && mNowPlayingSession.isActive()) {
-                    mNowPlayingSession.setActive(false);
-                }
+                stopNowPlayingSession();
                 resetPlayingState();
                 break;
         }
@@ -175,6 +172,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         });
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void updateNowPlayingMetadata(Track track) {
         if (mNowPlayingSession == null) {
             return;
@@ -258,9 +256,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 mPlayer.skipToPrevious();
                 break;
             case STOP:
-                if (mNowPlayingSession != null && mNowPlayingSession.isActive()) {
-                    mNowPlayingSession.setActive(false);
-                }
+                stopNowPlayingSession();
                 mPlayer.pause();
                 mPlayer.clearQueue();
                 resetPlayingState();
@@ -273,7 +269,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
 
                 // reload current object if not null
                 if (!TextUtils.isEmpty(mPlayingState.getCurrentObjectUri())) {
-                    play(mPlayingState.getCurrentObjectUri());
+                    play(mPlayingState.getCurrentObjectUri(), mPlayingState.getTrackUrisQueue());
                 }
                 break;
         }

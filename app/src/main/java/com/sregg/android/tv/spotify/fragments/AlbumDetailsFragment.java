@@ -14,10 +14,14 @@ import com.sregg.android.tv.spotify.activities.AlbumActivity;
 import com.sregg.android.tv.spotify.activities.ArtistsAlbumsActivity;
 import com.sregg.android.tv.spotify.presenters.AlbumDetailsPresenter;
 import com.sregg.android.tv.spotify.presenters.AlbumTrackRowPresenter;
+import com.sregg.android.tv.spotify.utils.Utils;
+
+import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
+import kaaes.spotify.webapi.android.models.TrackSimple;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -34,6 +38,7 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
 
     private String mAlbumId;
     private Album mAlbum;
+    private List<String> mAlbumTrackUris;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,7 +71,7 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
             @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == ACTION_PLAY_ALBUM) {
-                    mApp.getSpotifyPlayerController().play(mAlbum);
+                    mApp.getSpotifyPlayerController().play(mAlbum.uri, mAlbumTrackUris);
                 } else if (action.getId() == ACTION_VIEW_ARTIST) {
                     ArtistSimple artist = null;
 
@@ -82,12 +87,23 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
         });
     }
 
+    @Override
+    protected List<String> getTrackUris() {
+        return mAlbumTrackUris;
+    }
+
+    @Override
+    protected String getObjectUri() {
+        return mAlbum.uri;
+    }
+
     private void loadAlbum() {
         // load artist from API to get their image
         mSpotifyService.getAlbum(mAlbumId, new Callback<Album>() {
             @Override
             public void success(final Album album, Response response) {
                 mAlbum = album;
+                mAlbumTrackUris = Utils.getTrackUrisFromTrackPager(mAlbum.tracks);
                 setupDetails(album);
                 setupTracksRows(album.tracks.items);
 

@@ -1,15 +1,19 @@
 package com.sregg.android.tv.spotify.events;
 
+import java.util.List;
+
 /**
  * Created by simonreggiani on 15-06-03.
  */
 public class PlayingState {
     private final String mCurrentObjectUri;
     private String mCurrentTrackUri;
+    private List<String> mTrackUrisQueue;
 
-    public PlayingState(String currentObjectUri, String currentTrackUri) {
+    public PlayingState(String currentObjectUri, String currentTrackUri, List<String> trackUrisQueue) {
         mCurrentObjectUri = currentObjectUri;
         mCurrentTrackUri = currentTrackUri;
+        mTrackUrisQueue = trackUrisQueue;
     }
 
     /**
@@ -19,18 +23,15 @@ public class PlayingState {
         return mCurrentObjectUri;
     }
 
-    /**
-     * @return the currently playing track in the currently playing playlist/album
-     */
-    public String getCurrentTrackUri() {
-        return mCurrentTrackUri;
-    }
-
     public void setCurrentTrackUri(String currentTrackUri) {
         mCurrentTrackUri = currentTrackUri;
     }
 
     public boolean isCurrentObjectOrTrack(String objectUri) {
         return mCurrentObjectUri.equals(objectUri) || mCurrentTrackUri.equals(objectUri);
+    }
+
+    public List<String> getTrackUrisQueue() {
+        return mTrackUrisQueue;
     }
 }

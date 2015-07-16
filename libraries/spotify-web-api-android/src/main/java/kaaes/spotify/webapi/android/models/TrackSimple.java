@@ -19,4 +19,20 @@ public class TrackSimple {
     public int track_number;
     public String type;
     public String uri;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TrackSimple that = (TrackSimple) o;
+
+        return !(uri != null ? !uri.equals(that.uri) : that.uri != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return uri != null ? uri.hashCode() : 0;
+    }
 }

@@ -47,8 +47,6 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
     private ArrayObjectAdapter mRowsAdapter;
     private SpotifyTvApplication mApp;
 
-    private OnActionClickedListener mOnActionClickedListener;
-
     private DetailsOverviewRowPresenter mDetailsPresenter;
     private DetailsOverviewRow mDetailsRow;
 
@@ -82,7 +80,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
             @Override
             public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
                 if (item instanceof TrackSimple) {
-                    mApp.onItemClick(getActivity(), item);
+                    playFromTrack(((TrackSimple) item));
                 }
             }
         });
@@ -90,6 +88,16 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
         mRowsAdapter = new ArrayObjectAdapter(ps);
         setAdapter(mRowsAdapter);
     }
+
+    private void playFromTrack(TrackSimple item) {
+        List<String> trackUris = getTrackUris();
+        List<String> subList = trackUris.subList(trackUris.indexOf(item.uri), trackUris.size());
+        mApp.getSpotifyPlayerController().play(getObjectUri(), subList);
+    }
+
+    protected abstract List<String> getTrackUris();
+
+    protected abstract String getObjectUri();
 
     private void setupBackground() {
         mBackgroundManager = BackgroundManager.getInstance(getActivity());

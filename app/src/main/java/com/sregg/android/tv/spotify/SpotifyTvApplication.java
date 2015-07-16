@@ -13,6 +13,9 @@ import com.sregg.android.tv.spotify.controllers.SpotifyPlayerController;
 import com.sregg.android.tv.spotify.enums.Control;
 import com.sregg.android.tv.spotify.settings.Setting;
 import com.sregg.android.tv.spotify.utils.Utils;
+
+import java.util.Collections;
+
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.AlbumSimple;
@@ -20,6 +23,7 @@ import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Category;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistBase;
+import kaaes.spotify.webapi.android.models.TrackSimple;
 import kaaes.spotify.webapi.android.models.User;
 
 /**
@@ -106,13 +110,15 @@ public class SpotifyTvApplication extends Application {
         } else if (item instanceof Category) {
             Category category = (Category) item;
             CategoryActivity.launch(activity, category.id, category.name);
-        } else {
-            String itemUri = Utils.getUriFromSpotiyObject(item);
-            if (mSpotifyPlayerController.getPlayingState().isCurrentObjectOrTrack(itemUri)) {
+        } else if (item instanceof TrackSimple) {
+            // single track
+            String trackUri = ((TrackSimple) item).uri;
+            if (mSpotifyPlayerController.getPlayingState().isCurrentObjectOrTrack(trackUri)) {
                 mSpotifyPlayerController.togglePauseResume();
             } else {
-                mSpotifyPlayerController.play(item);
+                mSpotifyPlayerController.play(trackUri, Collections.singletonList(trackUri));
             }
         }
+
     }
 }

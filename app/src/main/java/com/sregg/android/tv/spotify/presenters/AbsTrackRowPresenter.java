@@ -69,7 +69,7 @@ public abstract class AbsTrackRowPresenter extends RowPresenter {
         trackRowview.initNowPlaying(SpotifyTvApplication.getInstance()
                 .getSpotifyPlayerController()
                 .getPlayingState()
-                .isCurrentObjectOrTrack(uri));
+                .isCurrentTrack(uri));
 
         trackRowview.setOnClickListener(new View.OnClickListener() {
             @Override

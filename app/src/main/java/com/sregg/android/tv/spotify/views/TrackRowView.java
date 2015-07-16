@@ -91,7 +91,7 @@ public class TrackRowView extends LinearLayout {
     }
 
     private boolean isSelf(AbsPlayingEvent playingEvent) {
-        return playingEvent.getPlayingState().isCurrentObjectOrTrack(mUri);
+        return playingEvent.getPlayingState().isCurrentTrack(mUri);
     }
 
     public void initNowPlaying(boolean isSelf) {

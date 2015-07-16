@@ -22,12 +22,15 @@ import android.util.Log;
 import com.sregg.android.tv.spotify.Constants;
 import com.sregg.android.tv.spotify.R;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
+import com.sregg.android.tv.spotify.controllers.SpotifyPlayerController;
 import com.sregg.android.tv.spotify.presenters.AlbumCardPresenter;
 import com.sregg.android.tv.spotify.presenters.ArtistCardPresenter;
 import com.sregg.android.tv.spotify.presenters.PlaylistCardPresenter;
 import com.sregg.android.tv.spotify.presenters.TrackCardPresenter;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -48,6 +51,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     private Handler mHandler = new Handler();
     private SearchRunnable mDelayedLoad;
     private SpotifyService mSpotifyService;
+    private ArrayObjectAdapter mTrackRowAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,7 +62,22 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
             public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
-                SpotifyTvApplication.getInstance().onItemClick(getActivity(), item);
+                if (item instanceof Track) {
+                    String trackUri = ((Track) item).uri;
+                    SpotifyPlayerController spotifyPlayerController = SpotifyTvApplication.getInstance().getSpotifyPlayerController();
+                    if (spotifyPlayerController.getPlayingState().isCurrentTrack(trackUri)) {
+                        spotifyPlayerController.togglePauseResume();
+                    } else {
+                        // get song and following ones
+                        List<String> trackUris = new ArrayList<>();
+                        for (int i = mTrackRowAdapter.indexOf(item); i < mTrackRowAdapter.size() && i < Constants.MAX_SONGS_PLAYED; i++) {
+                            trackUris.add(((Track) mTrackRowAdapter.get(i)).uri);
+                        }
+                        spotifyPlayerController.play(trackUri, trackUris);
+                    }
+                } else {
+                    SpotifyTvApplication.getInstance().launchDetailScreen(getActivity(), item);
+                }
             }
         });
         mDelayedLoad = new SearchRunnable();
@@ -159,12 +178,12 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         mSpotifyService.searchTracks(query, getSearchOptions(), new Callback<TracksPager>() {
             @Override
             public void success(TracksPager tracksPager, Response response) {
-                ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
+                mTrackRowAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
                 for (Track track : tracksPager.tracks.items) {
-                    listRowAdapter.add(track);
+                    mTrackRowAdapter.add(track);
                 }
                 HeaderItem header = new HeaderItem(getString(R.string.songs), null);
-                mRowsAdapter.add(new ListRow(header, listRowAdapter));
+                mRowsAdapter.add(new ListRow(header, mTrackRowAdapter));
 
                 // TODO next pages ?
             }

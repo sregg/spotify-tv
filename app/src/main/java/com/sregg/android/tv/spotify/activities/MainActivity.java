@@ -59,7 +59,7 @@ public class MainActivity extends Activity {
             SpotifyUriLoader.loadObjectFromUri(SpotifyTvApplication.getInstance().getSpotifyService(), getIntent().getData().toString(), new SpotifyUriLoader.SpotifyObjectLoaderCallback() {
                 @Override
                 public void success(Object object, Response response) {
-                    SpotifyTvApplication.getInstance().onItemClick(MainActivity.this, object);
+                    SpotifyTvApplication.getInstance().launchDetailScreen(MainActivity.this, object);
                 }
 
                 @Override

@@ -28,11 +28,13 @@ import com.sregg.android.tv.spotify.Constants;
 import com.sregg.android.tv.spotify.R;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
 import com.sregg.android.tv.spotify.activities.SearchActivity;
+import com.sregg.android.tv.spotify.controllers.SpotifyPlayerController;
 import com.sregg.android.tv.spotify.enums.Control;
 import com.sregg.android.tv.spotify.presenters.*;
 import com.sregg.android.tv.spotify.settings.CustomizeUiSetting;
 import com.sregg.android.tv.spotify.settings.LastFmSetting;
 import com.sregg.android.tv.spotify.settings.QualitySetting;
+import com.sregg.android.tv.spotify.settings.Setting;
 import com.sregg.android.tv.spotify.settings.UserPreferences;
 
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -124,7 +126,26 @@ public class MainFragment extends BrowseFragment {
         setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
             public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
-                SpotifyTvApplication.getInstance().onItemClick(getActivity(), item);
+                if (item instanceof Setting) {
+                    ((Setting) item).onClick(getActivity());
+                } else if (item instanceof Control) {
+                    SpotifyTvApplication.getInstance().getSpotifyPlayerController().onControlClick(((Control) item));
+                } else if (item instanceof Track) {
+                    String trackUri = ((Track) item).uri;
+                    SpotifyPlayerController spotifyPlayerController = SpotifyTvApplication.getInstance().getSpotifyPlayerController();
+                    if (spotifyPlayerController.getPlayingState().isCurrentTrack(trackUri)) {
+                        spotifyPlayerController.togglePauseResume();
+                    } else {
+                        // get song and following ones
+                        List<String> trackUris = new ArrayList<>();
+                        for (int i = mSavedSongsAdapter.indexOf(item); i < mSavedSongsAdapter.size() && i < Constants.MAX_SONGS_PLAYED; i++) {
+                            trackUris.add(((Track) mSavedSongsAdapter.get(i)).uri);
+                        }
+                        spotifyPlayerController.play(trackUri, trackUris);
+                    }
+                } else {
+                    SpotifyTvApplication.getInstance().launchDetailScreen(getActivity(), item);
+                }
             }
         });
     }

@@ -27,10 +27,13 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.sregg.android.tv.spotify.R;
 import com.sregg.android.tv.spotify.SpotifyTvApplication;
+import com.sregg.android.tv.spotify.events.PlayingState;
 import com.sregg.android.tv.spotify.utils.Utils;
 import com.sregg.android.tv.spotify.views.SpotifyCardView;
 
 import java.net.URI;
+
+import kaaes.spotify.webapi.android.models.TrackSimple;
 
 /*
  * A CardPresenter is used to generate Views and bind Objects to them on demand. 
@@ -86,15 +89,15 @@ public abstract class AbsCardPresenter extends Presenter {
         int imageSize = spotifyCardView.getImageSize();
         imageCardView.setMainImageDimensions(imageSize, imageSize);
 
-        // get uri
-        String uri = Utils.getUriFromSpotiyObject(item);
-        spotifyCardView.setUri(uri);
+        // set item
+        spotifyCardView.setItem(item);
 
         // init badge and now playing
-        spotifyCardView.initNowPlaying(SpotifyTvApplication.getInstance()
+        PlayingState playingState = SpotifyTvApplication.getInstance()
                 .getSpotifyPlayerController()
-                .getPlayingState()
-                .isCurrentObjectOrTrack(uri));
+                .getPlayingState();
+        String uri = Utils.getUriFromSpotiyObject(item);
+        spotifyCardView.initNowPlaying(item instanceof TrackSimple ? playingState.isCurrentTrack(uri) : playingState.isCurrentObject(uri));
     }
 
     @Override

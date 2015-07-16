@@ -12,6 +12,10 @@ import com.sregg.android.tv.spotify.events.AbsPlayingEvent;
 import com.sregg.android.tv.spotify.events.OnPause;
 import com.sregg.android.tv.spotify.events.OnPlay;
 import com.sregg.android.tv.spotify.events.OnTrackChanged;
+import com.sregg.android.tv.spotify.events.PlayingState;
+import com.sregg.android.tv.spotify.utils.Utils;
+
+import kaaes.spotify.webapi.android.models.TrackSimple;
 
 /**
  * Created by simonreggiani on 15-02-04.
@@ -21,6 +25,7 @@ public class SpotifyCardView extends FrameLayout {
     private View mBadgeView;
     private NowPlayingIndicatorView mNowPlayingView;
     private String mUri;
+    private Object mItem;
     private Integer mSelectedInfoAreaBackgroundColor;
     private int mSelectedInfoAreaBacgroundDefaultColor;
     private int mInfoAreaBacgroundDefaultColor;
@@ -92,7 +97,8 @@ public class SpotifyCardView extends FrameLayout {
     }
 
     private boolean isSelf(AbsPlayingEvent playingEvent) {
-        return playingEvent.getPlayingState().isCurrentObjectOrTrack(mUri);
+        PlayingState playingState = playingEvent.getPlayingState();
+        return mItem instanceof TrackSimple ? playingState.isCurrentTrack(mUri) : playingState.isCurrentObject(mUri);
     }
 
     public void initNowPlaying(boolean isSelf) {
@@ -123,12 +129,10 @@ public class SpotifyCardView extends FrameLayout {
         return mNowPlayingView;
     }
 
-    public String getUri() {
-        return mUri;
-    }
 
-    public void setUri(String uri) {
-        mUri = uri;
+    public void setItem(Object item) {
+        mItem = item;
+        mUri = Utils.getUriFromSpotiyObject(item);
     }
 
     public void setSelectedInfoAreaBackgroundColor(Integer selectedInfoAreaBackgroundColor) {

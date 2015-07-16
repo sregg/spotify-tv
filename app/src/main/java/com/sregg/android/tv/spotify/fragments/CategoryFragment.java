@@ -52,7 +52,7 @@ public class CategoryFragment extends VerticalGridFragment {
         setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
             public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
-                SpotifyTvApplication.getInstance().onItemClick(getActivity(), item);
+                SpotifyTvApplication.getInstance().launchDetailScreen(getActivity(), item);
             }
         });
     }

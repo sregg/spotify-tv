@@ -27,8 +27,12 @@ public class PlayingState {
         mCurrentTrackUri = currentTrackUri;
     }
 
-    public boolean isCurrentObjectOrTrack(String objectUri) {
-        return mCurrentObjectUri.equals(objectUri) || mCurrentTrackUri.equals(objectUri);
+    public boolean isCurrentObject(String objectUri) {
+        return mCurrentObjectUri.equals(objectUri);
+    }
+
+    public boolean isCurrentTrack(String trackUri) {
+        return mCurrentTrackUri.equals(trackUri);
     }
 
     public List<String> getTrackUrisQueue() {

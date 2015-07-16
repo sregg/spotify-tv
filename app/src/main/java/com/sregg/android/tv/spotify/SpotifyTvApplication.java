@@ -93,12 +93,8 @@ public class SpotifyTvApplication extends Application {
         super.onTerminate();
     }
 
-    public void onItemClick(Activity activity, Object item) {
-        if (item instanceof Setting) {
-            ((Setting) item).onClick(activity);
-        } else if (item instanceof Control) {
-            getSpotifyPlayerController().onControlClick(((Control) item));
-        } else if (item instanceof AlbumSimple) {
+    public void launchDetailScreen(Activity activity, Object item) {
+         if (item instanceof AlbumSimple) {
             AlbumSimple albumSimple = (AlbumSimple) item;
             AlbumActivity.launch(activity, albumSimple.id, albumSimple.name);
         } else if (item instanceof ArtistSimple) {
@@ -110,15 +106,6 @@ public class SpotifyTvApplication extends Application {
         } else if (item instanceof Category) {
             Category category = (Category) item;
             CategoryActivity.launch(activity, category.id, category.name);
-        } else if (item instanceof TrackSimple) {
-            // single track
-            String trackUri = ((TrackSimple) item).uri;
-            if (mSpotifyPlayerController.getPlayingState().isCurrentObjectOrTrack(trackUri)) {
-                mSpotifyPlayerController.togglePauseResume();
-            } else {
-                mSpotifyPlayerController.play(trackUri, Collections.singletonList(trackUri));
-            }
         }
-
     }
 }

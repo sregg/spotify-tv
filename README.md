@@ -22,6 +22,7 @@ Unofficial Spotify app for Android TV
 - Recently Played
 - Friends
 - Recommendations in Android TV Home (based on user's recommended artists/albums)
+- Setting - dim screen after 2 minutes of playing
 
 # Release build
 Add the values `release.storeFile`, `release.storePassword`, `release.keyAlias`, and `release.keyPassword` to `release.properties`.

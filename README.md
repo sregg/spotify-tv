@@ -2,7 +2,7 @@
 Unofficial Spotify app for Android TV
 
 # Features
-- Login in with your username & password
+- Login in with your username & password or via Facebook
 - List your playlists (including starred), saved albums, artists and songs
 - See the tracklist for each playlist and album (thanks to @Dahlgren)
 - Stream any track of your library

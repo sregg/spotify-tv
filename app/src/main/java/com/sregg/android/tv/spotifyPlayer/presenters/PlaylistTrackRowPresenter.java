@@ -6,7 +6,7 @@ import android.text.format.DateUtils;
 import com.sregg.android.tv.spotifyPlayer.rows.TrackRow;
 import com.sregg.android.tv.spotifyPlayer.utils.Utils;
 
-import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TrackSimple;
 
 public class PlaylistTrackRowPresenter extends AbsTrackRowPresenter {
 
@@ -21,7 +21,7 @@ public class PlaylistTrackRowPresenter extends AbsTrackRowPresenter {
         TrackRowViewHolder trackViewHolder = (TrackRowViewHolder) viewHolder;
 
         TrackRow row = (TrackRow) item;
-        Track track = (Track) row.getTrack();
+        TrackSimple track = (TrackSimple) row.getTrack();
 
         trackViewHolder.getArtistTextView().setText(Utils.getTrackArtists(track));
         trackViewHolder.getTrackTextView().setText(track.name);

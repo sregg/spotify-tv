@@ -35,6 +35,7 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
     private String mUserId;
     private Playlist mPlaylist;
     private List<String> mPlaylistTrackUris;
+    private List<TrackSimple> mPlaylistTracks;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,10 +66,15 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
             @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == ACTION_PLAY_PLAYLIST) {
-                    SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(mPlaylist.uri, mPlaylistTrackUris);
+                    SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(mPlaylist.uri, mPlaylistTrackUris, getTracks());
                 }
             }
         });
+    }
+
+    @Override
+    protected List<TrackSimple> getTracks() {
+        return mPlaylistTracks;
     }
 
     @Override
@@ -89,13 +95,13 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
                 mPlaylist = playlist;
                 setupDetails(playlist);
 
-                List<TrackSimple> tracks = new ArrayList<>(playlist.tracks.items.size());
+                mPlaylistTracks = new ArrayList<>(playlist.tracks.items.size());
                 mPlaylistTrackUris = new ArrayList<>(playlist.tracks.items.size());
                 for (PlaylistTrack playlistTrack : playlist.tracks.items) {
-                    tracks.add(playlistTrack.track);
+                    mPlaylistTracks.add(playlistTrack.track);
                     mPlaylistTrackUris.add(playlistTrack.track.uri);
                 }
-                setupTracksRows(tracks);
+                setupTracksRows(mPlaylistTracks);
 
                 if (playlist.images.size() > 0) {
                     String imageUrl = playlist.images.get(0).url;

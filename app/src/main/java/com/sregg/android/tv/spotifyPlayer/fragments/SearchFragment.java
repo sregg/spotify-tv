@@ -93,11 +93,13 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                         spotifyPlayerController.togglePauseResume();
                     } else {
                         // get song and following ones
+                        List<TrackSimple> tracks = new ArrayList<TrackSimple>();
                         List<String> trackUris = new ArrayList<>();
                         for (int i = mTrackRowAdapter.indexOf(item); i < mTrackRowAdapter.size() && i < Constants.MAX_SONGS_PLAYED; i++) {
+                            tracks.add((TrackSimple) mTrackRowAdapter.get(i));
                             trackUris.add(((Track) mTrackRowAdapter.get(i)).uri);
                         }
-                        spotifyPlayerController.play(trackUri, trackUris);
+                        spotifyPlayerController.play(trackUri, trackUris, tracks);
                     }
                 } else {
                     SpotifyTvApplication.getInstance().launchDetailScreen(getActivity(), item);

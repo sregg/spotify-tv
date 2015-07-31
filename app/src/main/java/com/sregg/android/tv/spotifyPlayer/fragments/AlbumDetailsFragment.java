@@ -21,6 +21,7 @@ import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
+import kaaes.spotify.webapi.android.models.TrackSimple;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -64,7 +65,7 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
             @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == ACTION_PLAY_ALBUM) {
-                    SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(mAlbum.uri, mAlbumTrackUris);
+                    SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(mAlbum.uri, mAlbumTrackUris, getTracks());
                 } else if (action.getId() == ACTION_VIEW_ARTIST) {
                     ArtistSimple artist = null;
 
@@ -78,6 +79,11 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
                 }
             }
         });
+    }
+
+    @Override
+    protected List<TrackSimple> getTracks() {
+        return mAlbum.tracks.items;
     }
 
     @Override

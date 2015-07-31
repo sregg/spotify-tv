@@ -83,10 +83,16 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
     }
 
     private void playFromTrack(TrackSimple item) {
+        List<TrackSimple> tracks = getTracks();
         List<String> trackUris = getTrackUris();
+		int index = trackUris.indexOf(item.uri);
+        List<TrackSimple> tracksSubList = tracks.subList(index, tracks.size());
+        List<String> uriSubList = trackUris.subList(index, trackUris.size());
         List<String> subList = trackUris.subList(trackUris.indexOf(item.uri), trackUris.size());
-        SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(getObjectUri(), subList);
+        SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(getObjectUri(), uriSubList, tracksSubList);
     }
+
+    protected abstract List<TrackSimple> getTracks();
 
     protected abstract List<String> getTrackUris();
 
@@ -104,21 +110,31 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
     }
 
     protected void setDetailsRow(DetailsOverviewRow row) {
+        if (mDetailsRow != null) {
+            mRowsAdapter.remove(mDetailsRow);
+        }
         mDetailsRow = row;
         mRowsAdapter.add(0, mDetailsRow);
     }
 
     protected void setupTracksRows(List<TrackSimple> tracks) {
-        mRowsAdapter.add(new TracksHeaderRow());
-        List<TrackRow> trackRows = new ArrayList<>(tracks.size());
-        for (TrackSimple track : tracks) {
-            trackRows.add(new TrackRow(track));
+        if (mRowsAdapter.size() < 2) {
+            mRowsAdapter.add(new TracksHeaderRow());
+            List<TrackRow> trackRows = new ArrayList<>(tracks.size());
+            for (TrackSimple track : tracks) {
+                trackRows.add(new TrackRow(track));
+            }
+            mRowsAdapter.addAll(mRowsAdapter.size(), trackRows);
         }
-        mRowsAdapter.addAll(mRowsAdapter.size(), trackRows);
     }
 
     protected void loadDetailsRowImage(String imageUrl) {
-        new ImageLoader().execute(imageUrl);
+        if (imageUrl == null) {
+            mDetailsRow.setImageBitmap(getActivity(), null);
+            mBackgroundManager.setBitmap(null);
+        } else {
+            new ImageLoader().execute(imageUrl);
+        }
     }
 
     private class ImageLoader extends AsyncTask<String, Void, Void> {

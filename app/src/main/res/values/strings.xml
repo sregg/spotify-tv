@@ -3,6 +3,7 @@
 
     <string name="app_name">TV Player for Spotify</string>
     <string name="browse_title">@string/app_name</string>
+    <string name="now_playing">Now Playing</string>
     <string name="new_releases">New Releases</string>
     <string name="featured_playlists">Featured Playlists</string>
     <string name="categories">Categories</string>

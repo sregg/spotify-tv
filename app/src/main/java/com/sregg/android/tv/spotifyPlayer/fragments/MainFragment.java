@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.squareup.otto.Subscribe;
+import com.sregg.android.tv.spotify.activities.NowPlayingActivity;
 import com.sregg.android.tv.spotifyPlayer.BusProvider;
 import com.sregg.android.tv.spotifyPlayer.Constants;
 import com.sregg.android.tv.spotifyPlayer.R;
@@ -50,6 +51,7 @@ public class MainFragment extends BrowseFragment {
     private static final String TAG = "MainFragment";
 
     private ArrayObjectAdapter mNewReleasesAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
+    private ArrayObjectAdapter mNowPlayingAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
     private ArrayObjectAdapter mFeaturedPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistSimpleCardPresenter());
     private ArrayObjectAdapter mCategoriesAdapter = new ArrayObjectAdapter(new CategoryCardPresenter());
     private ArrayObjectAdapter mPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistCardPresenter());
@@ -57,6 +59,8 @@ public class MainFragment extends BrowseFragment {
     private ArrayObjectAdapter mSavedAlbumsAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
     private ArrayObjectAdapter mSavedArtistsAdapter = new ArrayObjectAdapter(new ArtistCardPresenter());
     private ArrayObjectAdapter mRowsAdapter;
+    private HeaderItem mNowPlayingHeader;
+    private ListRow mNowPlayingListRow;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -71,6 +75,8 @@ public class MainFragment extends BrowseFragment {
 
     private void setupSections() {
         setupMainAdapter();
+
+        setupNowPlaying();
 
         setupFeaturedPlaylists();
 
@@ -122,7 +128,9 @@ public class MainFragment extends BrowseFragment {
         setOnItemViewClickedListener(new OnItemViewClickedListener() {
             @Override
             public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
-                if (item instanceof Setting) {
+                if (row.getHeaderItem() == mNowPlayingHeader) {
+                    startActivity(new Intent(getActivity(), NowPlayingActivity.class));
+                } else if (item instanceof Setting) {
                     ((Setting) item).onClick(getActivity());
                 } else if (item instanceof Control) {
                     SpotifyTvApplication.getInstance().getSpotifyPlayerController().onControlClick(((Control) item));
@@ -133,11 +141,13 @@ public class MainFragment extends BrowseFragment {
                         spotifyPlayerController.togglePauseResume();
                     } else {
                         // get song and following ones
+                        List<TrackSimple> tracks = new ArrayList<TrackSimple>();
                         List<String> trackUris = new ArrayList<>();
                         for (int i = mSavedSongsAdapter.indexOf(item); i < mSavedSongsAdapter.size() && i < Constants.MAX_SONGS_PLAYED; i++) {
+                            tracks.add((TrackSimple) mSavedSongsAdapter.get(i));
                             trackUris.add(((Track) mSavedSongsAdapter.get(i)).uri);
                         }
-                        spotifyPlayerController.play(trackUri, trackUris);
+                        spotifyPlayerController.play(trackUri, trackUris, tracks);
                     }
                 } else {
                     SpotifyTvApplication.getInstance().launchDetailScreen(getActivity(), item);
@@ -152,6 +162,20 @@ public class MainFragment extends BrowseFragment {
 
     private SpotifyService getSpotifyService() {
         return SpotifyTvApplication.getInstance().getSpotifyService();
+    }
+
+    private void setupNowPlaying() {
+        mNowPlayingHeader = new HeaderItem(0, getString(R.string.now_playing));
+
+        TrackSimple currentTrack = SpotifyTvApplication.getInstance().getSpotifyPlayerController().getPlayingState().getCurrentTrack();
+        if (currentTrack != null) {
+            mNowPlayingAdapter.removeItems(0, mNowPlayingAdapter.size());
+            mNowPlayingAdapter.add(currentTrack);
+            mNowPlayingListRow = new ListRow(mNowPlayingHeader, mNowPlayingAdapter);
+            mRowsAdapter.add(0, mNowPlayingListRow);
+        } else {
+            mNowPlayingListRow = null;
+        }
     }
 
     private void setupFeaturedPlaylists() {
@@ -362,6 +386,21 @@ public class MainFragment extends BrowseFragment {
         settingsAdapter.add(new CustomizeUiSetting());
 
         mRowsAdapter.add(new ListRow(settingsHeader, settingsAdapter));
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe
+    public void onTrackChanged(OnTrackChanged onTrackChanged) {
+        PlayingState playingState = onTrackChanged.getPlayingState();
+        mNowPlayingAdapter.removeItems(0, mNowPlayingAdapter.size());
+        if (playingState.getCurrentTrack() != null) {
+            mNowPlayingAdapter.add(0, playingState.getCurrentTrack());
+        }
+
+        if (mNowPlayingListRow == null) {
+            mNowPlayingListRow = new ListRow(mNowPlayingHeader, mNowPlayingAdapter);
+            mRowsAdapter.add(0, mNowPlayingListRow);
+        }
     }
 
     @Override

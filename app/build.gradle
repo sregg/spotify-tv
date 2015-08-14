@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'play'
+apply plugin: 'spoon'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
@@ -16,6 +17,7 @@ buildscript {
     dependencies {
         classpath 'com.github.triplet.gradle:play-publisher:1.0.2'
         classpath 'io.fabric.tools:gradle:1.+'
+        classpath 'com.stanfy.spoon:spoon-gradle-plugin:1.0.2'
     }
 }
 
@@ -101,6 +103,10 @@ configurations {
     androidTestCompile.exclude group: 'com.android.support', module: 'support-v4'
     androidTestCompile.exclude group: 'com.android.support', module: 'recyclerview-v7'
     androidTestCompile.exclude group: 'com.android.support', module: 'support-annotations'
+}
+
+spoon {
+    debug = true;
 }
 
 play {

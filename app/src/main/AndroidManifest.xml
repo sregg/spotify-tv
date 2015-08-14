@@ -58,6 +58,9 @@
         <service
             android:name=".services.RecommendationsService"
             android:enabled="true" />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="cea8943478a3a3801bdeecd439e2fceeed30bd9f" />
     </application>
 
 </manifest>

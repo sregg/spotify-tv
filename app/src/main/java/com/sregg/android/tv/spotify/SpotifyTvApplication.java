@@ -2,6 +2,7 @@ package com.sregg.android.tv.spotify;
 
 import android.app.Activity;
 import android.app.Application;
+import com.crashlytics.android.Crashlytics;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.Spotify;
@@ -14,6 +15,7 @@ import com.sregg.android.tv.spotify.enums.Control;
 import com.sregg.android.tv.spotify.settings.Setting;
 import com.sregg.android.tv.spotify.utils.Utils;
 
+import io.fabric.sdk.android.Fabric;
 import java.util.Collections;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -51,6 +53,7 @@ public class SpotifyTvApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
         sInstance = this;
     }
 

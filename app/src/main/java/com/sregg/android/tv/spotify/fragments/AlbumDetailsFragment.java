@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.DetailsOverviewRow;
 import android.support.v17.leanback.widget.OnActionClickedListener;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.util.Log;
 
@@ -21,7 +22,6 @@ import java.util.List;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
-import kaaes.spotify.webapi.android.models.TrackSimple;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -62,8 +62,8 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
     }
 
     @Override
-    protected Presenter getTrackRowPresenter() {
-        return new AlbumTrackRowPresenter();
+    protected Presenter getTrackRowPresenter(OnItemViewClickedListener onTrackRowItemClicked) {
+        return new AlbumTrackRowPresenter(onTrackRowItemClicked);
     }
 
     private void setupFragment() {

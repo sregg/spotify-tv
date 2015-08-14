@@ -1,5 +1,6 @@
 package com.sregg.android.tv.spotify.presenters;
 
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.text.format.DateUtils;
 import com.sregg.android.tv.spotify.rows.TrackRow;
@@ -7,6 +8,10 @@ import com.sregg.android.tv.spotify.utils.Utils;
 import kaaes.spotify.webapi.android.models.TrackSimple;
 
 public class AlbumTrackRowPresenter extends AbsTrackRowPresenter {
+
+    public AlbumTrackRowPresenter(OnItemViewClickedListener onTrackRowItemClicked) {
+        super(onTrackRowItemClicked);
+    }
 
     @Override
     protected void onBindRowViewHolder(RowPresenter.ViewHolder viewHolder, Object item) {

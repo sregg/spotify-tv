@@ -65,7 +65,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
 
     protected abstract Presenter getDetailsPresenter();
 
-    protected abstract Presenter getTrackRowPresenter();
+    protected abstract Presenter getTrackRowPresenter(OnItemViewClickedListener onTrackRowItemClicked);
 
     private void setupFragment() {
         mDetailsPresenter = new DetailsOverviewRowPresenter(getDetailsPresenter());
@@ -74,16 +74,18 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
         ClassPresenterSelector ps = new ClassPresenterSelector();
         ps.addClassPresenter(DetailsOverviewRow.class, mDetailsPresenter);
         ps.addClassPresenter(TracksHeaderRow.class, new TracksHeaderRowPresenter());
-        ps.addClassPresenter(TrackRow.class, getTrackRowPresenter());
 
-        setOnItemViewClickedListener(new OnItemViewClickedListener() {
+        OnItemViewClickedListener onTrackRowItemClicked = new OnItemViewClickedListener() {
             @Override
             public void onItemClicked(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
                 if (item instanceof TrackSimple) {
                     playFromTrack(((TrackSimple) item));
                 }
             }
-        });
+        };
+
+        ps.addClassPresenter(TrackRow.class, getTrackRowPresenter(onTrackRowItemClicked));
+
 
         mRowsAdapter = new ArrayObjectAdapter(ps);
         setAdapter(mRowsAdapter);

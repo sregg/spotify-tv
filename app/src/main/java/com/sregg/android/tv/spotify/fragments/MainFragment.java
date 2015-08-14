@@ -156,7 +156,7 @@ public class MainFragment extends BrowseFragment {
 
     private void setupFeaturedPlaylists() {
         if (isSectionEnabled(R.string.featured_playlists)) {
-            HeaderItem featuredPlaylistsHeader = new HeaderItem(0, getString(R.string.featured_playlists), null);
+            HeaderItem featuredPlaylistsHeader = new HeaderItem(0, getString(R.string.featured_playlists));
             mRowsAdapter.add(new ListRow(featuredPlaylistsHeader, mFeaturedPlaylistsAdapter));
         }
     }
@@ -180,7 +180,7 @@ public class MainFragment extends BrowseFragment {
 
     private void setupNewReleases() {
         if (isSectionEnabled(R.string.new_releases)) {
-            HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.new_releases), null);
+            HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.new_releases));
             mRowsAdapter.add(new ListRow(newReleasesHeader, mNewReleasesAdapter));
         }
     }
@@ -203,7 +203,7 @@ public class MainFragment extends BrowseFragment {
 
     private void setupCategories() {
         if (isSectionEnabled(R.string.categories)) {
-            HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.categories), null);
+            HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.categories));
             mRowsAdapter.add(new ListRow(newReleasesHeader, mCategoriesAdapter));
         }
     }
@@ -227,26 +227,26 @@ public class MainFragment extends BrowseFragment {
     private void loadUserLibraryRows() {
         // playlist row
         if (isSectionEnabled(R.string.my_playlists)) {
-            HeaderItem playListHeader = new HeaderItem(0, getString(R.string.my_playlists), null);
+            HeaderItem playListHeader = new HeaderItem(0, getString(R.string.my_playlists));
             mRowsAdapter.add(new ListRow(playListHeader, mPlaylistsAdapter));
         }
 
         // Albums row
         if (isSectionEnabled(R.string.my_albums)) {
-            HeaderItem albumsHeader = new HeaderItem(0, getString(R.string.my_albums), null);
+            HeaderItem albumsHeader = new HeaderItem(0, getString(R.string.my_albums));
             mRowsAdapter.add(new ListRow(albumsHeader, mSavedAlbumsAdapter));
         }
 
         // Artists row
         if (isSectionEnabled(R.string.my_artists)) {
-            HeaderItem artistsHeader = new HeaderItem(0, getString(R.string.my_artists), null);
+            HeaderItem artistsHeader = new HeaderItem(0, getString(R.string.my_artists));
             mRowsAdapter.add(new ListRow(artistsHeader, mSavedArtistsAdapter));
         }
 
 
         // Songs row
         if (isSectionEnabled(R.string.my_songs)) {
-            HeaderItem songsHeader = new HeaderItem(0, getString(R.string.my_songs), null);
+            HeaderItem songsHeader = new HeaderItem(0, getString(R.string.my_songs));
             mRowsAdapter.add(new ListRow(songsHeader, mSavedSongsAdapter));
         }
 
@@ -362,7 +362,7 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void loadControlsRow() {
-        HeaderItem controlsHeader = new HeaderItem(getString(R.string.controls), null);
+        HeaderItem controlsHeader = new HeaderItem(getString(R.string.controls));
 
         ControlPresenter controlPresenter = new ControlPresenter();
         ArrayObjectAdapter controlsAdapter = new ArrayObjectAdapter(controlPresenter);
@@ -378,7 +378,7 @@ public class MainFragment extends BrowseFragment {
     }
 
     private void loadSettingsRow() {
-        HeaderItem settingsHeader = new HeaderItem(getString(R.string.settings), null);
+        HeaderItem settingsHeader = new HeaderItem(getString(R.string.settings));
 
         SettingPresenter settingPresenter = new SettingPresenter();
         ArrayObjectAdapter settingsAdapter = new ArrayObjectAdapter(settingPresenter);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:insetLeft="@dimen/lb_details_overview_margin_left"
-    android:insetRight="@dimen/lb_details_overview_margin_right">
+    android:insetLeft="@dimen/lb_details_overview_margin_start"
+    android:insetRight="@dimen/lb_details_overview_margin_end">
     <shape>
         <solid android:color="@color/fastlane_background" />
     </shape>

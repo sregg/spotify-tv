@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.DetailsOverviewRow;
 import android.support.v17.leanback.widget.OnActionClickedListener;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.util.Log;
 
@@ -62,8 +63,8 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
     }
 
     @Override
-    protected Presenter getTrackRowPresenter() {
-        return new PlaylistTrackRowPresenter();
+    protected Presenter getTrackRowPresenter(OnItemViewClickedListener onTrackRowItemClicked) {
+        return new PlaylistTrackRowPresenter(onTrackRowItemClicked);
     }
 
     private void setupFragment() {

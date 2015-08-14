@@ -140,7 +140,7 @@ public class ArtistsDetailsFragment extends BrowseFragment {
         for (AlbumType albumType : albumTypes) {
             ArrayObjectAdapter adapter = new ArrayObjectAdapter(new AlbumCardPresenter());
             String headerResourceName = "artists_album_type_" + albumType.name().toLowerCase();
-            HeaderItem header = new HeaderItem(0, Utils.getStringByName(getActivity(), headerResourceName), null);
+            HeaderItem header = new HeaderItem(0, Utils.getStringByName(getActivity(), headerResourceName));
             mRowsAdapter.add(new ListRow(header, adapter));
             mAlbumsAdapters.put(albumType, adapter);
         }
@@ -183,7 +183,7 @@ public class ArtistsDetailsFragment extends BrowseFragment {
 
     private void setupTopTracksRow() {
         mTopTrackAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
-        HeaderItem header = new HeaderItem(0, getString(R.string.artists_top_tracks), null);
+        HeaderItem header = new HeaderItem(0, getString(R.string.artists_top_tracks));
         mRowsAdapter.add(new ListRow(header, mTopTrackAdapter));
 
         loadTopTracks();
@@ -209,7 +209,7 @@ public class ArtistsDetailsFragment extends BrowseFragment {
 
     private void setupRelatedArtistsRows() {
         mRelatedArtistsAdapter = new ArrayObjectAdapter(new ArtistCardPresenter());
-        HeaderItem header = new HeaderItem(0, getString(R.string.artists_related_artists), null);
+        HeaderItem header = new HeaderItem(0, getString(R.string.artists_related_artists));
         mRowsAdapter.add(new ListRow(header, mRelatedArtistsAdapter));
 
         loadRelatedArtists();

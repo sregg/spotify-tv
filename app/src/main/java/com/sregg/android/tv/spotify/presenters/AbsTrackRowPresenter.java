@@ -1,5 +1,8 @@
 package com.sregg.android.tv.spotify.presenters;
 
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
 import android.support.v17.leanback.widget.RowPresenter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,8 +15,12 @@ import com.sregg.android.tv.spotify.rows.TrackRow;
 import com.sregg.android.tv.spotify.utils.Utils;
 import com.sregg.android.tv.spotify.views.TrackRowView;
 
+import kaaes.spotify.webapi.android.models.TrackSimple;
+
 public abstract class AbsTrackRowPresenter extends RowPresenter {
     private static final String TAG = "TrackRowPresenter";
+
+    private final OnItemViewClickedListener onTrackRowItemClicked;
 
     static class TrackRowViewHolder extends ViewHolder {
 
@@ -41,9 +48,9 @@ public abstract class AbsTrackRowPresenter extends RowPresenter {
         }
     }
 
-    public AbsTrackRowPresenter() {
+    public AbsTrackRowPresenter(OnItemViewClickedListener onTrackRowItemClicked) {
         super();
-
+        this.onTrackRowItemClicked = onTrackRowItemClicked;
         setHeaderPresenter(null);
     }
 
@@ -54,7 +61,7 @@ public abstract class AbsTrackRowPresenter extends RowPresenter {
     }
 
     @Override
-    protected void onBindRowViewHolder(RowPresenter.ViewHolder viewHolder, Object item) {
+    protected void onBindRowViewHolder(RowPresenter.ViewHolder viewHolder, final Object item) {
         super.onBindRowViewHolder(viewHolder, item);
 
         final TrackRowViewHolder trackViewHolder = (TrackRowViewHolder) viewHolder;
@@ -74,13 +81,7 @@ public abstract class AbsTrackRowPresenter extends RowPresenter {
         trackRowview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getOnItemClickedListener() != null) {
-                    getOnItemClickedListener().onItemClicked(trackRow.getTrack(), trackRow);
-                }
-
-                if (getOnItemViewClickedListener() != null) {
-                    getOnItemViewClickedListener().onItemClicked(trackViewHolder, trackRow.getTrack(), trackViewHolder, trackRow);
-                }
+                onTrackRowItemClicked.onItemClicked(trackViewHolder, trackRow.getTrack(), getRowViewHolder(trackViewHolder), trackRow);
             }
         });
     }

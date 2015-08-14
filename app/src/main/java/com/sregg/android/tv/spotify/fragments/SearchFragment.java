@@ -134,7 +134,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 for (Artist artist : artistsPager.artists.items) {
                     listRowAdapter.add(artist);
                 }
-                HeaderItem header = new HeaderItem(getString(R.string.artists), null);
+                HeaderItem header = new HeaderItem(getString(R.string.artists));
                 mRowsAdapter.add(new ListRow(header, listRowAdapter));
 
                 // TODO next pages ?
@@ -155,7 +155,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 for (AlbumSimple artist : albumsPager.albums.items) {
                     listRowAdapter.add(artist);
                 }
-                HeaderItem header = new HeaderItem(getString(R.string.albums), null);
+                HeaderItem header = new HeaderItem(getString(R.string.albums));
                 mRowsAdapter.add(new ListRow(header, listRowAdapter));
 
                 // TODO next pages ?
@@ -182,7 +182,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                 for (Track track : tracksPager.tracks.items) {
                     mTrackRowAdapter.add(track);
                 }
-                HeaderItem header = new HeaderItem(getString(R.string.songs), null);
+                HeaderItem header = new HeaderItem(getString(R.string.songs));
                 mRowsAdapter.add(new ListRow(header, mTrackRowAdapter));
 
                 // TODO next pages ?
@@ -205,7 +205,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                     Playlist playlist = mSpotifyService.getPlaylist(playlistSimple.owner.id, playlistSimple.id);
                     listRowAdapter.add(playlist);
                 }
-                HeaderItem header = new HeaderItem(getString(R.string.playlists), null);
+                HeaderItem header = new HeaderItem(getString(R.string.playlists));
                 mRowsAdapter.add(new ListRow(header, listRowAdapter));
 
                 // TODO next pages ?

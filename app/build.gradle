@@ -36,8 +36,8 @@ android {
         targetSdkVersion 21
         renderscriptTargetApi 17
         renderscriptSupportModeEnabled true
-        versionCode 9
-        versionName "1.7"
+        versionCode 10
+        versionName "1.8"
     }
     buildTypes {
         release {

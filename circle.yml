@@ -17,4 +17,4 @@ test:
     # copy the build outputs to artifacts
     - cp -r my-project/build/outputs $CIRCLE_ARTIFACTS
     # copy the test results to the test results directory.
-    - cp -r my-project/build/outputs/spoon/* $CIRCLE_TEST_REPORTS
+    - cp -r my-project/build/spoon/* $CIRCLE_TEST_REPORTS

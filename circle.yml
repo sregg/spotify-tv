@@ -15,6 +15,6 @@ test:
     # run tests against the emulator using spoon.
     - ./gradlew spoonDebugAndroidTest
     # copy the build outputs to artifacts
-    - cp -r my-project/build/outputs $CIRCLE_ARTIFACTS
+    - cp -r spotify-tv/app/build/outputs $CIRCLE_ARTIFACTS
     # copy the test results to the test results directory.
-    - cp -r my-project/build/spoon/* $CIRCLE_TEST_REPORTS
+    - cp -r spotify-tv/app/build/spoon/* $CIRCLE_TEST_REPORTS

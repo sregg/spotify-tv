@@ -13,7 +13,7 @@ test:
     # wait for it to have booted
     - circle-android wait-for-boot
     # run tests against the emulator using spoon.
-    - ./gradlew spoonDebugAndroidTest
+    - ./gradlew spoonExtraPermsDebugAndroidTest
     # copy the build outputs to artifacts
     - cp -r $HOME/spotify-tv/app/build/outputs $CIRCLE_ARTIFACTS
     # copy the test results to the test results directory.

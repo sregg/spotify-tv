@@ -56,6 +56,14 @@ android {
             dirs 'libs'
         }
     }
+    productFlavors {
+        /**
+         * This flavor is to be run only using connectedExtraPermsAndroidTest or spoonExtraPermsDebugAndroidTest
+         */
+        extraPerms {}
+
+        regular {}
+    }
 }
 
 dependencies {

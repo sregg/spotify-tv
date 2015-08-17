@@ -26,6 +26,7 @@ Unofficial Spotify app for Android TV
 - Recommendations in Android TV Home (based on user's recommended artists/albums)
 - Setting - dim screen after 2 minutes of playing
 - Game controller controls (play, pause, previous, next, etc...)
+- Refactor: recommendations using [support library](http://developer.android.com/tools/support-library/features.html#recommendation)
 
 # Release build
 Add the values `release.storeFile`, `release.storePassword`, `release.keyAlias`, and `release.keyPassword` to `release.properties`.

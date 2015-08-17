@@ -50,7 +50,6 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     private ArrayObjectAdapter mRowsAdapter;
     private Handler mHandler = new Handler();
     private SearchRunnable mDelayedLoad;
-    private SpotifyService mSpotifyService;
     private ArrayObjectAdapter mTrackRowAdapter;
 
     @Override
@@ -81,7 +80,6 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             }
         });
         mDelayedLoad = new SearchRunnable();
-        mSpotifyService = SpotifyTvApplication.getInstance().getSpotifyService();
     }
 
     @Override
@@ -127,7 +125,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     }
 
     private void searchArtists(String query) {
-        mSpotifyService.searchArtists(query, getSearchOptions(), new Callback<ArtistsPager>() {
+        SpotifyTvApplication.getInstance().getSpotifyService().searchArtists(query, getSearchOptions(), new Callback<ArtistsPager>() {
             @Override
             public void success(ArtistsPager artistsPager, Response response) {
                 ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new ArtistCardPresenter());
@@ -148,7 +146,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     }
 
     private void searchAlbums(String query) {
-        mSpotifyService.searchAlbums(query, getSearchOptions(), new Callback<AlbumsPager>() {
+        SpotifyTvApplication.getInstance().getSpotifyService().searchAlbums(query, getSearchOptions(), new Callback<AlbumsPager>() {
             @Override
             public void success(AlbumsPager albumsPager, Response response) {
                 ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
@@ -175,7 +173,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
     }
 
     private void searchSongs(String query) {
-        mSpotifyService.searchTracks(query, getSearchOptions(), new Callback<TracksPager>() {
+        SpotifyTvApplication.getInstance().getSpotifyService().searchTracks(query, getSearchOptions(), new Callback<TracksPager>() {
             @Override
             public void success(TracksPager tracksPager, Response response) {
                 mTrackRowAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
@@ -197,12 +195,12 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
 
 
     private void searchPlaylists(String query) {
-        mSpotifyService.searchPlaylists(query, getSearchOptions(), new Callback<PlaylistsPager>() {
+        SpotifyTvApplication.getInstance().getSpotifyService().searchPlaylists(query, getSearchOptions(), new Callback<PlaylistsPager>() {
             @Override
             public void success(PlaylistsPager playlistsPager, Response response) {
                 ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new PlaylistCardPresenter());
                 for (PlaylistSimple playlistSimple : playlistsPager.playlists.items) {
-                    Playlist playlist = mSpotifyService.getPlaylist(playlistSimple.owner.id, playlistSimple.id);
+                    Playlist playlist = SpotifyTvApplication.getInstance().getSpotifyService().getPlaylist(playlistSimple.owner.id, playlistSimple.id);
                     listRowAdapter.add(playlist);
                 }
                 HeaderItem header = new HeaderItem(getString(R.string.playlists));

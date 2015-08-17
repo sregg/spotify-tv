@@ -1,3 +1,5 @@
+[![Circle CI](https://circleci.com/gh/sregg/spotify-tv/tree/master.svg?style=svg)](https://circleci.com/gh/sregg/spotify-tv/tree/master)
+
 # TV Player for Spotify
 Unofficial Spotify app for Android TV
 
@@ -44,6 +46,3 @@ Here are some basic rules to follow to ensure timely addition of your request:
 GPL v2
 
 This open source app complies with the [Spotify TOS](https://developer.spotify.com/developer-terms-of-use/)
-
-# Travis
-[![Build Status](https://travis-ci.org/sregg/spotify-tv.svg?branch=master)](https://travis-ci.org/sregg/spotify-tv)

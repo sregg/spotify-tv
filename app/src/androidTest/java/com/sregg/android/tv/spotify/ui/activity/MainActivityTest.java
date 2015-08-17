@@ -3,6 +3,7 @@ package com.sregg.android.tv.spotify.ui.activity;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
 
+import com.squareup.spoon.Spoon;
 import com.sregg.android.tv.spotify.activities.MainActivity;
 import com.sregg.android.tv.spotify.testUtils.rule.EspressoTestRule;
 import com.sregg.android.tv.spotify.testUtils.rule.FailureScreenshotRule;
@@ -35,7 +36,8 @@ public class MainActivityTest {
 
     @Test
     public void shouldOpen() {
+        Spoon.screenshot(activityTestRule.getActivity(), "on_main_activity_open_start");
+        // TODO
         assertTrue(true);
-//        Spoon.screenshot(activityTestRule.getActivity(), "on_main_activity_open_start");
     }
 }

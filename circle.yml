@@ -6,8 +6,10 @@ dependencies:
 
 test:
   override:
+    # create sdcard image file
+    - mksdcard -l e 512M mysdcard.img
     # start the emulator
-    - emulator -avd circleci-android22 -no-audio -no-window:
+    - emulator -avd circleci-android22 -no-audio -no-window -sdcard mysdcard.img:
         background: true
         parallel: true
     # wait for it to have booted

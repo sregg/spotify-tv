@@ -43,7 +43,6 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
 
     private BackgroundManager mBackgroundManager;
     private DisplayMetrics mMetrics;
-    private Handler mHandler;
     private ArrayObjectAdapter mRowsAdapter;
     private SpotifyTvApplication mApp;
 
@@ -54,10 +53,6 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
-
-        mHandler = new Handler();
-
-        mApp = SpotifyTvApplication.getInstance();
 
         setupFragment();
         setupBackground();

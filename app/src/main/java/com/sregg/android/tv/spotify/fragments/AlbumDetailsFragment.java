@@ -33,9 +33,6 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
     private static final long ACTION_PLAY_ALBUM = 1;
     private static final long ACTION_VIEW_ARTIST = 2;
 
-    private SpotifyService mSpotifyService;
-    private SpotifyTvApplication mApp;
-
     private String mAlbumId;
     private Album mAlbum;
     private List<String> mAlbumTrackUris;
@@ -48,9 +45,6 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
         Intent intent = getActivity().getIntent();
 
         mAlbumId = intent.getStringExtra(AlbumActivity.ARG_ALBUM_ID);
-
-        mApp = SpotifyTvApplication.getInstance();
-        mSpotifyService = mApp.getSpotifyService();
 
         setupFragment();
         loadAlbum();
@@ -71,7 +65,7 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
             @Override
             public void onActionClicked(Action action) {
                 if (action.getId() == ACTION_PLAY_ALBUM) {
-                    mApp.getSpotifyPlayerController().play(mAlbum.uri, mAlbumTrackUris);
+                    SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(mAlbum.uri, mAlbumTrackUris);
                 } else if (action.getId() == ACTION_VIEW_ARTIST) {
                     ArtistSimple artist = null;
 
@@ -99,7 +93,7 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
 
     private void loadAlbum() {
         // load artist from API to get their image
-        mSpotifyService.getAlbum(mAlbumId, new Callback<Album>() {
+        SpotifyTvApplication.getInstance().getSpotifyService().getAlbum(mAlbumId, new Callback<Album>() {
             @Override
             public void success(final Album album, Response response) {
                 mAlbum = album;

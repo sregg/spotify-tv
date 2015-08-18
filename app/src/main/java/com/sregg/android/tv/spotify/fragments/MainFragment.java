@@ -49,7 +49,6 @@ import java.util.*;
 public class MainFragment extends BrowseFragment {
     private static final String TAG = "MainFragment";
 
-    private SpotifyService mSpotifyService;
     private ArrayObjectAdapter mNewReleasesAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
     private ArrayObjectAdapter mFeaturedPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistSimpleCardPresenter());
     private ArrayObjectAdapter mCategoriesAdapter = new ArrayObjectAdapter(new CategoryCardPresenter());
@@ -63,9 +62,6 @@ public class MainFragment extends BrowseFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         super.onActivityCreated(savedInstanceState);
-
-        SpotifyTvApplication app = SpotifyTvApplication.getInstance();
-        mSpotifyService = app.getSpotifyService();
 
         setupUIElements();
         setupEventListeners();
@@ -154,6 +150,10 @@ public class MainFragment extends BrowseFragment {
         return UserPreferences.getInstance(getActivity()).isSectionEnabled(getString(sectionResId));
     }
 
+    private SpotifyService getSpotifyService() {
+        return SpotifyTvApplication.getInstance().getSpotifyService();
+    }
+
     private void setupFeaturedPlaylists() {
         if (isSectionEnabled(R.string.featured_playlists)) {
             HeaderItem featuredPlaylistsHeader = new HeaderItem(0, getString(R.string.featured_playlists));
@@ -166,7 +166,7 @@ public class MainFragment extends BrowseFragment {
         Map<String, Object> options = new HashMap<>();
         options.put(SpotifyService.COUNTRY, SpotifyTvApplication.getCurrentUserCountry());
         options.put("timestamp", DateFormat.format("yyyy-MM-dd'T'hh:mm:ss", new Date()));
-        mSpotifyService.getFeaturedPlaylists(options, new Callback<FeaturedPlaylists>() {
+        getSpotifyService().getFeaturedPlaylists(options, new Callback<FeaturedPlaylists>() {
             @Override
             public void success(FeaturedPlaylists featuredPlaylists, Response response) {
                 mFeaturedPlaylistsAdapter.addAll(0, featuredPlaylists.playlists.items);
@@ -190,7 +190,7 @@ public class MainFragment extends BrowseFragment {
     private void loadNewReleases() {
         Map<String, Object> options = new HashMap<>();
         options.put(SpotifyService.COUNTRY, SpotifyTvApplication.getCurrentUserCountry());
-        mSpotifyService.getNewReleases(options, new Callback<NewReleases>() {
+        getSpotifyService().getNewReleases(options, new Callback<NewReleases>() {
             @Override
             public void success(NewReleases newReleases, Response response) {
                 mNewReleasesAdapter.addAll(0, newReleases.albums.items);
@@ -214,7 +214,7 @@ public class MainFragment extends BrowseFragment {
     private void loadCategories() {
         Map<String, Object> options = new HashMap<>();
         options.put(SpotifyService.COUNTRY, SpotifyTvApplication.getCurrentUserCountry());
-        mSpotifyService.getCategories(options, new Callback<CategoriesPager>() {
+        getSpotifyService().getCategories(options, new Callback<CategoriesPager>() {
             @Override
             public void success(CategoriesPager categoriesPager, Response response) {
                 mCategoriesAdapter.addAll(0, categoriesPager.categories.items);
@@ -265,7 +265,7 @@ public class MainFragment extends BrowseFragment {
     private void loadPlaylists() {
         mPlaylistsAdapter.clear();
 
-        mSpotifyService.getPlaylists(SpotifyTvApplication.getCurrentUserId(), new Callback<Pager<Playlist>>() {
+        getSpotifyService().getPlaylists(SpotifyTvApplication.getCurrentUserId(), new Callback<Pager<Playlist>>() {
             @Override
             public void success(Pager<Playlist> playlistPager, Response response) {
                 mPlaylistsAdapter.addAll(mPlaylistsAdapter.size(), playlistPager.items);
@@ -283,7 +283,7 @@ public class MainFragment extends BrowseFragment {
         mSavedAlbumsAdapter.clear();
         mSavedArtistsAdapter.clear();
 
-        mSpotifyService.getMySavedTracks(new Callback<Pager<SavedTrack>>() {
+        getSpotifyService().getMySavedTracks(new Callback<Pager<SavedTrack>>() {
             @Override
             public void success(Pager<SavedTrack> savedTrackPager, Response response) {
                 ArrayList<Track> songs = new ArrayList<>();

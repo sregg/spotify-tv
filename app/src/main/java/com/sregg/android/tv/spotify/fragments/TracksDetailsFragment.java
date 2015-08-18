@@ -31,8 +31,10 @@ import com.sregg.android.tv.spotify.utils.BlurTransformation;
 import com.sregg.android.tv.spotify.utils.Utils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TrackSimple;
 
 public abstract class TracksDetailsFragment extends DetailsFragment {
@@ -114,9 +116,11 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
 
     protected void setupTracksRows(List<TrackSimple> tracks) {
         mRowsAdapter.add(new TracksHeaderRow());
+        List<TrackRow> trackRows = new ArrayList<>(tracks.size());
         for (TrackSimple track : tracks) {
-            mRowsAdapter.add(new TrackRow(track));
+            trackRows.add(new TrackRow(track));
         }
+        mRowsAdapter.addAll(mRowsAdapter.size(), trackRows);
     }
 
     protected void loadDetailsRowImage(String imageUrl) {

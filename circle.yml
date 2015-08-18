@@ -17,7 +17,7 @@ test:
     # uninstall app
     - adb uninstall com.sregg.android.tv.spotify
     # run tests against the emulator using spoon.
-    - ./gradlew spoonDebugAndroidTest --debug
+    - ./gradlew spoonDebugAndroidTest
     # copy the build outputs to artifacts
     - cp -r $HOME/spotify-tv/app/build/outputs $CIRCLE_ARTIFACTS
     # copy the test results to the test results directory.

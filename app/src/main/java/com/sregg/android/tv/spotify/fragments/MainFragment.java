@@ -283,16 +283,21 @@ public class MainFragment extends BrowseFragment {
         mSavedAlbumsAdapter.clear();
         mSavedArtistsAdapter.clear();
 
-        getSpotifyService().getMySavedTracks(new Callback<Pager<SavedTrack>>() {
+        List<String> albumIds = new ArrayList<>();
+        List<String> artistIds = new ArrayList<>();
+        loadPage(0, albumIds, artistIds);
+    }
+
+    private void loadPage(int offset, final List<String> albumIds, final List<String> artistIds) {
+        Map<String, Object> options = new HashMap<>();
+        options.put(SpotifyService.OFFSET, offset);
+        options.put(SpotifyService.LIMIT, Constants.PAGE_LIMIT);
+        getSpotifyService().getMySavedTracks(options, new Callback<Pager<SavedTrack>>() {
             @Override
             public void success(Pager<SavedTrack> savedTrackPager, Response response) {
                 ArrayList<Track> songs = new ArrayList<>();
                 ArrayList<AlbumSimple> albums = new ArrayList<>();
                 ArrayList<ArtistSimple> artists = new ArrayList<>();
-
-                final List<String> albumIds = new ArrayList<>();
-                final List<String> artistIds = new ArrayList<>();
-
                 for (final SavedTrack savedTrack : savedTrackPager.items) {
                     // add saved track
                     songs.add(savedTrack.track);
@@ -316,6 +321,11 @@ public class MainFragment extends BrowseFragment {
                 mSavedSongsAdapter.addAll(mSavedSongsAdapter.size(), songs);
                 mSavedAlbumsAdapter.addAll(mSavedAlbumsAdapter.size(), albums);
                 mSavedArtistsAdapter.addAll(mSavedArtistsAdapter.size(), artists);
+
+                // load next page
+                if (savedTrackPager.next != null) {
+                    loadPage(savedTrackPager.offset + Constants.PAGE_LIMIT, albumIds, artistIds);
+                }
             }
 
             @Override

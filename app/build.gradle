@@ -37,8 +37,8 @@ android {
         targetSdkVersion 22
         renderscriptTargetApi 17
         renderscriptSupportModeEnabled true
-        versionCode 11
-        versionName "1.9"
+        versionCode 12
+        versionName "1.10"
 
         // runner for espresso
         testInstrumentationRunner "com.sregg.android.tv.spotify.testUtils.RxAndroidJUnitRunner"

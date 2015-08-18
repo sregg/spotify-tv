@@ -22,10 +22,18 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.BrowseFragment;
-import android.support.v17.leanback.widget.*;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.support.v7.graphics.Palette;
 import android.util.DisplayMetrics;
 import android.util.Log;
+
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.sregg.android.tv.spotify.Constants;
@@ -38,6 +46,12 @@ import com.sregg.android.tv.spotify.presenters.ArtistCardPresenter;
 import com.sregg.android.tv.spotify.presenters.TrackCardPresenter;
 import com.sregg.android.tv.spotify.utils.BlurTransformation;
 import com.sregg.android.tv.spotify.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.Artist;
@@ -48,11 +62,6 @@ import kaaes.spotify.webapi.android.models.Tracks;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /*
  * Show a Grid of an Artist's Albums
@@ -66,7 +75,6 @@ public class ArtistsDetailsFragment extends BrowseFragment {
     private ArrayObjectAdapter mRowsAdapter;
     private ArrayObjectAdapter mTopTrackAdapter;
     private SpotifyService mSpotifyService;
-    private SpotifyTvApplication mApp;
     private ArrayObjectAdapter mRelatedArtistsAdapter;
 
     private enum AlbumType {
@@ -91,8 +99,7 @@ public class ArtistsDetailsFragment extends BrowseFragment {
         String artistName = intent.getStringExtra(ArtistsAlbumsActivity.ARG_ARTIST_NAME);
         setTitle(artistName);
 
-        mApp = SpotifyTvApplication.getInstance();
-        mSpotifyService = mApp.getSpotifyService();
+        mSpotifyService = SpotifyTvApplication.getInstance().getSpotifyService();
 
         setupFragment();
 
@@ -153,7 +160,7 @@ public class ArtistsDetailsFragment extends BrowseFragment {
         HashMap<String, Object> options = new HashMap<>();
         options.put(SpotifyService.OFFSET, Integer.toString(offset));
         options.put(SpotifyService.LIMIT, Integer.toString(Constants.PAGE_LIMIT));
-        options.put(SpotifyService.MARKET, mApp.getCurrentUserCountry());
+        options.put(SpotifyService.MARKET, SpotifyTvApplication.getCurrentUserCountry());
         mSpotifyService.getArtistAlbums(mArtistId, options, new Callback<Pager<Album>>() {
             @Override
             public void success(Pager<Album> albumPager, Response response) {
@@ -193,7 +200,7 @@ public class ArtistsDetailsFragment extends BrowseFragment {
         Map<String, Object> options = new HashMap<>();
         options.put(SpotifyService.OFFSET, 0);
         options.put(SpotifyService.LIMIT, Constants.PAGE_LIMIT);
-        options.put(SpotifyService.COUNTRY, mApp.getCurrentUserCountry());
+        options.put(SpotifyService.COUNTRY, SpotifyTvApplication.getCurrentUserCountry());
         mSpotifyService.getArtistTopTrack(mArtistId, options, new Callback<Tracks>() {
             @Override
             public void success(Tracks tracks, Response response) {

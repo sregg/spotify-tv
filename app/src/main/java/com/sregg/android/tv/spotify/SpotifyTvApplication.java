@@ -2,7 +2,11 @@ package com.sregg.android.tv.spotify;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.crashlytics.android.Crashlytics;
+import com.google.gson.Gson;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.Spotify;
@@ -11,31 +15,34 @@ import com.sregg.android.tv.spotify.activities.ArtistsAlbumsActivity;
 import com.sregg.android.tv.spotify.activities.CategoryActivity;
 import com.sregg.android.tv.spotify.activities.PlaylistActivity;
 import com.sregg.android.tv.spotify.controllers.SpotifyPlayerController;
-import com.sregg.android.tv.spotify.enums.Control;
-import com.sregg.android.tv.spotify.settings.Setting;
-import com.sregg.android.tv.spotify.utils.Utils;
 
 import io.fabric.sdk.android.Fabric;
-import java.util.Collections;
-
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Category;
-import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistBase;
-import kaaes.spotify.webapi.android.models.TrackSimple;
 import kaaes.spotify.webapi.android.models.User;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 /**
  * Created by simonreggiani on 15-01-18.
  */
 public class SpotifyTvApplication extends Application {
+
+    private static final String SHARED_PREFS_NAME = "SpotifyTvApplicationSharedPref";
+    private static final String KEY_CURRENT_USER = "CurrentUser";
+
     private static SpotifyTvApplication sInstance;
     private SpotifyPlayerController mSpotifyPlayerController;
     private SpotifyService mSpotifyService;
     private User mCurrentUser;
+
+    private Gson gson;
+    private SharedPreferences sharedPreferences;
 
     public SpotifyTvApplication() {
     }
@@ -61,7 +68,7 @@ public class SpotifyTvApplication extends Application {
         return mSpotifyPlayerController;
     }
 
-    public void startSpotifySession(String accessToken) {
+    public void startSpotifySession(final Activity activity, String accessToken, final Runnable onStarted, final Runnable onFailed) {
         // Spotify API
         SpotifyApi api = new SpotifyApi();
         api.setAccessToken(accessToken);
@@ -72,22 +79,61 @@ public class SpotifyTvApplication extends Application {
         Config playerConfig = new Config(this, accessToken, clientId);
         Player player = Spotify.getPlayer(playerConfig, this, null);
         mSpotifyPlayerController = new SpotifyPlayerController(player, mSpotifyService);
+
+        mSpotifyService.getMe(new Callback<User>() {
+            @Override
+            public void success(User user, Response response) {
+                saveCurrentUser(user);
+                activity.runOnUiThread(onStarted);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                activity.runOnUiThread(onFailed);
+            }
+        });
     }
 
     public SpotifyService getSpotifyService() {
         return mSpotifyService;
     }
 
-    public String getCurrentUserId() {
-        return mCurrentUser.id;
+    private SharedPreferences getSharedPreferences() {
+        if (sharedPreferences == null) {
+            sharedPreferences = getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
+        }
+
+        return sharedPreferences;
     }
 
-    public String getCurrentUserCountry() {
-        return mCurrentUser.country;
-    }
-
-    public void setCurrentUser(User currentUser) {
+    private void saveCurrentUser(User currentUser) {
         mCurrentUser = currentUser;
+        String currentUserJSON = getGson().toJson(currentUser);
+        getSharedPreferences().edit().putString(KEY_CURRENT_USER, currentUserJSON).apply();
+    }
+
+    private Gson getGson() {
+        if (gson == null) {
+            gson = new Gson();
+        }
+        return gson;
+    }
+
+    public User getCurrentUser() {
+        if (mCurrentUser == null) {
+            String currentUserJSON = getSharedPreferences().getString(KEY_CURRENT_USER, null);
+            mCurrentUser = getGson().fromJson(currentUserJSON, User.class);
+        }
+
+        return mCurrentUser;
+    }
+
+    public static String getCurrentUserCountry() {
+        return getInstance().getCurrentUser().country;
+    }
+
+    public static String getCurrentUserId() {
+        return getInstance().getCurrentUser().id;
     }
 
     @Override
@@ -97,7 +143,7 @@ public class SpotifyTvApplication extends Application {
     }
 
     public void launchDetailScreen(Activity activity, Object item) {
-         if (item instanceof AlbumSimple) {
+        if (item instanceof AlbumSimple) {
             AlbumSimple albumSimple = (AlbumSimple) item;
             AlbumActivity.launch(activity, albumSimple.id, albumSimple.name);
         } else if (item instanceof ArtistSimple) {

@@ -56,4 +56,5 @@
         <item quantity="one">1 album</item>
         <item quantity="other">%d albums</item>
     </plurals>
+    <string name="login_error_message">Error while logging in. Please make sure you have internet connection and restart the app</string>
 </resources>

@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -93,10 +94,26 @@ public class MainActivity extends Activity {
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                SpotifyTvApplication.getInstance().startSpotifySession(response.getAccessToken());
-                init();
+                // TODO progress dialog
+                SpotifyTvApplication.getInstance().startSpotifySession(MainActivity.this, response.getAccessToken(), new Runnable() {
+                    @Override
+                    public void run() {
+                        init();
+                    }
+                }, new Runnable() {
+                    @Override
+                    public void run() {
+                        showError();
+                    }
+                });
+            } else {
+                showError();
             }
         }
+    }
+
+    private void showError() {
+        Toast.makeText(MainActivity.this, R.string.login_error_message, Toast.LENGTH_LONG).show();
     }
 
     @Override

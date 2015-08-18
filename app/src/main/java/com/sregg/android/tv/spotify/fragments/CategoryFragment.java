@@ -59,7 +59,7 @@ public class CategoryFragment extends VerticalGridFragment {
 
     private void loadCategory(String categoryId) {
         Map<String, Object> options = new HashMap<>();
-        options.put(SpotifyService.COUNTRY, SpotifyTvApplication.getInstance().getCurrentUserCountry());
+        options.put(SpotifyService.COUNTRY, SpotifyTvApplication.getCurrentUserCountry());
         SpotifyTvApplication.getInstance().getSpotifyService().getPlaylistsForCategory(categoryId, options, new Callback<PlaylistsPager>() {
             @Override
             public void success(PlaylistsPager playlistsPager, Response response) {

@@ -82,7 +82,7 @@ public class MainFragment extends BrowseFragment {
 
         setupCategories();
 
-        loadUserLibraryRows();
+        setupUserLibraryRows();
 
         loadControlsRow();
 
@@ -158,12 +158,13 @@ public class MainFragment extends BrowseFragment {
         if (isSectionEnabled(R.string.featured_playlists)) {
             HeaderItem featuredPlaylistsHeader = new HeaderItem(0, getString(R.string.featured_playlists));
             mRowsAdapter.add(new ListRow(featuredPlaylistsHeader, mFeaturedPlaylistsAdapter));
+            loadFeaturedPlaylists();
         }
     }
 
-    private void loadFeaturedPlaylists(User user) {
+    private void loadFeaturedPlaylists() {
         Map<String, Object> options = new HashMap<>();
-        options.put(SpotifyService.COUNTRY, user.country);
+        options.put(SpotifyService.COUNTRY, SpotifyTvApplication.getCurrentUserCountry());
         options.put("timestamp", DateFormat.format("yyyy-MM-dd'T'hh:mm:ss", new Date()));
         mSpotifyService.getFeaturedPlaylists(options, new Callback<FeaturedPlaylists>() {
             @Override
@@ -182,12 +183,13 @@ public class MainFragment extends BrowseFragment {
         if (isSectionEnabled(R.string.new_releases)) {
             HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.new_releases));
             mRowsAdapter.add(new ListRow(newReleasesHeader, mNewReleasesAdapter));
+            loadNewReleases();
         }
     }
 
-    private void loadNewReleases(User user) {
+    private void loadNewReleases() {
         Map<String, Object> options = new HashMap<>();
-        options.put(SpotifyService.COUNTRY, user.country);
+        options.put(SpotifyService.COUNTRY, SpotifyTvApplication.getCurrentUserCountry());
         mSpotifyService.getNewReleases(options, new Callback<NewReleases>() {
             @Override
             public void success(NewReleases newReleases, Response response) {
@@ -205,12 +207,13 @@ public class MainFragment extends BrowseFragment {
         if (isSectionEnabled(R.string.categories)) {
             HeaderItem newReleasesHeader = new HeaderItem(0, getString(R.string.categories));
             mRowsAdapter.add(new ListRow(newReleasesHeader, mCategoriesAdapter));
+            loadCategories();
         }
     }
 
-    private void loadCategories(User user) {
+    private void loadCategories() {
         Map<String, Object> options = new HashMap<>();
-        options.put(SpotifyService.COUNTRY, user.country);
+        options.put(SpotifyService.COUNTRY, SpotifyTvApplication.getCurrentUserCountry());
         mSpotifyService.getCategories(options, new Callback<CategoriesPager>() {
             @Override
             public void success(CategoriesPager categoriesPager, Response response) {
@@ -224,74 +227,45 @@ public class MainFragment extends BrowseFragment {
         });
     }
 
-    private void loadUserLibraryRows() {
+    private void setupUserLibraryRows() {
         // playlist row
         if (isSectionEnabled(R.string.my_playlists)) {
             HeaderItem playListHeader = new HeaderItem(0, getString(R.string.my_playlists));
             mRowsAdapter.add(new ListRow(playListHeader, mPlaylistsAdapter));
+            loadPlaylists();
         }
 
         // Albums row
-        if (isSectionEnabled(R.string.my_albums)) {
+        boolean showMyAlbums = isSectionEnabled(R.string.my_albums);
+        if (showMyAlbums) {
             HeaderItem albumsHeader = new HeaderItem(0, getString(R.string.my_albums));
             mRowsAdapter.add(new ListRow(albumsHeader, mSavedAlbumsAdapter));
         }
 
         // Artists row
-        if (isSectionEnabled(R.string.my_artists)) {
+        boolean showMyArtists = isSectionEnabled(R.string.my_artists);
+        if (showMyArtists) {
             HeaderItem artistsHeader = new HeaderItem(0, getString(R.string.my_artists));
             mRowsAdapter.add(new ListRow(artistsHeader, mSavedArtistsAdapter));
         }
 
-
         // Songs row
-        if (isSectionEnabled(R.string.my_songs)) {
+        boolean showMySongs = isSectionEnabled(R.string.my_songs);
+        if (showMySongs) {
             HeaderItem songsHeader = new HeaderItem(0, getString(R.string.my_songs));
             mRowsAdapter.add(new ListRow(songsHeader, mSavedSongsAdapter));
         }
 
-        // load playlists (need to load current user first)
-        loadCurrentUser();
-
         // load saved songs
-        loadSavedSongs();
+        if (showMyAlbums || showMyArtists || showMySongs) {
+            loadSavedSongs();
+        }
 
     }
-
-    private void loadCurrentUser() {
-        mSpotifyService.getMe(new Callback<User>() {
-            @Override
-            public void success(User user, Response response) {
-                SpotifyTvApplication.getInstance().setCurrentUser(user);
-
-                if (isSectionEnabled(R.string.playlists)) {
-                    loadPlaylists(user);
-                }
-
-                if (isSectionEnabled(R.string.featured_playlists)) {
-                    loadFeaturedPlaylists(user);
-                }
-
-                if (isSectionEnabled(R.string.new_releases)) {
-                    loadNewReleases(user);
-                }
-
-                if (isSectionEnabled(R.string.categories)) {
-                    loadCategories(user);
-                }
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-
-            }
-        });
-    }
-
-    private void loadPlaylists(final User user) {
+    private void loadPlaylists() {
         mPlaylistsAdapter.clear();
 
-        mSpotifyService.getPlaylists(user.id, new Callback<Pager<Playlist>>() {
+        mSpotifyService.getPlaylists(SpotifyTvApplication.getCurrentUserId(), new Callback<Pager<Playlist>>() {
             @Override
             public void success(Pager<Playlist> playlistPager, Response response) {
                 mPlaylistsAdapter.addAll(mPlaylistsAdapter.size(), playlistPager.items);
@@ -309,21 +283,16 @@ public class MainFragment extends BrowseFragment {
         mSavedAlbumsAdapter.clear();
         mSavedArtistsAdapter.clear();
 
-        List<String> albumIds = new ArrayList<>();
-        List<String> artistIds = new ArrayList<>();
-        loadPage(0, albumIds, artistIds);
-    }
-
-    private void loadPage(int offset, final List<String> albumIds, final List<String> artistIds) {
-        Map<String, Object> options = new HashMap<>();
-        options.put(SpotifyService.OFFSET, offset);
-        options.put(SpotifyService.LIMIT, Constants.PAGE_LIMIT);
-        mSpotifyService.getMySavedTracks(options, new Callback<Pager<SavedTrack>>() {
+        mSpotifyService.getMySavedTracks(new Callback<Pager<SavedTrack>>() {
             @Override
             public void success(Pager<SavedTrack> savedTrackPager, Response response) {
                 ArrayList<Track> songs = new ArrayList<>();
                 ArrayList<AlbumSimple> albums = new ArrayList<>();
                 ArrayList<ArtistSimple> artists = new ArrayList<>();
+
+                final List<String> albumIds = new ArrayList<>();
+                final List<String> artistIds = new ArrayList<>();
+
                 for (final SavedTrack savedTrack : savedTrackPager.items) {
                     // add saved track
                     songs.add(savedTrack.track);
@@ -347,11 +316,6 @@ public class MainFragment extends BrowseFragment {
                 mSavedSongsAdapter.addAll(mSavedSongsAdapter.size(), songs);
                 mSavedAlbumsAdapter.addAll(mSavedAlbumsAdapter.size(), albums);
                 mSavedArtistsAdapter.addAll(mSavedArtistsAdapter.size(), artists);
-
-                // load next page
-                if (savedTrackPager.next != null) {
-                    loadPage(savedTrackPager.offset + Constants.PAGE_LIMIT, albumIds, artistIds);
-                }
             }
 
             @Override

@@ -46,7 +46,6 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
     private BackgroundManager mBackgroundManager;
     private DisplayMetrics mMetrics;
     private ArrayObjectAdapter mRowsAdapter;
-    private SpotifyTvApplication mApp;
 
     private DetailsOverviewRowPresenter mDetailsPresenter;
     private DetailsOverviewRow mDetailsRow;
@@ -91,7 +90,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
     private void playFromTrack(TrackSimple item) {
         List<String> trackUris = getTrackUris();
         List<String> subList = trackUris.subList(trackUris.indexOf(item.uri), trackUris.size());
-        mApp.getSpotifyPlayerController().play(getObjectUri(), subList);
+        SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(getObjectUri(), subList);
     }
 
     protected abstract List<String> getTrackUris();
@@ -137,8 +136,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
                 return null;
             }
 
-            Bitmap cover = null;
-            Bitmap background = null;
+            Bitmap cover;
             try {
                 cover = Picasso.with(getActivity())
                         .load(params[0])

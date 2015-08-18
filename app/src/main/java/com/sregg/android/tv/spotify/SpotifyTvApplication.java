@@ -35,6 +35,7 @@ public class SpotifyTvApplication extends Application {
 
     private static final String SHARED_PREFS_NAME = "SpotifyTvApplicationSharedPref";
     private static final String KEY_CURRENT_USER = "CurrentUser";
+    private static final String PREMIUM = "premium";
 
     private static SpotifyTvApplication sInstance;
     private SpotifyPlayerController mSpotifyPlayerController;
@@ -134,6 +135,10 @@ public class SpotifyTvApplication extends Application {
 
     public static String getCurrentUserId() {
         return getInstance().getCurrentUser().id;
+    }
+
+    public static boolean isCurrentUserPremium() {
+        return getInstance().getCurrentUser().product.equals(PREMIUM);
     }
 
     @Override

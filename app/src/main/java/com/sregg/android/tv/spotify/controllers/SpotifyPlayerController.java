@@ -8,6 +8,7 @@ import android.media.session.MediaSession;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.PlaybackBitrate;
@@ -84,9 +85,13 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     }
 
     public void play(String currentObjectUri, List<String> trackUris) {
-        mPlayingState = new PlayingState(currentObjectUri, trackUris.get(0), trackUris);
-        mPlayer.play(trackUris);
-        startNowPlayingSession();
+        if (!SpotifyTvApplication.isCurrentUserPremium()) {
+            Toast.makeText(SpotifyTvApplication.getInstance().getApplicationContext(), "You need a premium Spotify account to play music on this app", Toast.LENGTH_SHORT).show();
+        } else {
+            mPlayingState = new PlayingState(currentObjectUri, trackUris.get(0), trackUris);
+            mPlayer.play(trackUris);
+            startNowPlayingSession();
+        }
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

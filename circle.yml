@@ -3,7 +3,10 @@ dependencies:
     - echo y | android update sdk --no-ui --all --filter "extra-google-m2repository"
     - echo y | android update sdk --no-ui --all --filter "extra-android-m2repository"
     - echo y | android update sdk --no-ui --all --filter "extra-android-support"
-
+checkout:
+  post:
+    - git submodule init
+    - git submodule update
 test:
   override:
     # create sdcard image file

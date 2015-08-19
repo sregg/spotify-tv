@@ -197,11 +197,7 @@ public class ArtistsDetailsFragment extends BrowseFragment {
     }
 
     private void loadTopTracks() {
-        Map<String, Object> options = new HashMap<>();
-        options.put(SpotifyService.OFFSET, 0);
-        options.put(SpotifyService.LIMIT, Constants.PAGE_LIMIT);
-        options.put(SpotifyService.COUNTRY, SpotifyTvApplication.getCurrentUserCountry());
-        mSpotifyService.getArtistTopTrack(mArtistId, options, new Callback<Tracks>() {
+        mSpotifyService.getArtistTopTrack(mArtistId, SpotifyTvApplication.getCurrentUserCountry(), new Callback<Tracks>() {
             @Override
             public void success(Tracks tracks, Response response) {
                 mTopTrackAdapter.addAll(0, tracks.tracks);

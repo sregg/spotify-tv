@@ -23,7 +23,7 @@ import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Category;
 import kaaes.spotify.webapi.android.models.PlaylistBase;
-import kaaes.spotify.webapi.android.models.User;
+import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -40,7 +40,7 @@ public class SpotifyTvApplication extends Application {
     private static SpotifyTvApplication sInstance;
     private SpotifyPlayerController mSpotifyPlayerController;
     private SpotifyService mSpotifyService;
-    private User mCurrentUser;
+    private UserPrivate mCurrentUser;
 
     private Gson gson;
     private SharedPreferences sharedPreferences;
@@ -81,9 +81,9 @@ public class SpotifyTvApplication extends Application {
         Player player = Spotify.getPlayer(playerConfig, this, null);
         mSpotifyPlayerController = new SpotifyPlayerController(player, mSpotifyService);
 
-        mSpotifyService.getMe(new Callback<User>() {
+        mSpotifyService.getMe(new Callback<UserPrivate>() {
             @Override
-            public void success(User user, Response response) {
+            public void success(UserPrivate user, Response response) {
                 saveCurrentUser(user);
                 activity.runOnUiThread(onStarted);
             }
@@ -107,7 +107,7 @@ public class SpotifyTvApplication extends Application {
         return sharedPreferences;
     }
 
-    private void saveCurrentUser(User currentUser) {
+    private void saveCurrentUser(UserPrivate currentUser) {
         mCurrentUser = currentUser;
         String currentUserJSON = getGson().toJson(currentUser);
         getSharedPreferences().edit().putString(KEY_CURRENT_USER, currentUserJSON).apply();
@@ -120,10 +120,10 @@ public class SpotifyTvApplication extends Application {
         return gson;
     }
 
-    public User getCurrentUser() {
+    public UserPrivate getCurrentUser() {
         if (mCurrentUser == null) {
             String currentUserJSON = getSharedPreferences().getString(KEY_CURRENT_USER, null);
-            mCurrentUser = getGson().fromJson(currentUserJSON, User.class);
+            mCurrentUser = getGson().fromJson(currentUserJSON, UserPrivate.class);
         }
 
         return mCurrentUser;

@@ -1,0 +1,3 @@
+[submodule "libraries/spotify-web-api-android"]
+	path = libraries/spotify-web-api-android
+	url = git@github.com:sregg/spotify-web-api-android.git

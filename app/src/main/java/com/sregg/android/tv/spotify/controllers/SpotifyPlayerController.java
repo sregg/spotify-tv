@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.PlaybackBitrate;
 import com.spotify.sdk.android.player.Player;
@@ -165,9 +166,13 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         mSpotifyService.getTrack(Utils.getIdFromUri(currentTrackUri), new Callback<Track>() {
             @Override
             public void success(final Track track, Response response) {
-                updateNowPlayingMetadata(track);
-
-                trackLastFm(track);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateNowPlayingMetadata(track);
+                        trackLastFm(track);
+                    }
+                }).start();
             }
 
             @Override
@@ -208,12 +213,12 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     }
 
     private void trackLastFm(final Track track) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                LastFmApi.getInstance().scrobbleSpotifyTrack(track);
-            }
-        }).start();
+        try {
+            LastFmApi.getInstance().scrobbleSpotifyTrack(track);
+        } catch (Exception e) {
+            // know issue in de.umass.lastfm.Track.Track.parseIntoScrobbleResult()
+            Log.w(TAG, "Error while scrobbling to last.fm", e);
+        }
     }
 
     @Override

@@ -22,6 +22,7 @@ import com.sregg.android.tv.spotify.R;
 import java.net.URI;
 
 import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
 
 /*
  * A CardPresenter is used to generate Views and bind Objects to them on demand. 
@@ -36,7 +37,7 @@ public class PlaylistCardPresenter extends AbsCardPresenter {
         final CardViewHolder cardViewHolder = (CardViewHolder) viewHolder;
         ImageCardView imageCardView = cardViewHolder.getImageCardView();
 
-        final Playlist playlist = (Playlist) item;
+        final PlaylistSimple playlist = (PlaylistSimple) item;
 
         // name
         imageCardView.setTitleText(playlist.name);

@@ -265,9 +265,9 @@ public class MainFragment extends BrowseFragment {
     private void loadPlaylists() {
         mPlaylistsAdapter.clear();
 
-        getSpotifyService().getPlaylists(SpotifyTvApplication.getCurrentUserId(), new Callback<Pager<Playlist>>() {
+        getSpotifyService().getPlaylists(SpotifyTvApplication.getCurrentUserId(), new Callback<Pager<PlaylistSimple>>() {
             @Override
-            public void success(Pager<Playlist> playlistPager, Response response) {
+            public void success(Pager<PlaylistSimple> playlistPager, Response response) {
                 mPlaylistsAdapter.addAll(mPlaylistsAdapter.size(), playlistPager.items);
             }
 

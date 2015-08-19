@@ -21,14 +21,13 @@ import com.sregg.android.tv.spotify.utils.Utils;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.FeaturedPlaylists;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
-import kaaes.spotify.webapi.android.models.User;
+import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.RetrofitError;
 
 public class RecommendationsService extends IntentService {
@@ -64,7 +63,7 @@ public class RecommendationsService extends IntentService {
     private void loadRecommendationsData() throws RetrofitError {
         SpotifyTvApplication app = SpotifyTvApplication.getInstance();
         SpotifyService spotifyService = app.getSpotifyService();
-        User user = spotifyService.getMe();
+        UserPrivate user = spotifyService.getMe();
 
         if (user == null) {
             return;

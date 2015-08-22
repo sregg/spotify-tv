@@ -74,7 +74,6 @@ public class ArtistsDetailsFragment extends BrowseFragment {
     private BackgroundTarget mTarget;
     private ArrayObjectAdapter mRowsAdapter;
     private ArrayObjectAdapter mTopTrackAdapter;
-    private SpotifyService mSpotifyService;
     private ArrayObjectAdapter mRelatedArtistsAdapter;
 
     private enum AlbumType {
@@ -98,8 +97,6 @@ public class ArtistsDetailsFragment extends BrowseFragment {
 
         String artistName = intent.getStringExtra(ArtistsAlbumsActivity.ARG_ARTIST_NAME);
         setTitle(artistName);
-
-        mSpotifyService = SpotifyTvApplication.getInstance().getSpotifyService();
 
         setupFragment();
 
@@ -161,7 +158,7 @@ public class ArtistsDetailsFragment extends BrowseFragment {
         options.put(SpotifyService.OFFSET, Integer.toString(offset));
         options.put(SpotifyService.LIMIT, Integer.toString(Constants.PAGE_LIMIT));
         options.put(SpotifyService.MARKET, SpotifyTvApplication.getCurrentUserCountry());
-        mSpotifyService.getArtistAlbums(mArtistId, options, new Callback<Pager<Album>>() {
+        SpotifyTvApplication.getInstance().getSpotifyService().getArtistAlbums(mArtistId, options, new Callback<Pager<Album>>() {
             @Override
             public void success(Pager<Album> albumPager, Response response) {
                 for (Album album : albumPager.items) {
@@ -197,7 +194,7 @@ public class ArtistsDetailsFragment extends BrowseFragment {
     }
 
     private void loadTopTracks() {
-        mSpotifyService.getArtistTopTrack(mArtistId, SpotifyTvApplication.getCurrentUserCountry(), new Callback<Tracks>() {
+        SpotifyTvApplication.getInstance().getSpotifyService().getArtistTopTrack(mArtistId, SpotifyTvApplication.getCurrentUserCountry(), new Callback<Tracks>() {
             @Override
             public void success(Tracks tracks, Response response) {
                 mTopTrackAdapter.addAll(0, tracks.tracks);
@@ -219,7 +216,7 @@ public class ArtistsDetailsFragment extends BrowseFragment {
     }
 
     private void loadRelatedArtists() {
-        mSpotifyService.getRelatedArtists(mArtistId, new Callback<Artists>() {
+        SpotifyTvApplication.getInstance().getSpotifyService().getRelatedArtists(mArtistId, new Callback<Artists>() {
             @Override
             public void success(Artists artists, Response response) {
                 mRelatedArtistsAdapter.addAll(0, artists.artists);
@@ -239,7 +236,7 @@ public class ArtistsDetailsFragment extends BrowseFragment {
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(mMetrics);
 
         // load artist from API to get their image
-        mSpotifyService.getArtist(mArtistId, new Callback<Artist>() {
+        SpotifyTvApplication.getInstance().getSpotifyService().getArtist(mArtistId, new Callback<Artist>() {
             @Override
             public void success(Artist artist, Response response) {
                 if (artist.images != null && !artist.images.isEmpty()) {

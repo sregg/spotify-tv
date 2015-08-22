@@ -111,7 +111,7 @@ spoon {
 
 play {
     serviceAccountEmail = '724462887271-bk4vi27q9qk9h4g3mideokj3e0bqe3ng@developer.gserviceaccount.com'
-    pk12File = file('/Users/simonreggiani/Documents/dev/keys/Google_Play_Android_Developer-0bc22be971a2.p12')
+    pk12File = file('/Users/simonreggiani/dev/keys/Google_Play_Android_Developer-0bc22be971a2.p12')
 }
 
 Properties releaseProperties = new Properties()

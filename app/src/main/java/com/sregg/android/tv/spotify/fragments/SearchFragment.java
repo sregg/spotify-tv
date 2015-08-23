@@ -200,8 +200,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             public void success(PlaylistsPager playlistsPager, Response response) {
                 ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new PlaylistCardPresenter());
                 for (PlaylistSimple playlistSimple : playlistsPager.playlists.items) {
-                    Playlist playlist = SpotifyTvApplication.getInstance().getSpotifyService().getPlaylist(playlistSimple.owner.id, playlistSimple.id);
-                    listRowAdapter.add(playlist);
+                    listRowAdapter.add(playlistSimple);
                 }
                 HeaderItem header = new HeaderItem(getString(R.string.playlists));
                 mRowsAdapter.add(new ListRow(header, listRowAdapter));

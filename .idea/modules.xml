@@ -4,9 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/libraries/spotify-web-api-android/spotify-api/spotify-api.iml" filepath="$PROJECT_DIR$/libraries/spotify-web-api-android/spotify-api/spotify-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/libraries/spotify-web-api-android/spotify-api/spotify-api.iml" filepath="$PROJECT_DIR$/libraries/spotify-web-api-android/spotify-api/spotify-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/spotify-tv.iml" filepath="$PROJECT_DIR$/spotify-tv.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libraries/spotify-web-api-android/spotify-web-api-android.iml" filepath="$PROJECT_DIR$/libraries/spotify-web-api-android/spotify-web-api-android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libraries/spotify-web-api-android/spotify-web-api-android.iml" filepath="$PROJECT_DIR$/libraries/spotify-web-api-android/spotify-web-api-android.iml" />
     </modules>
   </component>
 </project>

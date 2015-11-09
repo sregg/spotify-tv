@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.sregg.android.tv.spotify">
+          package="com.sregg.android.tv.spotifyPlayer">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
@@ -51,7 +51,7 @@
 
         <provider
             android:name=".providers.SearchProvider"
-            android:authorities="com.sregg.android.tv.spotify"
+            android:authorities="com.sregg.android.tv.spotifyPlayer"
             android:enabled="true"
             android:exported="true" />
 

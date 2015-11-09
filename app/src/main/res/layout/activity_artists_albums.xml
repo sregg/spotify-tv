@@ -16,7 +16,7 @@
 -->
 
 <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    android:name="com.sregg.android.tv.spotify.fragments.ArtistsDetailsFragment"
+    android:name="com.sregg.android.tv.spotifyPlayer.fragments.ArtistsDetailsFragment"
     android:id="@+id/vertical_grid_fragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"

@@ -26,7 +26,7 @@
                 android:src="@drawable/ic_card_badge_bg"
                 android:scaleType="center"/>
 
-        <com.sregg.android.tv.spotify.views.NowPlayingIndicatorView
+        <com.sregg.android.tv.spotifyPlayer.views.NowPlayingIndicatorView
                 android:id="@+id/card_now_playing"
                 android:layout_gravity="center"
                 android:layout_width="35dp"

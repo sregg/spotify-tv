@@ -14,11 +14,27 @@
 
 package com.sregg.android.tv.spotifyPlayer.fragments;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v17.leanback.widget.*;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.ObjectAdapter;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
+import android.support.v17.leanback.widget.SpeechRecognitionCallback;
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.sregg.android.tv.spotifyPlayer.Constants;
 import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
@@ -34,7 +50,14 @@ import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.*;
+import kaaes.spotify.webapi.android.models.AlbumSimple;
+import kaaes.spotify.webapi.android.models.AlbumsPager;
+import kaaes.spotify.webapi.android.models.Artist;
+import kaaes.spotify.webapi.android.models.ArtistsPager;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
+import kaaes.spotify.webapi.android.models.PlaylistsPager;
+import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TracksPager;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -46,6 +69,8 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
         implements android.support.v17.leanback.app.SearchFragment.SearchResultProvider {
     private static final String TAG = "SearchFragment";
     private static final int SEARCH_DELAY_MS = 300;
+    public static final int REQUEST_SPEECH = 0;
+    private static final boolean FINISH_ON_RECOGNIZER_CANCELED = true;
 
     private ArrayObjectAdapter mRowsAdapter;
     private Handler mHandler = new Handler();
@@ -80,6 +105,61 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
             }
         });
         mDelayedLoad = new SearchRunnable();
+
+        if (!hasPermission(Manifest.permission.RECORD_AUDIO)) {
+            // SpeechRecognitionCallback is not required and if not provided recognition will be handled
+            // using internal speech recognizer, in which case you must have RECORD_AUDIO permission
+            setSpeechRecognitionCallback(new SpeechRecognitionCallback() {
+                @Override
+                public void recognizeSpeech() {
+                    Log.v(TAG, "recognizeSpeech");
+                    try {
+                        startActivityForResult(getRecognizerIntent(), REQUEST_SPEECH);
+                    } catch (ActivityNotFoundException e) {
+                        Log.e(TAG, "Cannot find activity for speech recognizer", e);
+                    }
+                }
+            });
+        }
+    }
+
+    private boolean hasPermission(final String permission) {
+        final Context context = getActivity();
+        return PackageManager.PERMISSION_GRANTED == context.getPackageManager().checkPermission(
+                permission, context.getPackageName());
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.v(TAG, "onActivityResult requestCode=" + requestCode +
+                " resultCode=" + resultCode +
+                " data=" + data);
+        switch (requestCode) {
+            case REQUEST_SPEECH:
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        setSearchQuery(data, true);
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        // Once recognizer canceled, user expects the current activity to process
+                        // the same BACK press as user doesn't know about overlay activity.
+                        // However, you may not want this behaviour as it makes harder to
+                        // fall back to keyboard input.
+                        if (FINISH_ON_RECOGNIZER_CANCELED) {
+                            if (!hasResults()) {
+                                Log.v(TAG, "Delegating BACK press from recognizer");
+                                getActivity().onBackPressed();
+                            }
+                        }
+                        break;
+                    // the rest includes various recognizer errors, see {@link RecognizerIntent}
+                }
+                break;
+        }
+    }
+
+    public boolean hasResults() {
+        return mRowsAdapter.size() > 0;
     }
 
     @Override

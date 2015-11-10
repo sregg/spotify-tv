@@ -3,7 +3,6 @@
           package="com.sregg.android.tv.spotifyPlayer">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <uses-feature
             android:name="android.hardware.touchscreen"

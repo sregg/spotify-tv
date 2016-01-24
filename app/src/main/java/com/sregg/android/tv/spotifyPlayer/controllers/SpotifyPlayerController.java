@@ -303,10 +303,11 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 mPlayer.getPlayerState(new PlayerStateCallback() {
                     @Override
                     public void onPlayerState(PlayerState playerState) {
-                        final int rewindPosition = playerState.positionInMs - SKIP_DURATION_MS;
-                        if (rewindPosition < 0) {
-                            mPlayer.skipToPrevious();
+                        final int currentPosition = playerState.positionInMs;
+                        if (currentPosition < SKIP_DURATION_MS) {
+                            mPlayer.seekToPosition(0);
                         } else {
+                            final int rewindPosition = currentPosition - SKIP_DURATION_MS;
                             mPlayer.seekToPosition(rewindPosition);
                         }
                     }

@@ -9,7 +9,9 @@ public enum Control {
     NEXT("{fa-step-forward}"),
     PREVIOUS("{fa-step-backward}"),
     STOP("{fa-stop}"),
-    SHUFFLE("{fa-random}");
+    SHUFFLE("{fa-random}"),
+    FAST_FORWARD("{fa-fast-forward}"),
+    REWIND("{fa-rewind}");
 
     private final String mFontId;
 

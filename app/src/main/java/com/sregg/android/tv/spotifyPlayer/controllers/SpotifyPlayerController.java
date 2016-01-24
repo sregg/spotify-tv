@@ -46,6 +46,9 @@ import retrofit.client.Response;
 public class SpotifyPlayerController implements PlayerNotificationCallback, ConnectionStateCallback {
 
     public static final String TAG = "SpotifyPlayerController";
+
+    private static final int SKIP_DURATION_MS = 10 * 1000;
+
     private final Player mPlayer;
     private final MediaSession mNowPlayingSession;
     private final SpotifyService mSpotifyService;
@@ -98,6 +101,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     private void startNowPlayingSession() {
         if (mNowPlayingSession != null && !mNowPlayingSession.isActive()) {
             mNowPlayingSession.setActive(true);
+            mNowPlayingSession.setCallback(new MediaButtonReceiver(this));
         }
     }
 
@@ -106,6 +110,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     private void stopNowPlayingSession() {
         if (mNowPlayingSession != null && mNowPlayingSession.isActive()) {
             mNowPlayingSession.setActive(false);
+            mNowPlayingSession.setCallback(null);
         }
     }
 
@@ -280,6 +285,34 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 if (!TextUtils.isEmpty(mPlayingState.getCurrentObjectUri())) {
                     play(mPlayingState.getCurrentObjectUri(), mPlayingState.getTrackUrisQueue());
                 }
+                break;
+            case FAST_FORWARD:
+                mPlayer.getPlayerState(new PlayerStateCallback() {
+                    @Override
+                    public void onPlayerState(PlayerState playerState) {
+                        final int fastForwardPosition = playerState.positionInMs + SKIP_DURATION_MS;
+                        if (fastForwardPosition < playerState.durationInMs) {
+                            mPlayer.seekToPosition(fastForwardPosition);
+                        } else {
+                            mPlayer.skipToNext();
+                        }
+                    }
+                });
+                break;
+            case REWIND:
+                mPlayer.getPlayerState(new PlayerStateCallback() {
+                    @Override
+                    public void onPlayerState(PlayerState playerState) {
+                        final int rewindPosition = playerState.positionInMs - SKIP_DURATION_MS;
+                        if (rewindPosition < 0) {
+                            mPlayer.skipToPrevious();
+                        } else {
+                            mPlayer.seekToPosition(rewindPosition);
+                        }
+                    }
+                });
+                break;
+            default:
                 break;
         }
     }

@@ -58,6 +58,7 @@ import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.Artists;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TrackSimple;
 import kaaes.spotify.webapi.android.models.Tracks;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -124,10 +125,12 @@ public class ArtistsDetailsFragment extends BrowseFragment {
                     } else {
                         // get song and following ones
                         List<String> trackUris = new ArrayList<>();
+                        List<TrackSimple> tracks = new ArrayList<TrackSimple>();
                         for (int i = mTopTrackAdapter.indexOf(item); i < mTopTrackAdapter.size() && i < Constants.MAX_SONGS_PLAYED; i++) {
+                            tracks.add((TrackSimple) mTopTrackAdapter.get(i));
                             trackUris.add(((Track) mTopTrackAdapter.get(i)).uri);
                         }
-                        spotifyPlayerController.play(trackUri, trackUris);
+                        spotifyPlayerController.play(trackUri, trackUris, tracks);
                     }
                 } else {
                     SpotifyTvApplication.getInstance().launchDetailScreen(getActivity(), item);

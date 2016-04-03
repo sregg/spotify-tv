@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.os.Build;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -34,6 +35,7 @@ import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TrackSimple;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -49,6 +51,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     private final Player mPlayer;
     private final MediaSession mNowPlayingSession;
     private final SpotifyService mSpotifyService;
+    private final Handler mHandler;
 
     private PlayingState mPlayingState;
 
@@ -56,6 +59,8 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
 
     public SpotifyPlayerController(Player player, SpotifyService spotifyService) {
         Context context = SpotifyTvApplication.getInstance().getApplicationContext();
+
+        mHandler = new Handler(context.getMainLooper());
 
         mPlayer = player;
 
@@ -81,14 +86,14 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     }
 
     public void resetPlayingState() {
-        mPlayingState = new PlayingState("", "", null);
+        mPlayingState = new PlayingState("", "", null, null);
     }
 
-    public void play(String currentObjectUri, List<String> trackUris) {
+    public void play(String currentObjectUri, List<String> trackUris, List<TrackSimple> tracks) {
         if (!SpotifyTvApplication.isCurrentUserPremium()) {
             Toast.makeText(SpotifyTvApplication.getInstance().getApplicationContext(), "You need a premium Spotify account to play music on this app", Toast.LENGTH_SHORT).show();
         } else {
-            mPlayingState = new PlayingState(currentObjectUri, trackUris.get(0), trackUris);
+            mPlayingState = new PlayingState(currentObjectUri, trackUris.get(0), trackUris, tracks);
             mPlayer.play(trackUris);
             startNowPlayingSession();
         }
@@ -150,7 +155,6 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 BusProvider.post(new OnPause(mPlayingState));
                 break;
             case TRACK_CHANGED:
-                BusProvider.post(new OnTrackChanged(mPlayingState));
                 trackNowPlayingTrack(playerState.trackUri);
                 break;
             case END_OF_CONTEXT:
@@ -165,11 +169,19 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         mSpotifyService.getTrack(Utils.getIdFromUri(currentTrackUri), new Callback<Track>() {
             @Override
             public void success(final Track track, Response response) {
+				mPlayingState.setCurrentTrack(track);
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
                         updateNowPlayingMetadata(track);
                         trackLastFm(track);
+
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                BusProvider.post(new OnTrackChanged(mPlayingState));
+                            }
+                        });
                     }
                 }).start();
             }
@@ -278,7 +290,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
 
                 // reload current object if not null
                 if (!TextUtils.isEmpty(mPlayingState.getCurrentObjectUri())) {
-                    play(mPlayingState.getCurrentObjectUri(), mPlayingState.getTrackUrisQueue());
+                    play(mPlayingState.getCurrentObjectUri(), mPlayingState.getTrackUrisQueue(), mPlayingState.getTracksQueue());
                 }
                 break;
         }

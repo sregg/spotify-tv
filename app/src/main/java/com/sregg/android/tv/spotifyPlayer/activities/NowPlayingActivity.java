@@ -12,13 +12,12 @@
  * the License.
  */
 
-package com.sregg.android.tv.spotify.activities;
+package com.sregg.android.tv.spotifyPlayer.activities;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 
-import com.sregg.android.tv.spotify.R;
+import com.sregg.android.tv.spotifyPlayer.R;
 
 /*
  * SearchActivity for SearchFragment

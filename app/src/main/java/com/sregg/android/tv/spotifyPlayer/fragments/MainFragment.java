@@ -23,7 +23,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.squareup.otto.Subscribe;
-import com.sregg.android.tv.spotify.activities.NowPlayingActivity;
+import com.sregg.android.tv.spotifyPlayer.activities.NowPlayingActivity;
 import com.sregg.android.tv.spotifyPlayer.BusProvider;
 import com.sregg.android.tv.spotifyPlayer.Constants;
 import com.sregg.android.tv.spotifyPlayer.R;
@@ -31,6 +31,8 @@ import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
 import com.sregg.android.tv.spotifyPlayer.activities.SearchActivity;
 import com.sregg.android.tv.spotifyPlayer.controllers.SpotifyPlayerController;
 import com.sregg.android.tv.spotifyPlayer.enums.Control;
+import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
+import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
 import com.sregg.android.tv.spotifyPlayer.presenters.*;
 import com.sregg.android.tv.spotifyPlayer.settings.CustomizeUiSetting;
 import com.sregg.android.tv.spotifyPlayer.settings.LastFmSetting;

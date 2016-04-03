@@ -1,8 +1,7 @@
-package com.sregg.android.tv.spotify.presenters;
+package com.sregg.android.tv.spotifyPlayer.presenters;
 
 import android.support.v17.leanback.widget.AbstractDetailsDescriptionPresenter;
 
-import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.TrackSimple;
 
 

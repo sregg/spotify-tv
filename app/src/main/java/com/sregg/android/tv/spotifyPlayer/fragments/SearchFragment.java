@@ -57,6 +57,7 @@ import kaaes.spotify.webapi.android.models.ArtistsPager;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.PlaylistsPager;
 import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TrackSimple;
 import kaaes.spotify.webapi.android.models.TracksPager;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -93,7 +94,7 @@ public class SearchFragment extends android.support.v17.leanback.app.SearchFragm
                         spotifyPlayerController.togglePauseResume();
                     } else {
                         // get song and following ones
-                        List<TrackSimple> tracks = new ArrayList<TrackSimple>();
+                        List<TrackSimple> tracks = new ArrayList<>();
                         List<String> trackUris = new ArrayList<>();
                         for (int i = mTrackRowAdapter.indexOf(item); i < mTrackRowAdapter.size() && i < Constants.MAX_SONGS_PLAYED; i++) {
                             tracks.add((TrackSimple) mTrackRowAdapter.get(i));

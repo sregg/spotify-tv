@@ -41,7 +41,7 @@ android {
         versionName "1.0"
 
         // runner for espresso
-        testInstrumentationRunner "com.sregg.android.tv.spotify.testUtils.RxAndroidJUnitRunner"
+        testInstrumentationRunner "com.sregg.android.tv.spotifyPlayer.testUtils.RxAndroidJUnitRunner"
     }
     buildTypes {
         release {

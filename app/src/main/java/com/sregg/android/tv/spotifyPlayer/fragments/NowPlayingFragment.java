@@ -1,4 +1,4 @@
-package com.sregg.android.tv.spotify.fragments;
+package com.sregg.android.tv.spotifyPlayer.fragments;
 
 import android.os.Bundle;
 import android.support.v17.leanback.widget.Action;
@@ -8,19 +8,18 @@ import android.support.v17.leanback.widget.Presenter;
 import android.util.Log;
 
 import com.squareup.otto.Subscribe;
-import com.sregg.android.tv.spotify.BusProvider;
-import com.sregg.android.tv.spotify.R;
-import com.sregg.android.tv.spotify.SpotifyTvApplication;
-import com.sregg.android.tv.spotify.events.OnPause;
-import com.sregg.android.tv.spotify.events.OnPlay;
-import com.sregg.android.tv.spotify.events.OnTrackChanged;
-import com.sregg.android.tv.spotify.events.PlayingState;
-import com.sregg.android.tv.spotify.presenters.NowPlayingDetailsPresenter;
-import com.sregg.android.tv.spotify.presenters.PlaylistTrackRowPresenter;
+import com.sregg.android.tv.spotifyPlayer.BusProvider;
+import com.sregg.android.tv.spotifyPlayer.R;
+import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
+import com.sregg.android.tv.spotifyPlayer.events.OnPause;
+import com.sregg.android.tv.spotifyPlayer.events.OnPlay;
+import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
+import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
+import com.sregg.android.tv.spotifyPlayer.presenters.NowPlayingDetailsPresenter;
+import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistTrackRowPresenter;
 
 import java.util.List;
 
-import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TrackSimple;
 

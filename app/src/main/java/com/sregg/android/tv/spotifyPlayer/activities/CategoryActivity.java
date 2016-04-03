@@ -17,6 +17,7 @@ package com.sregg.android.tv.spotifyPlayer.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.WindowManager;
 
 import com.sregg.android.tv.spotifyPlayer.R;
 
@@ -35,6 +36,7 @@ public class CategoryActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override

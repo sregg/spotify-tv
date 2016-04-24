@@ -19,7 +19,8 @@ Unofficial Spotify app for Android TV
 - Setting - Customize UI elements (e.g. show or hide Feature playlist and new releases)
 
 # TODO
-- Current Queue (already started in [current_queue branch](https://github.com/sregg/spotify-tv/tree/current_queue))
+- Control buttons in Details screen and Now Playing screen
+- Add to playlist button for each track in the tracklist
 - Manage Playlist (create, edit, delete, etc...)
 - Recently Played
 - Friends

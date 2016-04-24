@@ -17,36 +17,65 @@ package com.sregg.android.tv.spotifyPlayer.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BrowseFragment;
-import android.support.v17.leanback.widget.*;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
+import android.support.v17.leanback.widget.HeaderItem;
+import android.support.v17.leanback.widget.ListRow;
+import android.support.v17.leanback.widget.ListRowPresenter;
+import android.support.v17.leanback.widget.OnItemViewClickedListener;
+import android.support.v17.leanback.widget.OnItemViewSelectedListener;
+import android.support.v17.leanback.widget.Presenter;
+import android.support.v17.leanback.widget.Row;
+import android.support.v17.leanback.widget.RowPresenter;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 
 import com.squareup.otto.Subscribe;
-import com.sregg.android.tv.spotifyPlayer.activities.NowPlayingActivity;
 import com.sregg.android.tv.spotifyPlayer.BusProvider;
 import com.sregg.android.tv.spotifyPlayer.Constants;
 import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
+import com.sregg.android.tv.spotifyPlayer.activities.NowPlayingActivity;
 import com.sregg.android.tv.spotifyPlayer.activities.SearchActivity;
+import com.sregg.android.tv.spotifyPlayer.adapters.PagingAdapter;
 import com.sregg.android.tv.spotifyPlayer.controllers.SpotifyPlayerController;
 import com.sregg.android.tv.spotifyPlayer.enums.Control;
 import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
 import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
-import com.sregg.android.tv.spotifyPlayer.presenters.*;
+import com.sregg.android.tv.spotifyPlayer.presenters.AlbumCardPresenter;
+import com.sregg.android.tv.spotifyPlayer.presenters.ArtistCardPresenter;
+import com.sregg.android.tv.spotifyPlayer.presenters.CategoryCardPresenter;
+import com.sregg.android.tv.spotifyPlayer.presenters.ControlPresenter;
+import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistCardPresenter;
+import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistSimpleCardPresenter;
+import com.sregg.android.tv.spotifyPlayer.presenters.SettingPresenter;
+import com.sregg.android.tv.spotifyPlayer.presenters.TrackCardPresenter;
 import com.sregg.android.tv.spotifyPlayer.settings.CustomizeUiSetting;
 import com.sregg.android.tv.spotifyPlayer.settings.LastFmSetting;
 import com.sregg.android.tv.spotifyPlayer.settings.QualitySetting;
 import com.sregg.android.tv.spotifyPlayer.settings.Setting;
 import com.sregg.android.tv.spotifyPlayer.settings.UserPreferences;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.*;
+import kaaes.spotify.webapi.android.models.AlbumSimple;
+import kaaes.spotify.webapi.android.models.ArtistSimple;
+import kaaes.spotify.webapi.android.models.CategoriesPager;
+import kaaes.spotify.webapi.android.models.FeaturedPlaylists;
+import kaaes.spotify.webapi.android.models.NewReleases;
+import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
+import kaaes.spotify.webapi.android.models.SavedTrack;
+import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TrackSimple;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-
-import java.util.*;
 
 
 public class MainFragment extends BrowseFragment {
@@ -56,13 +85,15 @@ public class MainFragment extends BrowseFragment {
     private ArrayObjectAdapter mNowPlayingAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
     private ArrayObjectAdapter mFeaturedPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistSimpleCardPresenter());
     private ArrayObjectAdapter mCategoriesAdapter = new ArrayObjectAdapter(new CategoryCardPresenter());
-    private ArrayObjectAdapter mPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistCardPresenter());
+    private PagingAdapter mPlaylistsAdapter;
     private ArrayObjectAdapter mSavedSongsAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
     private ArrayObjectAdapter mSavedAlbumsAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
     private ArrayObjectAdapter mSavedArtistsAdapter = new ArrayObjectAdapter(new ArtistCardPresenter());
     private ArrayObjectAdapter mRowsAdapter;
     private HeaderItem mNowPlayingHeader;
+
     private ListRow mNowPlayingListRow;
+    private boolean mPlaylistsLoading;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -153,6 +184,16 @@ public class MainFragment extends BrowseFragment {
                     }
                 } else {
                     SpotifyTvApplication.getInstance().launchDetailScreen(getActivity(), item);
+                }
+            }
+        });
+
+        setOnItemViewSelectedListener(new OnItemViewSelectedListener() {
+            @Override
+            public void onItemSelected(Presenter.ViewHolder itemViewHolder, Object item, RowPresenter.ViewHolder rowViewHolder, Row row) {
+                if (row instanceof ListRow && ((ListRow) row).getAdapter() instanceof PagingAdapter) {
+                    PagingAdapter pagingAdapter = (PagingAdapter) ((ListRow) row).getAdapter();
+                    pagingAdapter.onItemSelected(item);
                 }
             }
         });
@@ -256,6 +297,13 @@ public class MainFragment extends BrowseFragment {
     private void setupUserLibraryRows() {
         // playlist row
         if (isSectionEnabled(R.string.my_playlists)) {
+            mPlaylistsAdapter = new PagingAdapter(new PlaylistCardPresenter()) {
+                @Override
+                public void onLoadMore(int offset) {
+                    loadPlaylists(offset);
+                }
+            };
+
             HeaderItem playListHeader = new HeaderItem(0, getString(R.string.my_playlists));
             mRowsAdapter.add(new ListRow(playListHeader, mPlaylistsAdapter));
             loadPlaylists();
@@ -288,21 +336,34 @@ public class MainFragment extends BrowseFragment {
         }
 
     }
-    private void loadPlaylists() {
-        mPlaylistsAdapter.clear();
 
-        getSpotifyService().getPlaylists(SpotifyTvApplication.getCurrentUserId(), new Callback<Pager<PlaylistSimple>>() {
+    private void loadPlaylists() {
+        loadPlaylists(0);
+    }
+
+    private void loadPlaylists(int offset) {
+        if (mPlaylistsLoading){
+            return;
+        }
+
+        mPlaylistsLoading = true;
+        Map<String, Object> options = new HashMap<>();
+        options.put(SpotifyService.OFFSET, offset);
+        options.put(SpotifyService.LIMIT, Constants.PAGE_LIMIT);
+        getSpotifyService().getPlaylists(SpotifyTvApplication.getCurrentUserId(), options, new Callback<Pager<PlaylistSimple>>() {
             @Override
             public void success(Pager<PlaylistSimple> playlistPager, Response response) {
-                mPlaylistsAdapter.addAll(mPlaylistsAdapter.size(), playlistPager.items);
+                mPlaylistsAdapter.addAll(playlistPager.total, mPlaylistsAdapter.size(), playlistPager.items);
+                mPlaylistsLoading = false;
             }
 
             @Override
             public void failure(RetrofitError error) {
-
+                mPlaylistsLoading = false;
             }
         });
     }
+
 
     private void loadSavedSongs() {
         mSavedSongsAdapter.clear();

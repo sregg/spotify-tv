@@ -20,6 +20,7 @@ import android.util.Log;
 
 import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
+import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
 import com.sregg.android.tv.spotifyPlayer.presenters.TracksHeaderRowPresenter;
 import com.sregg.android.tv.spotifyPlayer.rows.TrackRow;
 import com.sregg.android.tv.spotifyPlayer.rows.TracksHeaderRow;
@@ -76,7 +77,6 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
         };
 
         ps.addClassPresenter(TrackRow.class, getTrackRowPresenter(onTrackRowItemClicked));
-
 
         mRowsAdapter = new ArrayObjectAdapter(ps);
         setAdapter(mRowsAdapter);

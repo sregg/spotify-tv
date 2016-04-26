@@ -20,6 +20,7 @@ Unofficial Spotify app for Android TV
 
 # TODO
 - Control buttons in Details screen and Now Playing screen
+- Use "Saved Albums" new API endpoint to grab My Albums and My Artists
 - Add to playlist button for each track in the tracklist
 - Manage Playlist (create, edit, delete, etc...)
 - Recently Played

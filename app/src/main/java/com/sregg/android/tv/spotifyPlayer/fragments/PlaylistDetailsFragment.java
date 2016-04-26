@@ -12,6 +12,7 @@ import android.util.Log;
 import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
 import com.sregg.android.tv.spotifyPlayer.activities.PlaylistActivity;
+import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistDetailsPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistTrackRowPresenter;
 
@@ -107,6 +108,8 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
                     String imageUrl = playlist.images.get(0).url;
                     loadDetailsRowImage(imageUrl);
                 }
+
+                scrollToCurrentTrack();
             }
 
             @Override
@@ -115,6 +118,7 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
             }
         });
     }
+
 
     private void setupDetails(Playlist playlist) {
         DetailsOverviewRow detailsRow = new DetailsOverviewRow(playlist);
@@ -127,5 +131,25 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
         ));
 
         setDetailsRow(detailsRow);
+    }
+
+    /**
+     * Attempt to scroll to the track row that is currently playing
+     */
+    protected void scrollToCurrentTrack() {
+        PlayingState currentPlayState = SpotifyTvApplication.getInstance().getSpotifyPlayerController().getPlayingState();
+        if (currentPlayState != null && currentPlayState.isCurrentObject(mPlaylist.uri)) {
+            TrackSimple currentTrack = currentPlayState.getCurrentTrack();
+            //try to scroll to track row that is currently playing
+            int playingTrackPosition = 0;
+            for (TrackSimple track : mPlaylistTracks) {
+                if (track.id.equals(currentTrack.id)) {
+                    playingTrackPosition = mPlaylistTracks.indexOf(track);
+                    break;
+                }
+            }
+
+            setSelectedPosition(playingTrackPosition);
+        }
     }
 }

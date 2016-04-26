@@ -7,6 +7,7 @@ import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -132,7 +133,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         });
     }
 
-    public PlayingState getPlayingState() {
+    public @Nullable PlayingState getPlayingState() {
         return mPlayingState;
     }
 

@@ -3,15 +3,24 @@ package com.sregg.android.tv.spotifyPlayer.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.widget.Action;
+import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.DetailsOverviewRow;
 import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.util.Log;
 
+import com.spotify.sdk.android.player.PlayerState;
+import com.spotify.sdk.android.player.PlayerStateCallback;
+import com.squareup.otto.Subscribe;
+import com.sregg.android.tv.spotifyPlayer.BusProvider;
 import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
 import com.sregg.android.tv.spotifyPlayer.activities.PlaylistActivity;
+import com.sregg.android.tv.spotifyPlayer.controllers.SpotifyPlayerController;
+import com.sregg.android.tv.spotifyPlayer.events.OnPause;
+import com.sregg.android.tv.spotifyPlayer.events.OnPlay;
+import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
 import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistDetailsPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistTrackRowPresenter;
@@ -26,22 +35,28 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class PlaylistDetailsFragment extends TracksDetailsFragment {
+
+public class PlaylistDetailsFragment extends TracksDetailsFragment implements PlayerStateCallback {
 
     private static final String TAG = PlaylistDetailsFragment.class.getSimpleName();
 
-    private static final long ACTION_PLAY_PLAYLIST = 1;
+    private static final long ACTION_PLAY_PAUSE_PLAYLIST = 1;
 
     private String mPlaylistId;
     private String mUserId;
     private Playlist mPlaylist;
     private List<String> mPlaylistTrackUris;
     private List<TrackSimple> mPlaylistTracks;
+    private SpotifyPlayerController playerController;
+    private ArrayObjectAdapter actionsAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
+        BusProvider.getInstance().register(this);
+
+        playerController = SpotifyTvApplication.getInstance().getSpotifyPlayerController();
 
         Intent intent = getActivity().getIntent();
 
@@ -50,6 +65,12 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
 
         setupFragment();
         loadPlaylist();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        BusProvider.getInstance().unregister(this);
     }
 
     @Override
@@ -66,8 +87,12 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
         setOnActionClickedListener(new OnActionClickedListener() {
             @Override
             public void onActionClicked(Action action) {
-                if (action.getId() == ACTION_PLAY_PLAYLIST) {
-                    SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(mPlaylist.uri, mPlaylistTrackUris, getTracks());
+                if (action.getId() == ACTION_PLAY_PAUSE_PLAYLIST) {
+                    if (isPlaylistPlaying()) {
+                        playerController.togglePauseResume();
+                    } else {
+                        playerController.play(mPlaylist.uri, mPlaylistTrackUris, getTracks());
+                    }
                 }
             }
         });
@@ -119,25 +144,54 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
         });
     }
 
+    @SuppressWarnings("unused")
+    @Subscribe
+    public void onTrackChanged(OnTrackChanged onTrackChanged) {
+        updatePlayingState();
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe
+    public void onTrackChanged(OnPause onPause) {
+        updatePlayingState();
+    }
+
+    @SuppressWarnings("unused")
+    @Subscribe
+    public void onTrackChanged(OnPlay onPlay) {
+        updatePlayingState();
+    }
 
     private void setupDetails(Playlist playlist) {
         DetailsOverviewRow detailsRow = new DetailsOverviewRow(playlist);
 
-        detailsRow.addAction(new Action(
-                ACTION_PLAY_PLAYLIST,
-                getResources().getString(R.string.lb_playback_controls_play),
-                null,
-                getActivity().getResources().getDrawable(R.drawable.lb_ic_play)
-        ));
+        actionsAdapter = new ArrayObjectAdapter();
+        populateActionsAdapter();
+        detailsRow.setActionsAdapter(actionsAdapter);
 
         setDetailsRow(detailsRow);
+    }
+
+    private void populateActionsAdapter() {
+        boolean playlistPlaying = isPlaylistPlaying();
+        Action action = new Action(ACTION_PLAY_PAUSE_PLAYLIST, playlistPlaying ? getResources().getString(R.string.lb_playback_controls_pause) : getResources().getString(R.string.lb_playback_controls_play), null);
+        actionsAdapter.add(action);
+    }
+
+    private void updatePlayingState(){
+        playerController.getPlayerState(this);
+    }
+
+    private boolean isPlaylistPlaying() {
+        PlayingState currentPlayState = playerController.getPlayingState();
+        return currentPlayState != null && currentPlayState.isCurrentObject(mPlaylist.uri);
     }
 
     /**
      * Attempt to scroll to the track row that is currently playing
      */
     protected void scrollToCurrentTrack() {
-        PlayingState currentPlayState = SpotifyTvApplication.getInstance().getSpotifyPlayerController().getPlayingState();
+        PlayingState currentPlayState = playerController.getPlayingState();
         if (currentPlayState != null && currentPlayState.isCurrentObject(mPlaylist.uri)) {
             TrackSimple currentTrack = currentPlayState.getCurrentTrack();
             //try to scroll to track row that is currently playing
@@ -151,5 +205,13 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
 
             setSelectedPosition(playingTrackPosition);
         }
+    }
+
+    @Override
+    public void onPlayerState(PlayerState playerState) {
+        boolean playlistPlaying = isPlaylistPlaying() && playerState.playing;
+        Action action = (Action) actionsAdapter.get(0);
+        action.setLabel1(playlistPlaying ? getResources().getString(R.string.lb_playback_controls_pause) : getResources().getString(R.string.lb_playback_controls_play));
+        actionsAdapter.notifyArrayItemRangeChanged(0,1);
     }
 }

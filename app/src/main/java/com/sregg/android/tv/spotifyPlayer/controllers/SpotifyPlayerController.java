@@ -7,6 +7,7 @@ import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -135,6 +136,10 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
 
     public @Nullable PlayingState getPlayingState() {
         return mPlayingState;
+    }
+
+    public void getPlayerState(@NonNull  PlayerStateCallback callback){
+        mPlayer.getPlayerState(callback);
     }
 
     public boolean isShuffleOn() {

@@ -110,28 +110,6 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
         });
     }
 
-//    @SuppressWarnings("unused")
-//    @Subscribe
-//    public void onTrackChanged(OnTrackChanged onTrackChanged) {
-//        updatePlayingState();
-//    }
-//
-//    @SuppressWarnings("unused")
-//    @Subscribe
-//    public void onTrackChanged(OnPause onPause) {
-//        updatePlayingState();
-//    }
-//
-//    @SuppressWarnings("unused")
-//    @Subscribe
-//    public void onTrackChanged(OnPlay onPlay) {
-//        updatePlayingState();
-//    }
-//
-//    private void updatePlayingState(){
-//        playerController.getPlayerState(this);
-//    }
-
     /**
      * Attempt to scroll to the track row that is currently playing
      */

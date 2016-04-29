@@ -28,6 +28,7 @@ import com.sregg.android.tv.spotifyPlayer.events.OnPause;
 import com.sregg.android.tv.spotifyPlayer.events.OnPlay;
 import com.sregg.android.tv.spotifyPlayer.events.OnShuffleChanged;
 import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
+import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
 import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
 import com.sregg.android.tv.spotifyPlayer.settings.UserPreferences;
 import com.sregg.android.tv.spotifyPlayer.utils.Utils;
@@ -41,6 +42,7 @@ import kaaes.spotify.webapi.android.models.TrackSimple;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+
 
 /**
  * <p>Plays tracks, playlists and albums into the Spotify SDK</p>
@@ -173,6 +175,8 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 resetPlayingState();
                 break;
         }
+
+        BusProvider.post(new PlayerStateChanged(playerState, mPlayingState));
     }
 
     private void trackNowPlayingTrack(String currentTrackUri) {
@@ -341,4 +345,5 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
             mPlayer.setPlaybackBitrate(selectedBitrate);
         }
     }
+
 }

@@ -2,7 +2,6 @@ package com.sregg.android.tv.spotifyPlayer.fragments;
 
 import android.os.Bundle;
 import android.support.v17.leanback.widget.Action;
-import android.support.v17.leanback.widget.DetailsOverviewRow;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.util.Log;
@@ -11,13 +10,12 @@ import com.squareup.otto.Subscribe;
 import com.sregg.android.tv.spotifyPlayer.BusProvider;
 import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
-import com.sregg.android.tv.spotifyPlayer.events.OnPause;
-import com.sregg.android.tv.spotifyPlayer.events.OnPlay;
-import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
+import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
 import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
 import com.sregg.android.tv.spotifyPlayer.presenters.NowPlayingDetailsPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistTrackRowPresenter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Track;
@@ -29,6 +27,8 @@ import kaaes.spotify.webapi.android.models.TrackSimple;
 public class NowPlayingFragment extends TracksDetailsFragment {
 
     private static final String TAG = NowPlayingFragment.class.getSimpleName();
+
+    private static final long ACTION_VIEW_ARTIST = 2;
 
     private SpotifyTvApplication mApp;
     private PlayingState mPlayingState;
@@ -59,23 +59,28 @@ public class NowPlayingFragment extends TracksDetailsFragment {
         this.mPlayingState = playingState;
 
         if (this.mPlayingState != null && this.mPlayingState.getCurrentTrack() != null) {
-            DetailsOverviewRow detailsRow = new DetailsOverviewRow(this.mPlayingState.getCurrentTrack());
-
-            detailsRow.addAction(new Action(
-                    0,
-                    getResources().getString(R.string.lb_playback_controls_play),
-                    null,
-                    getActivity().getResources().getDrawable(R.drawable.lb_ic_play)
-            ));
-            detailsRow.addAction(new Action(
-                    1, getResources().getString(R.string.go_to_artist),
-                    null
-            ));
-
-            setDetailsRow(detailsRow);
-            setupTracksRows(mPlayingState.getTracksQueue());
+            onContentLoaded(this.mPlayingState.getCurrentTrack());
             loadDetailsRowImage(getCurrentTrackImageUrl());
         }
+    }
+
+    @Override
+    List<Action> getDetailActions() {
+        List<Action> actions = new ArrayList<>();
+        actions.add(new Action(
+                ACTION_VIEW_ARTIST, getResources().getString(R.string.go_to_artist),
+                null
+        ));
+        return actions;
+    }
+
+    @Override
+    protected boolean onActionClicked(Action action) {
+        if (super.onActionClicked(action)) {
+            return true;
+        }
+
+        return false;
     }
 
     private String getCurrentTrackImageUrl() {
@@ -117,19 +122,7 @@ public class NowPlayingFragment extends TracksDetailsFragment {
 
     @SuppressWarnings("unused")
     @Subscribe
-    public void onTrackChanged(OnTrackChanged onTrackChanged) {
-        setPlayingState(onTrackChanged.getPlayingState());
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe
-    public void onPlay(OnPlay onPlay) {
-        setPlayingState(onPlay.getPlayingState());
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe
-    public void onPause(OnPause onPause) {
-        setPlayingState(onPause.getPlayingState());
+    public void onPlayerStateChanged(PlayerStateChanged playerState) {
+        setPlayingState(playerState.getPlayingState());
     }
 }

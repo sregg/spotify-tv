@@ -7,6 +7,9 @@ import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.util.Log;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
+import com.sregg.android.tv.spotifyPlayer.Constants;
 import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
 import com.sregg.android.tv.spotifyPlayer.activities.AlbumActivity;
@@ -45,6 +48,11 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
         mAlbumId = intent.getStringExtra(AlbumActivity.ARG_ALBUM_ID);
 
         loadAlbum();
+
+        Answers.getInstance().logContentView(new ContentViewEvent()
+                .putContentName(Constants.ANSWERS_CONTENT_ALBUM)
+                .putContentType(Constants.ANSWERS_CONTENT_TYPE)
+                .putContentId(mAlbumId));
     }
 
     @Override

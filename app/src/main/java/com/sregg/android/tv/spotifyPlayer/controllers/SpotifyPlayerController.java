@@ -13,6 +13,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.PlaybackBitrate;
 import com.spotify.sdk.android.player.Player;
@@ -22,14 +24,15 @@ import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotifyPlayer.BusProvider;
+import com.sregg.android.tv.spotifyPlayer.Constants;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
 import com.sregg.android.tv.spotifyPlayer.enums.Control;
+import com.sregg.android.tv.spotifyPlayer.events.ContentState;
 import com.sregg.android.tv.spotifyPlayer.events.OnPause;
 import com.sregg.android.tv.spotifyPlayer.events.OnPlay;
 import com.sregg.android.tv.spotifyPlayer.events.OnShuffleChanged;
 import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
 import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
-import com.sregg.android.tv.spotifyPlayer.events.ContentState;
 import com.sregg.android.tv.spotifyPlayer.settings.UserPreferences;
 import com.sregg.android.tv.spotifyPlayer.utils.Utils;
 
@@ -164,12 +167,15 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         switch (eventType) {
             case PLAY:
                 BusProvider.post(new OnPlay(mContentState));
+                Answers.getInstance().logCustom(new CustomEvent(Constants.ANSWERS_EVENT_PLAYER_PLAY));
                 break;
             case PAUSE:
                 BusProvider.post(new OnPause(mContentState));
+                Answers.getInstance().logCustom(new CustomEvent(Constants.ANSWERS_EVENT_PLAYER_PAUSE));
                 break;
             case TRACK_CHANGED:
                 trackNowPlayingTrack(playerState.trackUri);
+                Answers.getInstance().logCustom(new CustomEvent(Constants.ANSWERS_EVENT_PLAYER_TRACK_CHANGE));
                 break;
             case END_OF_CONTEXT:
                 stopNowPlayingSession();

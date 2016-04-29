@@ -2,20 +2,19 @@ package com.sregg.android.tv.spotifyPlayer.events;
 
 import java.util.List;
 
-import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TrackSimple;
 
 /**
  * Created by simonreggiani on 15-06-03.
  */
-public class PlayingState {
+public class ContentState {
     private final String mCurrentObjectUri;
     private final List<TrackSimple> mTracksQueue;
     private String mCurrentTrackUri;
     private List<String> mTrackUrisQueue;
     private TrackSimple mCurrentTrack;
 
-    public PlayingState(String currentObjectUri, String currentTrackUri, List<String> trackUrisQueue, List<TrackSimple> tracksQueue) {
+    public ContentState(String currentObjectUri, String currentTrackUri, List<String> trackUrisQueue, List<TrackSimple> tracksQueue) {
         mCurrentObjectUri = currentObjectUri;
         mCurrentTrackUri = currentTrackUri;
         mTrackUrisQueue = trackUrisQueue;

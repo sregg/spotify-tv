@@ -27,7 +27,7 @@ import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
 import com.sregg.android.tv.spotifyPlayer.controllers.SpotifyPlayerController;
 import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
-import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
+import com.sregg.android.tv.spotifyPlayer.events.ContentState;
 import com.sregg.android.tv.spotifyPlayer.presenters.TracksHeaderRowPresenter;
 import com.sregg.android.tv.spotifyPlayer.rows.TrackRow;
 import com.sregg.android.tv.spotifyPlayer.rows.TracksHeaderRow;
@@ -206,7 +206,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
     }
 
     private boolean isContentPlaying() {
-        PlayingState currentPlayState = playerController.getPlayingState();
+        ContentState currentPlayState = playerController.getPlayingState();
         return currentPlayState != null && currentPlayState.isCurrentObject(getObjectUri());
     }
 

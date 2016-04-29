@@ -7,11 +7,11 @@ import com.spotify.sdk.android.player.PlayerState;
 public class PlayerStateChanged {
 
     private final PlayerState playerState;
-    private final PlayingState playingState;
+    private final ContentState contentState;
 
-    public PlayerStateChanged(@NonNull PlayerState playerState, @NonNull PlayingState playingState) {
+    public PlayerStateChanged(@NonNull PlayerState playerState, @NonNull ContentState contentState) {
         this.playerState = playerState;
-        this.playingState = playingState;
+        this.contentState = contentState;
     }
 
     @NonNull
@@ -20,7 +20,7 @@ public class PlayerStateChanged {
     }
 
     @NonNull
-    public PlayingState getPlayingState() {
-        return playingState;
+    public ContentState getContentState() {
+        return contentState;
     }
 }

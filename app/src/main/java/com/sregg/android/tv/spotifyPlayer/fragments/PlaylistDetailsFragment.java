@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
 import com.sregg.android.tv.spotifyPlayer.activities.PlaylistActivity;
-import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
+import com.sregg.android.tv.spotifyPlayer.events.ContentState;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistDetailsPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistTrackRowPresenter;
 
@@ -136,7 +136,7 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
      * Attempt to scroll to the track row that is currently playing
      */
     protected void scrollToCurrentTrack() {
-        PlayingState currentPlayState = playerController.getPlayingState();
+        ContentState currentPlayState = playerController.getPlayingState();
         if (currentPlayState != null && currentPlayState.isCurrentObject(mPlaylist.uri)) {
             TrackSimple currentTrack = currentPlayState.getCurrentTrack();
             //try to scroll to track row that is currently playing

@@ -11,7 +11,7 @@ import com.sregg.android.tv.spotifyPlayer.BusProvider;
 import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
 import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
-import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
+import com.sregg.android.tv.spotifyPlayer.events.ContentState;
 import com.sregg.android.tv.spotifyPlayer.presenters.NowPlayingDetailsPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistTrackRowPresenter;
 
@@ -31,7 +31,7 @@ public class NowPlayingFragment extends TracksDetailsFragment {
     private static final long ACTION_VIEW_ARTIST = 2;
 
     private SpotifyTvApplication mApp;
-    private PlayingState mPlayingState;
+    private ContentState mContentState;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,11 +55,11 @@ public class NowPlayingFragment extends TracksDetailsFragment {
         setPlayingState(mApp.getSpotifyPlayerController().getPlayingState());
     }
 
-    private void setPlayingState(PlayingState playingState) {
-        this.mPlayingState = playingState;
+    private void setPlayingState(ContentState contentState) {
+        this.mContentState = contentState;
 
-        if (this.mPlayingState != null && this.mPlayingState.getCurrentTrack() != null) {
-            onContentLoaded(this.mPlayingState.getCurrentTrack());
+        if (this.mContentState != null && this.mContentState.getCurrentTrack() != null) {
+            onContentLoaded(this.mContentState.getCurrentTrack());
             loadDetailsRowImage(getCurrentTrackImageUrl());
         }
     }
@@ -84,8 +84,8 @@ public class NowPlayingFragment extends TracksDetailsFragment {
     }
 
     private String getCurrentTrackImageUrl() {
-        if (mPlayingState.getCurrentTrack() instanceof Track) {
-            Track track = (Track) mPlayingState.getCurrentTrack();
+        if (mContentState.getCurrentTrack() instanceof Track) {
+            Track track = (Track) mContentState.getCurrentTrack();
 
             if (track.album != null && track.album.images != null && track.album.images.size() > 0) {
                 return track.album.images.get(0).url;
@@ -107,22 +107,22 @@ public class NowPlayingFragment extends TracksDetailsFragment {
 
     @Override
     protected List<TrackSimple> getTracks() {
-        return mPlayingState.getTracksQueue();
+        return mContentState.getTracksQueue();
     }
 
     @Override
     protected List<String> getTrackUris() {
-        return mPlayingState.getTrackUrisQueue();
+        return mContentState.getTrackUrisQueue();
     }
 
     @Override
     protected String getObjectUri() {
-        return mPlayingState.getCurrentObjectUri();
+        return mContentState.getCurrentObjectUri();
     }
 
     @SuppressWarnings("unused")
     @Subscribe
     public void onPlayerStateChanged(PlayerStateChanged playerState) {
-        setPlayingState(playerState.getPlayingState());
+        setPlayingState(playerState.getContentState());
     }
 }

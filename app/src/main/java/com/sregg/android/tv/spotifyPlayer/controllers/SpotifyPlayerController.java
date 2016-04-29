@@ -29,7 +29,7 @@ import com.sregg.android.tv.spotifyPlayer.events.OnPlay;
 import com.sregg.android.tv.spotifyPlayer.events.OnShuffleChanged;
 import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
 import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
-import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
+import com.sregg.android.tv.spotifyPlayer.events.ContentState;
 import com.sregg.android.tv.spotifyPlayer.settings.UserPreferences;
 import com.sregg.android.tv.spotifyPlayer.utils.Utils;
 
@@ -60,7 +60,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     private final SpotifyService mSpotifyService;
     private final Handler mHandler;
 
-    private PlayingState mPlayingState;
+    private ContentState mContentState;
 
     private boolean mIsShuffleOn = false;
 
@@ -93,14 +93,14 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     }
 
     public void resetPlayingState() {
-        mPlayingState = new PlayingState("", "", null, null);
+        mContentState = new ContentState("", "", null, null);
     }
 
     public void play(String currentObjectUri, List<String> trackUris, List<TrackSimple> tracks) {
         if (!SpotifyTvApplication.isCurrentUserPremium()) {
             Toast.makeText(SpotifyTvApplication.getInstance().getApplicationContext(), "You need a premium Spotify account to play music on this app", Toast.LENGTH_SHORT).show();
         } else {
-            mPlayingState = new PlayingState(currentObjectUri, trackUris.get(0), trackUris, tracks);
+            mContentState = new ContentState(currentObjectUri, trackUris.get(0), trackUris, tracks);
             mPlayer.play(trackUris);
             startNowPlayingSession();
         }
@@ -136,8 +136,9 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         });
     }
 
-    public @Nullable PlayingState getPlayingState() {
-        return mPlayingState;
+    public @Nullable
+    ContentState getPlayingState() {
+        return mContentState;
     }
 
     public void getPlayerState(@NonNull  PlayerStateCallback callback){
@@ -158,14 +159,14 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         Log.d(TAG, String.format("%s - isPlaying: %s - trackUri: %s - positionInMs:%s",
                 eventType.name(), playerState.playing, playerState.trackUri, playerState.positionInMs));
 
-        mPlayingState.setCurrentTrackUri(playerState.trackUri);
+        mContentState.setCurrentTrackUri(playerState.trackUri);
 
         switch (eventType) {
             case PLAY:
-                BusProvider.post(new OnPlay(mPlayingState));
+                BusProvider.post(new OnPlay(mContentState));
                 break;
             case PAUSE:
-                BusProvider.post(new OnPause(mPlayingState));
+                BusProvider.post(new OnPause(mContentState));
                 break;
             case TRACK_CHANGED:
                 trackNowPlayingTrack(playerState.trackUri);
@@ -176,7 +177,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 break;
         }
 
-        BusProvider.post(new PlayerStateChanged(playerState, mPlayingState));
+        BusProvider.post(new PlayerStateChanged(playerState, mContentState));
     }
 
     private void trackNowPlayingTrack(String currentTrackUri) {
@@ -184,7 +185,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         mSpotifyService.getTrack(Utils.getIdFromUri(currentTrackUri), new Callback<Track>() {
             @Override
             public void success(final Track track, Response response) {
-				mPlayingState.setCurrentTrack(track);
+				mContentState.setCurrentTrack(track);
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -194,7 +195,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                         mHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                BusProvider.post(new OnTrackChanged(mPlayingState));
+                                BusProvider.post(new OnTrackChanged(mContentState));
                             }
                         });
                     }
@@ -296,7 +297,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 mPlayer.pause();
                 mPlayer.clearQueue();
                 resetPlayingState();
-                BusProvider.post(new OnTrackChanged(mPlayingState));
+                BusProvider.post(new OnTrackChanged(mContentState));
                 break;
             case SHUFFLE:
                 mIsShuffleOn = !mIsShuffleOn;
@@ -304,8 +305,8 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 BusProvider.post(new OnShuffleChanged(mIsShuffleOn));
 
                 // reload current object if not null
-                if (!TextUtils.isEmpty(mPlayingState.getCurrentObjectUri())) {
-                    play(mPlayingState.getCurrentObjectUri(), mPlayingState.getTrackUrisQueue(), mPlayingState.getTracksQueue());
+                if (!TextUtils.isEmpty(mContentState.getCurrentObjectUri())) {
+                    play(mContentState.getCurrentObjectUri(), mContentState.getTrackUrisQueue(), mContentState.getTracksQueue());
                 }
                 break;
             case FAST_FORWARD:

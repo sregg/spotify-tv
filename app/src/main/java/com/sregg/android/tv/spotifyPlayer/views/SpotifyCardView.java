@@ -12,7 +12,7 @@ import com.sregg.android.tv.spotifyPlayer.events.AbsPlayingEvent;
 import com.sregg.android.tv.spotifyPlayer.events.OnPause;
 import com.sregg.android.tv.spotifyPlayer.events.OnPlay;
 import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
-import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
+import com.sregg.android.tv.spotifyPlayer.events.ContentState;
 import com.sregg.android.tv.spotifyPlayer.utils.Utils;
 
 import kaaes.spotify.webapi.android.models.TrackSimple;
@@ -97,8 +97,8 @@ public class SpotifyCardView extends FrameLayout {
     }
 
     private boolean isSelf(AbsPlayingEvent playingEvent) {
-        PlayingState playingState = playingEvent.getPlayingState();
-        return mItem instanceof TrackSimple ? playingState.isCurrentTrack(mUri) : playingState.isCurrentObject(mUri);
+        ContentState contentState = playingEvent.getPlayingState();
+        return mItem instanceof TrackSimple ? contentState.isCurrentTrack(mUri) : contentState.isCurrentObject(mUri);
     }
 
     public void initNowPlaying(boolean isSelf) {

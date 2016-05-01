@@ -14,11 +14,10 @@
 
 package com.sregg.android.tv.spotifyPlayer.presenters;
 
-import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
 
 import com.sregg.android.tv.spotifyPlayer.R;
-import com.sregg.android.tv.spotifyPlayer.views.NewSpotifyCardView;
+import com.sregg.android.tv.spotifyPlayer.views.SpotifyCardView;
 
 import java.net.URI;
 
@@ -35,7 +34,7 @@ public class PlaylistCardPresenter extends AbsCardPresenter {
         super.onBindViewHolder(viewHolder, item);
 
         final CardViewHolder cardViewHolder = (CardViewHolder) viewHolder;
-        NewSpotifyCardView imageCardView = cardViewHolder.getImageCardView();
+        SpotifyCardView imageCardView = cardViewHolder.getImageCardView();
 
         final PlaylistSimple playlist = (PlaylistSimple) item;
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="NewSpotifyCardView">
+    <declare-styleable name="SpotifyCardView">
         <attr name="spotify_card_background_color" format="reference|color" />
         <attr name="spotify_card_text_color" format="reference|color" />
         <attr name="spotify_card_theme" format="reference|integer" />

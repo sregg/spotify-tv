@@ -28,7 +28,7 @@ import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
 import com.sregg.android.tv.spotifyPlayer.events.ContentState;
 import com.sregg.android.tv.spotifyPlayer.utils.Utils;
-import com.sregg.android.tv.spotifyPlayer.views.NewSpotifyCardView;
+import com.sregg.android.tv.spotifyPlayer.views.SpotifyCardView;
 
 import java.net.URI;
 
@@ -43,22 +43,22 @@ public abstract class AbsCardPresenter extends Presenter {
 
     static class CardViewHolder extends Presenter.ViewHolder {
 
-        protected final NewSpotifyCardView mNewSpotifyCardView;
+        protected final SpotifyCardView mSpotifyCardView;
         protected PicassoImageCardViewTarget mImageCardViewTarget;
 
-        public CardViewHolder(NewSpotifyCardView newSpotifyCardView) {
-            super(newSpotifyCardView);
-            mNewSpotifyCardView = newSpotifyCardView;
-            mImageCardViewTarget = new PicassoImageCardViewTarget(newSpotifyCardView);
+        public CardViewHolder(SpotifyCardView spotifyCardView) {
+            super(spotifyCardView);
+            mSpotifyCardView = spotifyCardView;
+            mImageCardViewTarget = new PicassoImageCardViewTarget(spotifyCardView);
         }
 
-        public NewSpotifyCardView getImageCardView() {
-            return mNewSpotifyCardView;
+        public SpotifyCardView getImageCardView() {
+            return mSpotifyCardView;
         }
 
         protected void updateCardViewImage(URI uri) {
-            int imageSize = mNewSpotifyCardView.getImageSize();
-            Picasso.with(mNewSpotifyCardView.getContext())
+            int imageSize = mSpotifyCardView.getImageSize();
+            Picasso.with(mSpotifyCardView.getContext())
                     .load(uri.toString())
                     .resize(imageSize, imageSize)
                     .centerCrop()
@@ -70,7 +70,7 @@ public abstract class AbsCardPresenter extends Presenter {
     public CardViewHolder onCreateViewHolder(ViewGroup parent) {
         Context context = parent.getContext();
 
-        NewSpotifyCardView cardView = new NewSpotifyCardView(context);
+        SpotifyCardView cardView = new SpotifyCardView(context);
         cardView.setFocusable(true);
         cardView.setFocusableInTouchMode(true);
         cardView.setBackgroundColor(context.getResources().getColor(R.color.card_default_bg));
@@ -81,32 +81,32 @@ public abstract class AbsCardPresenter extends Presenter {
     public void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
         CardViewHolder cardViewHolder = (CardViewHolder) viewHolder;
 
-        NewSpotifyCardView newSpotifyCardView = cardViewHolder.mNewSpotifyCardView;
+        SpotifyCardView spotifyCardView = cardViewHolder.mSpotifyCardView;
 
 
         // set item
-        newSpotifyCardView.setItem(item);
+        spotifyCardView.setItem(item);
 
         // init badge and now playing
         ContentState contentState = SpotifyTvApplication.getInstance()
                 .getSpotifyPlayerController()
                 .getPlayingState();
         String uri = Utils.getUriFromSpotiyObject(item);
-        newSpotifyCardView.initNowPlaying(item instanceof TrackSimple ? contentState.isCurrentTrack(uri) : contentState.isCurrentObject(uri));
+        spotifyCardView.initNowPlaying(item instanceof TrackSimple ? contentState.isCurrentTrack(uri) : contentState.isCurrentObject(uri));
     }
 
     @Override
     public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
         CardViewHolder cardViewHolder = (CardViewHolder) viewHolder;
 
-        NewSpotifyCardView newSpotifyCardView = cardViewHolder.mNewSpotifyCardView;
+        SpotifyCardView spotifyCardView = cardViewHolder.mSpotifyCardView;
 
         // reset info selected color
 //        newSpotifyCardView.setSelectedInfoAreaBackgroundColor(null);
 
         // reset image
 //        newSpotifyCardView.setMainImage(null);
-        newSpotifyCardView.setBackground(null);
+        spotifyCardView.setBackground(null);
 //        newSpotifyCardView.setInfoAreaBackground(null);
 
         // reset badge and now playing
@@ -120,17 +120,17 @@ public abstract class AbsCardPresenter extends Presenter {
     }
 
     public static class PicassoImageCardViewTarget implements Target {
-        private NewSpotifyCardView mNewSpotifyCardView;
+        private SpotifyCardView mSpotifyCardView;
 
-        public PicassoImageCardViewTarget(NewSpotifyCardView newSpotifyCardView) {
-            mNewSpotifyCardView = newSpotifyCardView;
+        public PicassoImageCardViewTarget(SpotifyCardView spotifyCardView) {
+            mSpotifyCardView = spotifyCardView;
         }
 
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
             // load the bitmap in the imageview
-            Drawable bitmapDrawable = new BitmapDrawable(mNewSpotifyCardView.getContext().getResources(), bitmap);
-            mNewSpotifyCardView.setMainImage(bitmapDrawable);
+            Drawable bitmapDrawable = new BitmapDrawable(mSpotifyCardView.getContext().getResources(), bitmap);
+            mSpotifyCardView.setMainImage(bitmapDrawable);
 
             // set background based on the color palette
             Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
@@ -150,7 +150,7 @@ public abstract class AbsCardPresenter extends Presenter {
 
         @Override
         public void onBitmapFailed(Drawable drawable) {
-            mNewSpotifyCardView.setMainImage(drawable);
+            mSpotifyCardView.setMainImage(drawable);
         }
 
         @Override

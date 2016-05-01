@@ -1,16 +1,18 @@
 package com.sregg.android.tv.spotifyPlayer.presenters;
 
-import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
+
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
+import com.sregg.android.tv.spotifyPlayer.views.NewSpotifyCardView;
+
+import java.net.URI;
+
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.AlbumSimple;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-
-import java.net.URI;
 
 /**
  * Created by simonreggiani on 15-01-31.
@@ -21,7 +23,7 @@ public class AlbumCardPresenter extends AbsCardPresenter {
         super.onBindViewHolder(viewHolder, item);
 
         final CardViewHolder cardViewHolder = (CardViewHolder) viewHolder;
-        final ImageCardView imageCardView = cardViewHolder.getImageCardView();
+        final NewSpotifyCardView imageCardView = cardViewHolder.getImageCardView();
 
         AlbumSimple albumSimple = (AlbumSimple) item;
 

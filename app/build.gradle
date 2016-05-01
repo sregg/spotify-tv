@@ -65,7 +65,7 @@ android {
     }
 }
 
-def androidSupportVersion = '23.0.1'
+def androidSupportVersion = '23.3.0'
 
 //check for updates with ./gradlew dependencyUpdates -Drevision=release
 dependencies {

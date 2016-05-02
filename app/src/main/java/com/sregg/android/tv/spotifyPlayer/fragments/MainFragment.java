@@ -41,7 +41,7 @@ import com.sregg.android.tv.spotifyPlayer.adapters.PagingAdapter;
 import com.sregg.android.tv.spotifyPlayer.controllers.SpotifyPlayerController;
 import com.sregg.android.tv.spotifyPlayer.enums.Control;
 import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
-import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
+import com.sregg.android.tv.spotifyPlayer.events.ContentState;
 import com.sregg.android.tv.spotifyPlayer.presenters.AlbumCardPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.ArtistCardPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.CategoryCardPresenter;
@@ -454,10 +454,10 @@ public class MainFragment extends BrowseFragment {
     @SuppressWarnings("unused")
     @Subscribe
     public void onTrackChanged(OnTrackChanged onTrackChanged) {
-        PlayingState playingState = onTrackChanged.getPlayingState();
+        ContentState contentState = onTrackChanged.getPlayingState();
         mNowPlayingAdapter.removeItems(0, mNowPlayingAdapter.size());
-        if (playingState.getCurrentTrack() != null) {
-            mNowPlayingAdapter.add(0, playingState.getCurrentTrack());
+        if (contentState.getCurrentTrack() != null) {
+            mNowPlayingAdapter.add(0, contentState.getCurrentTrack());
         }
 
         if (mNowPlayingListRow == null) {

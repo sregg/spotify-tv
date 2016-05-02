@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v17.leanback.app.BackgroundManager;
 import android.support.v17.leanback.app.DetailsFragment;
+import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.ArrayObjectAdapter;
 import android.support.v17.leanback.widget.ClassPresenterSelector;
 import android.support.v17.leanback.widget.DetailsOverviewRow;
@@ -18,9 +19,15 @@ import android.support.v7.graphics.Palette;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.spotify.sdk.android.player.PlayerState;
+import com.squareup.otto.Subscribe;
 import com.squareup.picasso.Picasso;
+import com.sregg.android.tv.spotifyPlayer.BusProvider;
+import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
-import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
+import com.sregg.android.tv.spotifyPlayer.controllers.SpotifyPlayerController;
+import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
+import com.sregg.android.tv.spotifyPlayer.events.ContentState;
 import com.sregg.android.tv.spotifyPlayer.presenters.TracksHeaderRowPresenter;
 import com.sregg.android.tv.spotifyPlayer.rows.TrackRow;
 import com.sregg.android.tv.spotifyPlayer.rows.TracksHeaderRow;
@@ -34,10 +41,13 @@ import java.util.List;
 import kaaes.spotify.webapi.android.models.TrackSimple;
 
 public abstract class TracksDetailsFragment extends DetailsFragment {
+    protected static final long ACTION_PLAY_PAUSE_PLAYLIST = 1;
     private static final String TAG = TracksDetailsFragment.class.getSimpleName();
 
     private static final int DETAIL_THUMB_WIDTH = 274;
     private static final int DETAIL_THUMB_HEIGHT = 274;
+    protected SpotifyPlayerController playerController;
+    protected ArrayObjectAdapter actionsAdapter;
 
     private BackgroundManager mBackgroundManager;
     private DisplayMetrics mMetrics;
@@ -45,14 +55,35 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
 
     private DetailsOverviewRowPresenter mDetailsPresenter;
     private DetailsOverviewRow mDetailsRow;
+    private Object busEventListener;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
+        busEventListener = new Object() {
+            @Subscribe
+            public void onPlayerStateChanged(final PlayerStateChanged event) {
+                TracksDetailsFragment.this.onPlayerStateChanged(event);
+            }
+        };
+        BusProvider.getInstance().register(busEventListener);
+
+        playerController = SpotifyTvApplication.getInstance().getSpotifyPlayerController();
+
         setupFragment();
         setupBackground();
+    }
+
+    public SpotifyPlayerController getPlayerController() {
+        return playerController;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        BusProvider.getInstance().unregister(busEventListener);
     }
 
     protected abstract Presenter getDetailsPresenter();
@@ -80,12 +111,49 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
 
         mRowsAdapter = new ArrayObjectAdapter(ps);
         setAdapter(mRowsAdapter);
+
+        setOnActionClickedListener(new OnActionClickedListener() {
+            @Override
+            public void onActionClicked(Action action) {
+                TracksDetailsFragment.this.onActionClicked(action);
+            }
+        });
+    }
+
+    /**
+     * Called when an Action has been clicked
+     *
+     * @param action
+     * @return true if the action click has been consumed
+     */
+    protected boolean onActionClicked(Action action) {
+        if (action.getId() == ACTION_PLAY_PAUSE_PLAYLIST) {
+            if (isContentPlaying()) {
+                playerController.togglePauseResume();
+            } else {
+                playerController.play(getObjectUri(), getTrackUris(), getTracks());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    protected void onContentLoaded(Object item) {
+        DetailsOverviewRow detailsRow = new DetailsOverviewRow(item);
+
+        actionsAdapter = new ArrayObjectAdapter();
+        populateActionsAdapter();
+        detailsRow.setActionsAdapter(actionsAdapter);
+
+        setDetailsRow(detailsRow);
+
+        setupTracksRows(getTracks());
     }
 
     private void playFromTrack(TrackSimple item) {
         List<TrackSimple> tracks = getTracks();
         List<String> trackUris = getTrackUris();
-		int index = trackUris.indexOf(item.uri);
+        int index = trackUris.indexOf(item.uri);
         List<TrackSimple> tracksSubList = tracks.subList(index, tracks.size());
         List<String> uriSubList = trackUris.subList(index, trackUris.size());
         List<String> subList = trackUris.subList(trackUris.indexOf(item.uri), trackUris.size());
@@ -136,6 +204,34 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
             new ImageLoader().execute(imageUrl);
         }
     }
+
+    private boolean isContentPlaying() {
+        ContentState currentPlayState = playerController.getPlayingState();
+        return currentPlayState != null && currentPlayState.isCurrentObject(getObjectUri());
+    }
+
+    private void populateActionsAdapter() {
+        boolean playlistPlaying = isContentPlaying();
+        Action playAction = new Action(ACTION_PLAY_PAUSE_PLAYLIST, playlistPlaying ? getResources().getString(R.string.lb_playback_controls_pause) : getResources().getString(R.string.lb_playback_controls_play), null);
+
+        actionsAdapter.add(playAction);
+        List<Action> actions = getDetailActions();
+        if (actions != null) {
+            for (Action action : getDetailActions()) {
+                actions.add(action);
+            }
+        }
+    }
+
+    public void onPlayerStateChanged(PlayerStateChanged playerStateChanged) {
+        PlayerState playerState = playerStateChanged.getPlayerState();
+        boolean playlistPlaying = isContentPlaying() && playerState.playing;
+        Action action = (Action) actionsAdapter.get(0);
+        action.setLabel1(playlistPlaying ? getResources().getString(R.string.lb_playback_controls_pause) : getResources().getString(R.string.lb_playback_controls_play));
+        actionsAdapter.notifyArrayItemRangeChanged(0, 1);
+    }
+
+    abstract List<Action> getDetailActions();
 
     private class ImageLoader extends AsyncTask<String, Void, Void> {
 

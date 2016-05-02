@@ -2,7 +2,6 @@ package com.sregg.android.tv.spotifyPlayer.fragments;
 
 import android.os.Bundle;
 import android.support.v17.leanback.widget.Action;
-import android.support.v17.leanback.widget.DetailsOverviewRow;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.util.Log;
@@ -11,13 +10,12 @@ import com.squareup.otto.Subscribe;
 import com.sregg.android.tv.spotifyPlayer.BusProvider;
 import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
-import com.sregg.android.tv.spotifyPlayer.events.OnPause;
-import com.sregg.android.tv.spotifyPlayer.events.OnPlay;
-import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
-import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
+import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
+import com.sregg.android.tv.spotifyPlayer.events.ContentState;
 import com.sregg.android.tv.spotifyPlayer.presenters.NowPlayingDetailsPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistTrackRowPresenter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Track;
@@ -30,8 +28,10 @@ public class NowPlayingFragment extends TracksDetailsFragment {
 
     private static final String TAG = NowPlayingFragment.class.getSimpleName();
 
+    private static final long ACTION_VIEW_ARTIST = 2;
+
     private SpotifyTvApplication mApp;
-    private PlayingState mPlayingState;
+    private ContentState mContentState;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,32 +55,37 @@ public class NowPlayingFragment extends TracksDetailsFragment {
         setPlayingState(mApp.getSpotifyPlayerController().getPlayingState());
     }
 
-    private void setPlayingState(PlayingState playingState) {
-        this.mPlayingState = playingState;
+    private void setPlayingState(ContentState contentState) {
+        this.mContentState = contentState;
 
-        if (this.mPlayingState != null && this.mPlayingState.getCurrentTrack() != null) {
-            DetailsOverviewRow detailsRow = new DetailsOverviewRow(this.mPlayingState.getCurrentTrack());
-
-            detailsRow.addAction(new Action(
-                    0,
-                    getResources().getString(R.string.lb_playback_controls_play),
-                    null,
-                    getActivity().getResources().getDrawable(R.drawable.lb_ic_play)
-            ));
-            detailsRow.addAction(new Action(
-                    1, getResources().getString(R.string.go_to_artist),
-                    null
-            ));
-
-            setDetailsRow(detailsRow);
-            setupTracksRows(mPlayingState.getTracksQueue());
+        if (this.mContentState != null && this.mContentState.getCurrentTrack() != null) {
+            onContentLoaded(this.mContentState.getCurrentTrack());
             loadDetailsRowImage(getCurrentTrackImageUrl());
         }
     }
 
+    @Override
+    List<Action> getDetailActions() {
+        List<Action> actions = new ArrayList<>();
+        actions.add(new Action(
+                ACTION_VIEW_ARTIST, getResources().getString(R.string.go_to_artist),
+                null
+        ));
+        return actions;
+    }
+
+    @Override
+    protected boolean onActionClicked(Action action) {
+        if (super.onActionClicked(action)) {
+            return true;
+        }
+
+        return false;
+    }
+
     private String getCurrentTrackImageUrl() {
-        if (mPlayingState.getCurrentTrack() instanceof Track) {
-            Track track = (Track) mPlayingState.getCurrentTrack();
+        if (mContentState.getCurrentTrack() instanceof Track) {
+            Track track = (Track) mContentState.getCurrentTrack();
 
             if (track.album != null && track.album.images != null && track.album.images.size() > 0) {
                 return track.album.images.get(0).url;
@@ -102,34 +107,22 @@ public class NowPlayingFragment extends TracksDetailsFragment {
 
     @Override
     protected List<TrackSimple> getTracks() {
-        return mPlayingState.getTracksQueue();
+        return mContentState.getTracksQueue();
     }
 
     @Override
     protected List<String> getTrackUris() {
-        return mPlayingState.getTrackUrisQueue();
+        return mContentState.getTrackUrisQueue();
     }
 
     @Override
     protected String getObjectUri() {
-        return mPlayingState.getCurrentObjectUri();
+        return mContentState.getCurrentObjectUri();
     }
 
     @SuppressWarnings("unused")
     @Subscribe
-    public void onTrackChanged(OnTrackChanged onTrackChanged) {
-        setPlayingState(onTrackChanged.getPlayingState());
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe
-    public void onPlay(OnPlay onPlay) {
-        setPlayingState(onPlay.getPlayingState());
-    }
-
-    @SuppressWarnings("unused")
-    @Subscribe
-    public void onPause(OnPause onPause) {
-        setPlayingState(onPause.getPlayingState());
+    public void onPlayerStateChanged(PlayerStateChanged playerState) {
+        setPlayingState(playerState.getContentState());
     }
 }

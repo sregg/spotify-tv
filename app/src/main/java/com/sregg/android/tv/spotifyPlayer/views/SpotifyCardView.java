@@ -36,8 +36,8 @@ public class SpotifyCardView extends BaseCardView {
     private FrameLayout mNowPlayingContainer;
 
     private Integer mSelectedInfoAreaBackgroundColor;
-    private int mSelectedInfoAreaBacgroundDefaultColor;
-    private int mInfoAreaBacgroundDefaultColor;
+    private int mSelectedInfoAreaBackgroundDefaultColor;
+    private int mInfoAreaBackgroundDefaultColor;
 
     private String mUri;
     private Object mItem;
@@ -73,9 +73,13 @@ public class SpotifyCardView extends BaseCardView {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.spotify_card_view, this);
 
+        mSelectedInfoAreaBackgroundDefaultColor = getResources().getColor(R.color.card_info_area_selected_default);
+        mInfoAreaBackgroundDefaultColor = getResources().getColor(R.color.card_info_area_default);
+
         mInfoArea = (LinearLayout) view.findViewById(R.id.info_field);
         mNowPlayingContainer = (FrameLayout) view.findViewById(R.id.now_playing_container);
         mMainContainer = (FrameLayout) view.findViewById(R.id.main_container);
+        mMainContainer.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.card_info_area_default));
         mImageView = (ImageView) view.findViewById(R.id.image_view_main);
         mNowPlayingView = (NowPlayingIndicatorView) view.findViewById(R.id.now_playing_indicator_view);
         mTitleView = (TextView) findViewById(R.id.title_text);
@@ -275,10 +279,10 @@ public class SpotifyCardView extends BaseCardView {
         if (selected) {
             color = mSelectedInfoAreaBackgroundColor;
             if (color == null) {
-                color = mSelectedInfoAreaBacgroundDefaultColor;
+                color = mSelectedInfoAreaBackgroundDefaultColor;
             }
         } else {
-            color = mInfoAreaBacgroundDefaultColor;
+            color = mInfoAreaBackgroundDefaultColor;
         }
 
         setInfoAreaBackgroundColor(color);

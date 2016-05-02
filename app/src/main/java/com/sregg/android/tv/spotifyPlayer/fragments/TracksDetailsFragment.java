@@ -1,5 +1,6 @@
 package com.sregg.android.tv.spotifyPlayer.fragments;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,8 +27,8 @@ import com.sregg.android.tv.spotifyPlayer.BusProvider;
 import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
 import com.sregg.android.tv.spotifyPlayer.controllers.SpotifyPlayerController;
-import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
 import com.sregg.android.tv.spotifyPlayer.events.ContentState;
+import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
 import com.sregg.android.tv.spotifyPlayer.presenters.TracksHeaderRowPresenter;
 import com.sregg.android.tv.spotifyPlayer.rows.TrackRow;
 import com.sregg.android.tv.spotifyPlayer.rows.TracksHeaderRow;
@@ -139,6 +140,10 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
     }
 
     protected void onContentLoaded(Object item) {
+        if (!isAdded()){
+            return;
+        }
+
         DetailsOverviewRow detailsRow = new DetailsOverviewRow(item);
 
         actionsAdapter = new ArrayObjectAdapter();
@@ -201,7 +206,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
             mDetailsRow.setImageBitmap(getActivity(), null);
             mBackgroundManager.setBitmap(null);
         } else {
-            new ImageLoader().execute(imageUrl);
+            new ImageLoader(getActivity()).execute(imageUrl);
         }
     }
 
@@ -235,26 +240,32 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
 
     private class ImageLoader extends AsyncTask<String, Void, Void> {
 
+        private Context context;
+
+        public ImageLoader(Context context) {
+            this.context = context.getApplicationContext();
+        }
+
         private Bitmap mBackground;
 
         @Override
         protected Void doInBackground(String... params) {
-            if (mDetailsRow == null || mDetailsPresenter == null) {
+            if (mDetailsRow == null || mDetailsPresenter == null || !isAdded()) {
                 return null;
             }
 
             Bitmap cover;
             try {
-                cover = Picasso.with(getActivity())
+                cover = Picasso.with(this.context)
                         .load(params[0])
                         .resize(
-                                Utils.dpToPx(DETAIL_THUMB_WIDTH, getActivity()),
-                                Utils.dpToPx(DETAIL_THUMB_HEIGHT, getActivity())
+                                Utils.dpToPx(DETAIL_THUMB_WIDTH, this.context),
+                                Utils.dpToPx(DETAIL_THUMB_HEIGHT, this.context)
                         )
                         .centerCrop()
                         .get();
 
-                mDetailsRow.setImageBitmap(getActivity(), cover);
+                mDetailsRow.setImageBitmap(this.context, cover);
 
                 Palette palette = Palette.generate(cover);
                 Palette.Swatch swatch = palette.getDarkVibrantSwatch();
@@ -267,9 +278,9 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
                     mDetailsPresenter.setBackgroundColor(swatch.getRgb());
                 }
 
-                mBackground = Picasso.with(getActivity())
+                mBackground = Picasso.with(this.context)
                         .load(params[0])
-                        .transform(new BlurTransformation(getActivity().getApplicationContext()))
+                        .transform(new BlurTransformation(this.context))
                         .resize(mMetrics.widthPixels, mMetrics.heightPixels)
                         .centerCrop()
                         .get();
@@ -282,6 +293,9 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
 
         @Override
         protected void onPostExecute(Void aVoid) {
+            if (!isAdded()) {
+                return;
+            }
             mBackgroundManager.setBitmap(mBackground);
             setAdapter(mRowsAdapter);
         }

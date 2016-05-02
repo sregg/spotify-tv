@@ -115,7 +115,7 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
         SpotifyTvApplication.getInstance().getSpotifyService().getAlbum(mAlbumId, new Callback<Album>() {
             @Override
             public void success(final Album album, Response response) {
-                if (isAdded()) {
+                if (isAdded() || getActivity() == null) {
                     return;
                 }
 

@@ -20,6 +20,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v7.graphics.Palette;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.squareup.picasso.Picasso;
@@ -102,16 +103,15 @@ public abstract class AbsCardPresenter extends Presenter {
         SpotifyCardView spotifyCardView = cardViewHolder.mSpotifyCardView;
 
         // reset info selected color
-//        newSpotifyCardView.setSelectedInfoAreaBackgroundColor(null);
+        spotifyCardView.setSelectedInfoAreaBackgroundColor(null);
 
         // reset image
-//        newSpotifyCardView.setMainImage(null);
+        spotifyCardView.setMainImage(null);
         spotifyCardView.setBackground(null);
-//        newSpotifyCardView.setInfoAreaBackground(null);
+        spotifyCardView.setInfoAreaBackground(null);
 
         // reset badge and now playing
-//        newSpotifyCardView.getBadgeView().setVisibility(View.GONE);
-//        newSpotifyCardView.getNowPlayingView().setVisibility(View.GONE);
+        spotifyCardView.getNowPlayingView().setVisibility(View.GONE);
     }
 
     @Override
@@ -133,7 +133,7 @@ public abstract class AbsCardPresenter extends Presenter {
             mSpotifyCardView.setMainImage(bitmapDrawable);
 
             // set background based on the color palette
-            Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+            new Palette.Builder(bitmap).generate(new Palette.PaletteAsyncListener() {
                 public void onGenerated(Palette palette) {
                     Palette.Swatch swatch = palette.getDarkVibrantSwatch();
 
@@ -142,7 +142,7 @@ public abstract class AbsCardPresenter extends Presenter {
                     }
 
                     if (swatch != null) {
-//                        mNewSpotifyCardView.setSelectedInfoAreaBackgroundColor(swatch.getRgb());
+                        mSpotifyCardView.setSelectedInfoAreaBackgroundColor(swatch.getRgb());
                     }
                 }
             });

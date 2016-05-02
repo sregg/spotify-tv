@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
@@ -34,12 +35,17 @@ public class SpotifyCardView extends BaseCardView {
     private NowPlayingIndicatorView mNowPlayingView;
     private FrameLayout mNowPlayingContainer;
 
+    private Integer mSelectedInfoAreaBackgroundColor;
+    private int mSelectedInfoAreaBacgroundDefaultColor;
+    private int mInfoAreaBacgroundDefaultColor;
+
     private String mUri;
     private Object mItem;
 
     private TextView mTitleView;
     private TextView mContentView;
     private boolean mAttachedToWindow;
+    private LinearLayout mInfoArea;
 
     public SpotifyCardView(Context context) {
         this(context, null);
@@ -67,6 +73,7 @@ public class SpotifyCardView extends BaseCardView {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.spotify_card_view, this);
 
+        mInfoArea = (LinearLayout) view.findViewById(R.id.info_field);
         mNowPlayingContainer = (FrameLayout) view.findViewById(R.id.now_playing_container);
         mMainContainer = (FrameLayout) view.findViewById(R.id.main_container);
         mImageView = (ImageView) view.findViewById(R.id.image_view_main);
@@ -159,6 +166,18 @@ public class SpotifyCardView extends BaseCardView {
         }
     }
 
+    public void setInfoAreaBackgroundColor(@ColorInt int color) {
+        if (mInfoArea != null) {
+            mInfoArea.setBackgroundColor(color);
+        }
+    }
+
+    public void setInfoAreaBackground(Drawable drawable) {
+        if (mInfoArea != null) {
+            mInfoArea.setBackground(drawable);
+        }
+    }
+
     public void setMainContainerDimensions(int width, int height) {
         ViewGroup.LayoutParams lp = mMainContainer.getLayoutParams();
         lp.width = width;
@@ -247,4 +266,29 @@ public class SpotifyCardView extends BaseCardView {
         }
     }
 
+    @Override
+    public void setSelected(boolean selected) {
+        super.setSelected(selected);
+
+        // change info area bg color based on palette color from image
+        Integer color;
+        if (selected) {
+            color = mSelectedInfoAreaBackgroundColor;
+            if (color == null) {
+                color = mSelectedInfoAreaBacgroundDefaultColor;
+            }
+        } else {
+            color = mInfoAreaBacgroundDefaultColor;
+        }
+
+        setInfoAreaBackgroundColor(color);
+    }
+
+    public void setSelectedInfoAreaBackgroundColor(Integer selectedInfoAreaBackgroundColor) {
+        mSelectedInfoAreaBackgroundColor = selectedInfoAreaBackgroundColor;
+    }
+
+    public View getNowPlayingView() {
+        return mNowPlayingContainer;
+    }
 }

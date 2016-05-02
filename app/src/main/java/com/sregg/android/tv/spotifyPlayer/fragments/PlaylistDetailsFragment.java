@@ -129,7 +129,7 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
             //try to scroll to track row that is currently playing
             int playingTrackPosition = 0;
             for (TrackSimple track : mPlaylistTracks) {
-                if (track.id.equals(currentTrack.id)) {
+                if (track != null && track.id.equals(currentTrack.id)) {
                     playingTrackPosition = mPlaylistTracks.indexOf(track);
                     break;
                 }

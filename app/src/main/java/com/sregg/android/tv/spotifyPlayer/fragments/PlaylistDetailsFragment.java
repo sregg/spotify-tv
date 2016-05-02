@@ -93,6 +93,9 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
         SpotifyTvApplication.getInstance().getSpotifyService().getPlaylist(mUserId, mPlaylistId, new Callback<Playlist>() {
             @Override
             public void success(final Playlist playlist, Response response) {
+                if (!isAdded()) {
+                    return;
+                }
                 mPlaylist = playlist;
 
                 mPlaylistTracks = new ArrayList<>(playlist.tracks.items.size());

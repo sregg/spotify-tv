@@ -269,7 +269,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
 
                 mBackground = Picasso.with(getActivity())
                         .load(params[0])
-                        .transform(new BlurTransformation(getActivity()))
+                        .transform(new BlurTransformation(getActivity().getApplicationContext()))
                         .resize(mMetrics.widthPixels, mMetrics.heightPixels)
                         .centerCrop()
                         .get();

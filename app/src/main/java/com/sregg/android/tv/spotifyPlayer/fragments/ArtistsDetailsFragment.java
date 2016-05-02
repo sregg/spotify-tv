@@ -242,6 +242,10 @@ public class ArtistsDetailsFragment extends BrowseFragment {
         SpotifyTvApplication.getInstance().getSpotifyService().getArtist(mArtistId, new Callback<Artist>() {
             @Override
             public void success(Artist artist, Response response) {
+                if (!isAdded()){
+                    return;
+                }
+
                 if (artist.images != null && !artist.images.isEmpty()) {
                     final String imageUrl = artist.images.get(0).url;
 
@@ -262,11 +266,15 @@ public class ArtistsDetailsFragment extends BrowseFragment {
     }
 
     private void loadBackgroundImage(String imageUrl) {
+        if (isAdded()){
+            return;
+        }
+        
         mTarget = new BackgroundTarget();
 
         Picasso.with(getActivity())
                 .load(imageUrl)
-                .transform(new BlurTransformation(getActivity()))
+                .transform(new BlurTransformation(getActivity().getApplicationContext()))
                 .resize(mMetrics.widthPixels, mMetrics.heightPixels)
                 .centerCrop()
                 .into(mTarget);

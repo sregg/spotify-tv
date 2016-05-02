@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.core.CrashlyticsCore;
 import com.google.gson.Gson;
 import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.Player;
@@ -62,10 +61,7 @@ public class SpotifyTvApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
-        Fabric.with(this, new Crashlytics.Builder().core(core).build());
-
+        Fabric.with(this, new Crashlytics());
         sInstance = this;
     }
 

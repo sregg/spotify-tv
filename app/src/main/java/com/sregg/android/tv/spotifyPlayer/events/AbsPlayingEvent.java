@@ -4,13 +4,13 @@ package com.sregg.android.tv.spotifyPlayer.events;
 * Created by simonreggiani on 15-02-07.
 */
 public class AbsPlayingEvent {
-    private final ContentState mContentState;
+    private final PlayingState mPlayingState;
 
-    public AbsPlayingEvent(ContentState contentState) {
-        mContentState = contentState;
+    public AbsPlayingEvent(PlayingState playingState) {
+        mPlayingState = playingState;
     }
 
-    public ContentState getPlayingState() {
-        return mContentState;
+    public PlayingState getPlayingState() {
+        return mPlayingState;
     }
 }

@@ -3,13 +3,12 @@ package com.sregg.android.tv.spotifyPlayer.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.widget.Action;
+import android.support.v17.leanback.widget.DetailsOverviewRow;
+import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.util.Log;
 
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
-import com.sregg.android.tv.spotifyPlayer.Constants;
 import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
 import com.sregg.android.tv.spotifyPlayer.activities.AlbumActivity;
@@ -18,7 +17,6 @@ import com.sregg.android.tv.spotifyPlayer.presenters.AlbumDetailsPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.AlbumTrackRowPresenter;
 import com.sregg.android.tv.spotifyPlayer.utils.Utils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.models.Album;
@@ -32,6 +30,7 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
 
     private static final String TAG = AlbumDetailsFragment.class.getSimpleName();
 
+    private static final long ACTION_PLAY_ALBUM = 1;
     private static final long ACTION_VIEW_ARTIST = 2;
 
     private String mAlbumId;
@@ -47,12 +46,8 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
 
         mAlbumId = intent.getStringExtra(AlbumActivity.ARG_ALBUM_ID);
 
+        setupFragment();
         loadAlbum();
-
-        Answers.getInstance().logContentView(new ContentViewEvent()
-                .putContentName(Constants.ANSWERS_CONTENT_ALBUM)
-                .putContentType(Constants.ANSWERS_CONTENT_TYPE)
-                .putContentId(mAlbumId));
     }
 
     @Override
@@ -65,34 +60,25 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
         return new AlbumTrackRowPresenter(onTrackRowItemClicked);
     }
 
-    @Override
-    protected boolean onActionClicked(Action action) {
-        if (super.onActionClicked(action)) {
-            return true;
-        }
-        if (action.getId() == ACTION_VIEW_ARTIST) {
-            ArtistSimple artist = null;
+    private void setupFragment() {
+        setOnActionClickedListener(new OnActionClickedListener() {
+            @Override
+            public void onActionClicked(Action action) {
+                if (action.getId() == ACTION_PLAY_ALBUM) {
+                    SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(mAlbum.uri, mAlbumTrackUris, getTracks());
+                } else if (action.getId() == ACTION_VIEW_ARTIST) {
+                    ArtistSimple artist = null;
 
-            if (mAlbum.artists.size() > 0) {
-                artist = mAlbum.artists.get(0);
+                    if (mAlbum.artists.size() > 0) {
+                        artist = mAlbum.artists.get(0);
+                    }
+
+                    if (artist != null) {
+                        ArtistsAlbumsActivity.launch(getActivity(), artist.id, artist.name);
+                    }
+                }
             }
-
-            if (artist != null) {
-                ArtistsAlbumsActivity.launch(getActivity(), artist.id, artist.name);
-            }
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    List<Action> getDetailActions() {
-        List<Action> actions = new ArrayList<>();
-        actions.add(new Action(
-                ACTION_VIEW_ARTIST, getResources().getString(R.string.go_to_artist),
-                null
-        ));
-        return actions;
+        });
     }
 
     @Override
@@ -117,7 +103,8 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
             public void success(final Album album, Response response) {
                 mAlbum = album;
                 mAlbumTrackUris = Utils.getTrackUrisFromTrackPager(mAlbum.tracks);
-                onContentLoaded(album);
+                setupDetails(album);
+                setupTracksRows(album.tracks.items);
 
                 if (album.images.size() > 0) {
                     String imageUrl = album.images.get(0).url;
@@ -132,17 +119,20 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
         });
     }
 
-//    private void setupDetails(Album album) {
-//        DetailsOverviewRow detailsRow = new DetailsOverviewRow(album);
-//
-//        detailsRow.addAction(new Action(
-//                ACTION_PLAY_ALBUM,
-//                getResources().getString(R.string.lb_playback_controls_play),
-//                null,
-//                getActivity().getResources().getDrawable(R.drawable.lb_ic_play)
-//        ));
+    private void setupDetails(Album album) {
+        DetailsOverviewRow detailsRow = new DetailsOverviewRow(album);
 
-//
-//        setDetailsRow(detailsRow);
-//    }
+        detailsRow.addAction(new Action(
+                ACTION_PLAY_ALBUM,
+                getResources().getString(R.string.lb_playback_controls_play),
+                null,
+                getActivity().getResources().getDrawable(R.drawable.lb_ic_play)
+        ));
+        detailsRow.addAction(new Action(
+                ACTION_VIEW_ARTIST, getResources().getString(R.string.go_to_artist),
+                null
+        ));
+
+        setDetailsRow(detailsRow);
+    }
 }

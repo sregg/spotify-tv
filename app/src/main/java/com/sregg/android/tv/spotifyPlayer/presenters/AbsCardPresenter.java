@@ -27,7 +27,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
-import com.sregg.android.tv.spotifyPlayer.events.ContentState;
+import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
 import com.sregg.android.tv.spotifyPlayer.utils.Utils;
 import com.sregg.android.tv.spotifyPlayer.views.SpotifyCardView;
 
@@ -93,11 +93,11 @@ public abstract class AbsCardPresenter extends Presenter {
         spotifyCardView.setItem(item);
 
         // init badge and now playing
-        ContentState contentState = SpotifyTvApplication.getInstance()
+        PlayingState playingState = SpotifyTvApplication.getInstance()
                 .getSpotifyPlayerController()
                 .getPlayingState();
         String uri = Utils.getUriFromSpotiyObject(item);
-        spotifyCardView.initNowPlaying(item instanceof TrackSimple ? contentState.isCurrentTrack(uri) : contentState.isCurrentObject(uri));
+        spotifyCardView.initNowPlaying(item instanceof TrackSimple ? playingState.isCurrentTrack(uri) : playingState.isCurrentObject(uri));
     }
 
     @Override

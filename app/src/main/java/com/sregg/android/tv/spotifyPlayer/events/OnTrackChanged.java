@@ -4,7 +4,7 @@ package com.sregg.android.tv.spotifyPlayer.events;
 * Created by simonreggiani on 15-02-04.
 */
 public class OnTrackChanged extends AbsPlayingEvent {
-    public OnTrackChanged(ContentState contentState) {
-        super(contentState);
+    public OnTrackChanged(PlayingState playingState) {
+        super(playingState);
     }
 }

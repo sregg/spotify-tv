@@ -3,16 +3,16 @@ package com.sregg.android.tv.spotifyPlayer.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v17.leanback.widget.Action;
+import android.support.v17.leanback.widget.DetailsOverviewRow;
+import android.support.v17.leanback.widget.OnActionClickedListener;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
 import android.util.Log;
 
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.ContentViewEvent;
-import com.sregg.android.tv.spotifyPlayer.Constants;
+import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
 import com.sregg.android.tv.spotifyPlayer.activities.PlaylistActivity;
-import com.sregg.android.tv.spotifyPlayer.events.ContentState;
+import com.sregg.android.tv.spotifyPlayer.events.PlayingState;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistDetailsPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistTrackRowPresenter;
 
@@ -26,10 +26,11 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-
 public class PlaylistDetailsFragment extends TracksDetailsFragment {
 
     private static final String TAG = PlaylistDetailsFragment.class.getSimpleName();
+
+    private static final long ACTION_PLAY_PLAYLIST = 1;
 
     private String mPlaylistId;
     private String mUserId;
@@ -42,25 +43,13 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-
-
         Intent intent = getActivity().getIntent();
 
         mPlaylistId = intent.getStringExtra(PlaylistActivity.ARG_PLAYLIST_ID);
         mUserId = intent.getStringExtra(PlaylistActivity.ARG_USER_ID);
 
+        setupFragment();
         loadPlaylist();
-
-        Answers.getInstance().logContentView(new ContentViewEvent()
-                .putContentName(Constants.ANSWERS_CONTENT_NAME)
-                .putContentType(Constants.ANSWERS_CONTENT_TYPE)
-                .putContentId(mPlaylistId));
-    }
-
-    @Override
-    List<Action> getDetailActions() {
-        //no extra actions
-        return null;
     }
 
     @Override
@@ -71,6 +60,17 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
     @Override
     protected Presenter getTrackRowPresenter(OnItemViewClickedListener onTrackRowItemClicked) {
         return new PlaylistTrackRowPresenter(onTrackRowItemClicked);
+    }
+
+    private void setupFragment() {
+        setOnActionClickedListener(new OnActionClickedListener() {
+            @Override
+            public void onActionClicked(Action action) {
+                if (action.getId() == ACTION_PLAY_PLAYLIST) {
+                    SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(mPlaylist.uri, mPlaylistTrackUris, getTracks());
+                }
+            }
+        });
     }
 
     @Override
@@ -94,6 +94,7 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
             @Override
             public void success(final Playlist playlist, Response response) {
                 mPlaylist = playlist;
+                setupDetails(playlist);
 
                 mPlaylistTracks = new ArrayList<>(playlist.tracks.items.size());
                 mPlaylistTrackUris = new ArrayList<>(playlist.tracks.items.size());
@@ -101,8 +102,7 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
                     mPlaylistTracks.add(playlistTrack.track);
                     mPlaylistTrackUris.add(playlistTrack.track.uri);
                 }
-
-                onContentLoaded(playlist);
+                setupTracksRows(mPlaylistTracks);
 
                 if (playlist.images.size() > 0) {
                     String imageUrl = playlist.images.get(0).url;
@@ -119,11 +119,25 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
         });
     }
 
+
+    private void setupDetails(Playlist playlist) {
+        DetailsOverviewRow detailsRow = new DetailsOverviewRow(playlist);
+
+        detailsRow.addAction(new Action(
+                ACTION_PLAY_PLAYLIST,
+                getResources().getString(R.string.lb_playback_controls_play),
+                null,
+                getActivity().getResources().getDrawable(R.drawable.lb_ic_play)
+        ));
+
+        setDetailsRow(detailsRow);
+    }
+
     /**
      * Attempt to scroll to the track row that is currently playing
      */
     protected void scrollToCurrentTrack() {
-        ContentState currentPlayState = playerController.getPlayingState();
+        PlayingState currentPlayState = SpotifyTvApplication.getInstance().getSpotifyPlayerController().getPlayingState();
         if (currentPlayState != null && currentPlayState.isCurrentObject(mPlaylist.uri)) {
             TrackSimple currentTrack = currentPlayState.getCurrentTrack();
             //try to scroll to track row that is currently playing
@@ -138,6 +152,4 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
             setSelectedPosition(playingTrackPosition);
         }
     }
-
-
 }

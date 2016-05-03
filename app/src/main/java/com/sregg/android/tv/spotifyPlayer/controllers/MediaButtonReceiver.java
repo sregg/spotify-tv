@@ -1,19 +1,20 @@
 package com.sregg.android.tv.spotifyPlayer.controllers;
 
-import com.sregg.android.tv.spotifyPlayer.enums.Control;
-
 import android.annotation.TargetApi;
 import android.content.Intent;
-import android.media.session.MediaSession;
 import android.os.Build;
-import android.util.Log;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.view.KeyEvent;
+
+import com.sregg.android.tv.spotifyPlayer.enums.Control;
+
+import timber.log.Timber;
 
 /**
  * Created by gw111zz on 24/01/2016.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class MediaButtonReceiver extends MediaSession.Callback {
+public class MediaButtonReceiver extends MediaSessionCompat.Callback {
 
     private static final String TAG = "MediaButtonReceiver";
 
@@ -26,7 +27,11 @@ public class MediaButtonReceiver extends MediaSession.Callback {
     @Override
     public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
         final KeyEvent event = (KeyEvent) mediaButtonIntent.getExtras().get(Intent.EXTRA_KEY_EVENT);
-        Log.d(TAG, "onMediaButtonEvent: " + (event == null ? "null" : event));
+        Timber.d("onMediaButtonEvent: %s", (event == null ? "null" : event));
+
+        if (event == null) {
+            return super.onMediaButtonEvent(mediaButtonIntent);
+        }
 
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             final int keyCode = event.getKeyCode();

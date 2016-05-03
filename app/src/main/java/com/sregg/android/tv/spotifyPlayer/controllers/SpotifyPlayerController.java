@@ -88,7 +88,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         mContentState = new ContentState("", "", null, null);
     }
 
-    public void play(String currentObjectUri, List<String> trackUris, List<TrackSimple> tracks) {
+    public void play(@Nullable String currentObjectUri, List<String> trackUris, @Nullable List<TrackSimple> tracks) {
         if (!SpotifyTvApplication.isCurrentUserPremium()) {
             Toast.makeText(SpotifyTvApplication.getInstance().getApplicationContext(), "You need a premium Spotify account to play music on this app", Toast.LENGTH_SHORT).show();
         } else {

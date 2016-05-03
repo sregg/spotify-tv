@@ -81,6 +81,8 @@ dependencies {
     compile 'io.reactivex:rxjava:1.0.14'
     compile 'io.reactivex:rxandroid:1.0.1'
 
+    compile 'com.jakewharton.timber:timber:4.1.2'
+
     // spotify
     compile 'com.spotify.sdk:spotify-player:1.0.0-beta12@aar'
     compile 'com.spotify.sdk:spotify-auth:1.0.0-beta12@aar'

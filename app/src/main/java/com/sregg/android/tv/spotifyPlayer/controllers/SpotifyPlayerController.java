@@ -3,6 +3,7 @@ package com.sregg.android.tv.spotifyPlayer.controllers;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.os.Build;
@@ -45,6 +46,7 @@ import kaaes.spotify.webapi.android.models.TrackSimple;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import timber.log.Timber;
 
 
 /**
@@ -52,7 +54,7 @@ import retrofit.client.Response;
  * <p>Fires OTTO playback events like {@link com.sregg.android.tv.spotifyPlayer.events.OnPlay}, {@link com.sregg.android.tv.spotifyPlayer.events.OnPause}, etc..</p>
  * <p>Also updates the Now Playing Card in the Home Screen</p>
  */
-public class SpotifyPlayerController implements PlayerNotificationCallback, ConnectionStateCallback {
+public class SpotifyPlayerController implements PlayerNotificationCallback, ConnectionStateCallback, AudioManager.OnAudioFocusChangeListener {
 
     public static final String TAG = "SpotifyPlayerController";
 
@@ -66,12 +68,14 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     private ContentState mContentState;
 
     private boolean mIsShuffleOn = false;
+    private final AudioManager audioManager;
 
     public SpotifyPlayerController(Player player, SpotifyService spotifyService) {
         Context context = SpotifyTvApplication.getInstance().getApplicationContext();
 
         mHandler = new Handler(context.getMainLooper());
 
+        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mPlayer = player;
 
         mPlayer.addPlayerNotificationCallback(this);
@@ -104,9 +108,21 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
             Toast.makeText(SpotifyTvApplication.getInstance().getApplicationContext(), "You need a premium Spotify account to play music on this app", Toast.LENGTH_SHORT).show();
         } else {
             mContentState = new ContentState(currentObjectUri, trackUris.get(0), trackUris, tracks);
-            mPlayer.play(trackUris);
-            startNowPlayingSession();
+
+            if (requestAudioFocus()) {
+                mPlayer.play(trackUris);
+                startNowPlayingSession();
+            }
         }
+    }
+
+    private boolean requestAudioFocus() {
+        int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+    }
+
+    private void loseAudioFocus(){
+        audioManager.abandonAudioFocus(this);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -132,19 +148,21 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
             public void onPlayerState(PlayerState playerState) {
                 if (playerState.playing) {
                     mPlayer.pause();
-                } else {
+                    loseAudioFocus();
+                } else if (requestAudioFocus()){
                     mPlayer.resume();
                 }
             }
         });
     }
 
-    public @Nullable
+    public
+    @Nullable
     ContentState getPlayingState() {
         return mContentState;
     }
 
-    public void getPlayerState(@NonNull  PlayerStateCallback callback){
+    public void getPlayerState(@NonNull PlayerStateCallback callback) {
         mPlayer.getPlayerState(callback);
     }
 
@@ -172,6 +190,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
             case PAUSE:
                 BusProvider.post(new OnPause(mContentState));
                 Answers.getInstance().logCustom(new CustomEvent(Constants.ANSWERS_EVENT_PLAYER_PAUSE));
+                loseAudioFocus();
                 break;
             case TRACK_CHANGED:
                 trackNowPlayingTrack(playerState.trackUri);
@@ -180,6 +199,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
             case END_OF_CONTEXT:
                 stopNowPlayingSession();
                 resetPlayingState();
+                loseAudioFocus();
                 break;
         }
 
@@ -191,7 +211,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         mSpotifyService.getTrack(Utils.getIdFromUri(currentTrackUri), new Callback<Track>() {
             @Override
             public void success(final Track track, Response response) {
-				mContentState.setCurrentTrack(track);
+                mContentState.setCurrentTrack(track);
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -287,10 +307,13 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     public void onControlClick(Control control) {
         switch (control) {
             case PLAY:
-                mPlayer.resume();
+                if (requestAudioFocus()) {
+                    mPlayer.resume();
+                }
                 break;
             case PAUSE:
                 mPlayer.pause();
+                loseAudioFocus();
                 break;
             case NEXT:
                 mPlayer.skipToNext();
@@ -299,11 +322,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 mPlayer.skipToPrevious();
                 break;
             case STOP:
-                stopNowPlayingSession();
-                mPlayer.pause();
-                mPlayer.clearQueue();
-                resetPlayingState();
-                BusProvider.post(new OnTrackChanged(mContentState));
+                stopPlayer();
                 break;
             case SHUFFLE:
                 mIsShuffleOn = !mIsShuffleOn;
@@ -347,10 +366,40 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         }
     }
 
+    private void stopPlayer() {
+        stopNowPlayingSession();
+        if (mPlayer != null) {
+            mPlayer.pause();
+            mPlayer.clearQueue();
+            resetPlayingState();
+        }
+        loseAudioFocus();
+        BusProvider.post(new OnTrackChanged(mContentState));
+    }
+
     public void setPlayerBitrate(PlaybackBitrate selectedBitrate) {
         if (mPlayer != null) {
             mPlayer.setPlaybackBitrate(selectedBitrate);
         }
     }
 
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                Timber.d("audio focus gained");
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+                Timber.d("audio focus lossed");
+                stopPlayer();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                Timber.d("audio focus lossed transient");
+                if (mPlayer != null) {
+                    mPlayer.pause();
+                }
+                break;
+        }
+    }
 }

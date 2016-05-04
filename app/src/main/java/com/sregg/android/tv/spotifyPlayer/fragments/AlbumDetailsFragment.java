@@ -107,7 +107,12 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
 
     @Override
     protected String getObjectUri() {
-        return mAlbum.uri;
+        return mAlbum != null ? mAlbum.uri : null;
+    }
+
+    @Override
+    protected Object getObject() {
+        return mAlbum;
     }
 
     private void loadAlbum() {
@@ -115,18 +120,13 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
         SpotifyTvApplication.getInstance().getSpotifyService().getAlbum(mAlbumId, new Callback<Album>() {
             @Override
             public void success(final Album album, Response response) {
-                if (isAdded() || getActivity() == null) {
+                if (!isAdded() || getActivity() == null) {
                     return;
                 }
 
                 mAlbum = album;
                 mAlbumTrackUris = Utils.getTrackUrisFromTrackPager(mAlbum.tracks);
-                onContentLoaded(album);
-
-                if (album.images.size() > 0) {
-                    String imageUrl = album.images.get(0).url;
-                    loadDetailsRowImage(imageUrl);
-                }
+                onContentLoaded();
             }
 
             @Override

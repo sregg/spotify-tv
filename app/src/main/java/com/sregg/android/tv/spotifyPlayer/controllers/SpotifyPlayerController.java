@@ -3,7 +3,6 @@ package com.sregg.android.tv.spotifyPlayer.controllers;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -12,6 +11,7 @@ import android.widget.Toast;
 import com.crashlytics.android.answers.Answers;
 import com.crashlytics.android.answers.CustomEvent;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
+import com.spotify.sdk.android.player.PlayConfig;
 import com.spotify.sdk.android.player.PlaybackBitrate;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
@@ -31,6 +31,7 @@ import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
 import com.sregg.android.tv.spotifyPlayer.settings.UserPreferences;
 import com.sregg.android.tv.spotifyPlayer.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -88,14 +89,27 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         mContentState = new ContentState("", "", null, null);
     }
 
-    public void play(@Nullable String currentObjectUri, List<String> trackUris, @Nullable List<TrackSimple> tracks) {
+    public void play(@Nullable String currentObjectUri, @Nullable List<String> trackUris, @Nullable List<TrackSimple> tracks) {
+        play(currentObjectUri, trackUris.get(0), trackUris, tracks);
+    }
+
+    public void play(@Nullable String currentObjectUri, @Nullable String currentTrackUri, @Nullable List<String> trackUris, @Nullable List<TrackSimple> tracks) {
+        if (trackUris == null) {
+            trackUris = new ArrayList<>();
+        }
+
         if (!SpotifyTvApplication.isCurrentUserPremium()) {
             Toast.makeText(SpotifyTvApplication.getInstance().getApplicationContext(), "You need a premium Spotify account to play music on this app", Toast.LENGTH_SHORT).show();
         } else {
-            mContentState = new ContentState(currentObjectUri, trackUris.get(0), trackUris, tracks);
+            mContentState = new ContentState(currentObjectUri, currentTrackUri, trackUris, tracks);
+
+            PlayConfig playConfig = PlayConfig.createFor(trackUris);
+            int trackIndex = Math.max(0, trackUris.indexOf(currentTrackUri));
+
+            playConfig.withTrackIndex(trackIndex);
 
             if (requestAudioFocus()) {
-                mPlayer.play(trackUris);
+                mPlayer.play(playConfig);
             }
         }
     }
@@ -130,8 +144,17 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         return mContentState;
     }
 
-    public void getPlayerState(@NonNull PlayerStateCallback callback) {
+    public void getPlayerState(PlayerStateCallback callback) {
         mPlayer.getPlayerState(callback);
+    }
+
+    public void triggerPlayerStateUpdate() {
+        getPlayerState(new PlayerStateCallback() {
+            @Override
+            public void onPlayerState(PlayerState playerState) {
+                postPlayerStateChanged(playerState);
+            }
+        });
     }
 
     public boolean isShuffleOn() {
@@ -154,25 +177,32 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
             case PLAY:
                 BusProvider.post(new OnPlay(mContentState));
                 Answers.getInstance().logCustom(new CustomEvent(Constants.ANSWERS_EVENT_PLAYER_PLAY));
-                mediaSessionController.updateNowPlayingSession(playerState,mContentState);
+                mediaSessionController.updateNowPlayingSession(playerState, mContentState);
+                postPlayerStateChanged(playerState);
                 break;
             case PAUSE:
                 BusProvider.post(new OnPause(mContentState));
                 Answers.getInstance().logCustom(new CustomEvent(Constants.ANSWERS_EVENT_PLAYER_PAUSE));
                 loseAudioFocus();
                 mediaSessionController.updateNowPlayingSession(playerState, mContentState);
+                postPlayerStateChanged(playerState);
                 break;
             case TRACK_CHANGED:
                 trackNowPlayingTrack(playerState.trackUri);
                 Answers.getInstance().logCustom(new CustomEvent(Constants.ANSWERS_EVENT_PLAYER_TRACK_CHANGE));
+                postPlayerStateChanged(playerState);
                 break;
             case END_OF_CONTEXT:
                 mediaSessionController.stopNowPlayingSession();
                 resetPlayingState();
                 loseAudioFocus();
+                postPlayerStateChanged(playerState);
                 break;
         }
 
+    }
+
+    private void postPlayerStateChanged(PlayerState playerState) {
         BusProvider.post(new PlayerStateChanged(playerState, mContentState));
     }
 

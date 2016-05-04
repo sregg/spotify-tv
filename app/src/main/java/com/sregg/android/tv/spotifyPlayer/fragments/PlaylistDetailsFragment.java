@@ -90,6 +90,11 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
         return null != mPlaylist ? mPlaylist.uri : null;
     }
 
+    @Override
+    protected Object getObject() {
+        return mPlaylist;
+    }
+
     private void loadPlaylist() {
         // load artist from API to get their image
         SpotifyTvApplication.getInstance().getSpotifyService().getPlaylist(mUserId, mPlaylistId, new Callback<Playlist>() {
@@ -107,13 +112,7 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
                     mPlaylistTrackUris.add(playlistTrack.track.uri);
                 }
 
-                onContentLoaded(playlist);
-
-                if (playlist.images.size() > 0) {
-                    String imageUrl = playlist.images.get(0).url;
-                    loadDetailsRowImage(imageUrl);
-                }
-
+                onContentLoaded();
                 scrollToCurrentTrack();
             }
 

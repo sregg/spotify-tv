@@ -10,15 +10,16 @@ import com.squareup.otto.Subscribe;
 import com.sregg.android.tv.spotifyPlayer.BusProvider;
 import com.sregg.android.tv.spotifyPlayer.R;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
-import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
+import com.sregg.android.tv.spotifyPlayer.activities.ArtistsAlbumsActivity;
 import com.sregg.android.tv.spotifyPlayer.events.ContentState;
+import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
 import com.sregg.android.tv.spotifyPlayer.presenters.NowPlayingDetailsPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistTrackRowPresenter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.TrackSimple;
 
 /**
@@ -52,15 +53,14 @@ public class NowPlayingFragment extends TracksDetailsFragment {
 
     private void setupFragment() {
         BusProvider.getInstance().register(this);
-        setPlayingState(mApp.getSpotifyPlayerController().getPlayingState());
+        updateContent();
     }
 
-    private void setPlayingState(ContentState contentState) {
-        this.mContentState = contentState;
+    private void updateContent() {
+        this.mContentState = mApp.getSpotifyPlayerController().getPlayingState();
 
         if (this.mContentState != null && this.mContentState.getCurrentTrack() != null) {
-            onContentLoaded(this.mContentState.getCurrentTrack());
-            loadDetailsRowImage(getCurrentTrackImageUrl());
+            onContentLoaded();
         }
     }
 
@@ -79,20 +79,21 @@ public class NowPlayingFragment extends TracksDetailsFragment {
         if (super.onActionClicked(action)) {
             return true;
         }
+        if (action.getId() == ACTION_VIEW_ARTIST) {
+            ArtistSimple artist = null;
 
-        return false;
-    }
-
-    private String getCurrentTrackImageUrl() {
-        if (mContentState.getCurrentTrack() instanceof Track) {
-            Track track = (Track) mContentState.getCurrentTrack();
-
-            if (track.album != null && track.album.images != null && track.album.images.size() > 0) {
-                return track.album.images.get(0).url;
+            TrackSimple track = (TrackSimple) getObject();
+            if (track.artists.size() > 0) {
+                artist = track.artists.get(0);
             }
+
+            if (artist != null) {
+                ArtistsAlbumsActivity.launch(getActivity(), artist.id, artist.name);
+            }
+            return true;
         }
 
-        return null;
+        return false;
     }
 
     @Override
@@ -117,12 +118,17 @@ public class NowPlayingFragment extends TracksDetailsFragment {
 
     @Override
     protected String getObjectUri() {
-        return mContentState.getCurrentObjectUri();
+        return mContentState != null ? mContentState.getCurrentObjectUri() : null;
+    }
+
+    @Override
+    protected Object getObject() {
+        return mContentState != null ? mContentState.getCurrentTrack() : null;
     }
 
     @SuppressWarnings("unused")
     @Subscribe
-    public void onPlayerStateChanged(PlayerStateChanged playerState) {
-        setPlayingState(playerState.getContentState());
+    public void onTrackChanged(OnTrackChanged trackChanged) {
+        updateContent();
     }
 }

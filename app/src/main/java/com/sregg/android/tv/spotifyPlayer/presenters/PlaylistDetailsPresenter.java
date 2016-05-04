@@ -9,6 +9,10 @@ public class PlaylistDetailsPresenter extends AbstractDetailsDescriptionPresente
 
     @Override
     protected void onBindDescription(ViewHolder viewHolder, Object item) {
+        if (!(item instanceof Playlist)){
+            return;
+        }
+
         Playlist playlist = (Playlist) item;
 
         if (playlist != null) {

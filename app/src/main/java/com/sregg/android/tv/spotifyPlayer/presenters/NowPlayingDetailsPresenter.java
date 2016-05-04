@@ -9,6 +9,10 @@ public class NowPlayingDetailsPresenter extends AbstractDetailsDescriptionPresen
 
     @Override
     protected void onBindDescription(ViewHolder viewHolder, Object item) {
+        if (!(item instanceof TrackSimple)){
+            return;
+        }
+
         TrackSimple track = (TrackSimple) item;
 
         if (track != null) {

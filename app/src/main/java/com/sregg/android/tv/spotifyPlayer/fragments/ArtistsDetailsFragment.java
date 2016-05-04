@@ -266,7 +266,7 @@ public class ArtistsDetailsFragment extends BrowseFragment {
     }
 
     private void loadBackgroundImage(String imageUrl) {
-        if (isAdded()){
+        if (!isAdded()){
             return;
         }
         

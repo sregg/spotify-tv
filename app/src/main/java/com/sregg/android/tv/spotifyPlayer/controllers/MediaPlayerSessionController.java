@@ -1,6 +1,8 @@
 package com.sregg.android.tv.spotifyPlayer.controllers;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
@@ -11,6 +13,7 @@ import android.text.TextUtils;
 import com.spotify.sdk.android.player.PlayerState;
 import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
+import com.sregg.android.tv.spotifyPlayer.activities.NowPlayingActivity;
 import com.sregg.android.tv.spotifyPlayer.events.ContentState;
 import com.sregg.android.tv.spotifyPlayer.utils.Utils;
 
@@ -21,7 +24,8 @@ import timber.log.Timber;
 
 public class MediaPlayerSessionController {
 
-    @NonNull private final MediaSessionCompat mNowPlayingSession;
+    @NonNull
+    private final MediaSessionCompat mNowPlayingSession;
     @NonNull
     private final SpotifyPlayerController player;
 
@@ -30,6 +34,12 @@ public class MediaPlayerSessionController {
         mNowPlayingSession = new MediaSessionCompat(context, "spotifytv");
         mNowPlayingSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+
+        Intent intent = new Intent(context, NowPlayingActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(context, 0,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mNowPlayingSession.setSessionActivity(pi);
+
         // for the MediaBrowserService
         //setSessionToken(mNowPlayingSession.getSessionToken());
     }

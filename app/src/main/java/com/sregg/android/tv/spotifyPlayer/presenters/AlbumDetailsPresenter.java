@@ -10,6 +10,10 @@ public class AlbumDetailsPresenter extends AbstractDetailsDescriptionPresenter {
 
     @Override
     protected void onBindDescription(ViewHolder viewHolder, Object item) {
+        if (!(item instanceof Album)){
+            return;
+        }
+
         Album album = (Album) item;
 
         if (album != null) {

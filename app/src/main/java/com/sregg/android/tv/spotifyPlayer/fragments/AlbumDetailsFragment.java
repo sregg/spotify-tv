@@ -107,7 +107,12 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
 
     @Override
     protected String getObjectUri() {
-        return mAlbum.uri;
+        return mAlbum != null ? mAlbum.uri : null;
+    }
+
+    @Override
+    protected Object getObject() {
+        return mAlbum;
     }
 
     private void loadAlbum() {
@@ -121,12 +126,7 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
 
                 mAlbum = album;
                 mAlbumTrackUris = Utils.getTrackUrisFromTrackPager(mAlbum.tracks);
-                onContentLoaded(album);
-
-                if (album.images.size() > 0) {
-                    String imageUrl = album.images.get(0).url;
-                    loadDetailsRowImage(imageUrl);
-                }
+                onContentLoaded();
             }
 
             @Override

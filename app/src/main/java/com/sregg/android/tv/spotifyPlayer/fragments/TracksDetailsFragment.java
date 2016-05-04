@@ -22,6 +22,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.spotify.sdk.android.player.PlayerState;
+import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.squareup.otto.Subscribe;
 import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotifyPlayer.BusProvider;
@@ -40,6 +41,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import kaaes.spotify.webapi.android.models.Album;
+import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TrackSimple;
 
 public abstract class TracksDetailsFragment extends DetailsFragment {
@@ -112,6 +116,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
         ps.addClassPresenter(TrackRow.class, getTrackRowPresenter(onTrackRowItemClicked));
 
         mRowsAdapter = new ArrayObjectAdapter(ps);
+
         setAdapter(mRowsAdapter);
 
         setOnActionClickedListener(new OnActionClickedListener() {
@@ -121,6 +126,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
             }
         });
     }
+
 
     /**
      * Called when an Action has been clicked
@@ -140,30 +146,54 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
         return false;
     }
 
-    protected void onContentLoaded(Object item) {
-        if (!isAdded()){
+    protected void onContentLoaded() {
+        if (!isAdded()) {
             return;
         }
 
-        DetailsOverviewRow detailsRow = new DetailsOverviewRow(item);
+        playerController.getPlayerState(new PlayerStateCallback() {
+            @Override
+            public void onPlayerState(PlayerState playerState) {
+                getDetailsRow().setItem(getObject());
+                loadDetailsRowImage(getImageUrl());
+                setupTracksRows(getTracks());
+            }
+        });
+    }
 
+    private String getImageUrl() {
+        Object item = getObject();
+        if (item instanceof Album) {
+            Album album = (Album) item;
+            if (album.images.size() > 0) {
+                String imageUrl = album.images.get(0).url;
+                return imageUrl;
+            }
+        } else if (item instanceof Playlist) {
+            Playlist playlist = (Playlist) item;
+            if (playlist.images.size() > 0) {
+                String imageUrl = playlist.images.get(0).url;
+                return imageUrl;
+            }
+        } else if (item instanceof Track) {
+            Track track = (Track) item;
+            if (track.album != null && track.album.images != null && track.album.images.size() > 0) {
+                return track.album.images.get(0).url;
+            }
+        }
+        return null;
+    }
+
+    private void createDetailsRow() {
         actionsAdapter = new ArrayObjectAdapter();
         populateActionsAdapter();
-        detailsRow.setActionsAdapter(actionsAdapter);
-
-        setDetailsRow(detailsRow);
-
-        setupTracksRows(getTracks());
+        mDetailsRow = new DetailsOverviewRow(new Object());
+        mDetailsRow.setActionsAdapter(actionsAdapter);
+        mRowsAdapter.add(0, mDetailsRow);
     }
 
     private void playFromTrack(TrackSimple item) {
-        List<TrackSimple> tracks = getTracks();
-        List<String> trackUris = getTrackUris();
-        int index = trackUris.indexOf(item.uri);
-        List<TrackSimple> tracksSubList = tracks.subList(index, tracks.size());
-        List<String> uriSubList = trackUris.subList(index, trackUris.size());
-        List<String> subList = trackUris.subList(trackUris.indexOf(item.uri), trackUris.size());
-        SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(getObjectUri(), uriSubList, tracksSubList);
+        SpotifyTvApplication.getInstance().getSpotifyPlayerController().play(getObjectUri(), item.uri, getTrackUris(), getTracks());
     }
 
     @Nullable
@@ -174,6 +204,8 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
 
     @Nullable
     protected abstract String getObjectUri();
+
+    protected abstract Object getObject();
 
     private void setupBackground() {
         mBackgroundManager = BackgroundManager.getInstance(getActivity());
@@ -186,12 +218,11 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
         mDetailsPresenter.setOnActionClickedListener(listener);
     }
 
-    protected void setDetailsRow(DetailsOverviewRow row) {
-        if (mDetailsRow != null) {
-            mRowsAdapter.remove(mDetailsRow);
+    public DetailsOverviewRow getDetailsRow() {
+        if (mDetailsRow == null) {
+            createDetailsRow();
         }
-        mDetailsRow = row;
-        mRowsAdapter.add(0, mDetailsRow);
+        return mDetailsRow;
     }
 
     protected void setupTracksRows(List<TrackSimple> tracks) {
@@ -205,9 +236,9 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
         }
     }
 
-    protected void loadDetailsRowImage(String imageUrl) {
+    private void loadDetailsRowImage(String imageUrl) {
         if (imageUrl == null) {
-            mDetailsRow.setImageBitmap(getActivity(), null);
+            getDetailsRow().setImageBitmap(getActivity(), null);
             mBackgroundManager.setBitmap(null);
         } else {
             new ImageLoader(getActivity()).execute(imageUrl);
@@ -227,7 +258,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
         List<Action> actions = getDetailActions();
         if (actions != null) {
             for (Action action : getDetailActions()) {
-                actions.add(action);
+                actionsAdapter.add(action);
             }
         }
     }
@@ -254,7 +285,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
 
         @Override
         protected Void doInBackground(String... params) {
-            if (mDetailsRow == null || mDetailsPresenter == null || !isAdded()) {
+            if (getDetailsRow() == null || mDetailsPresenter == null || !isAdded()) {
                 return null;
             }
 
@@ -269,7 +300,7 @@ public abstract class TracksDetailsFragment extends DetailsFragment {
                         .centerCrop()
                         .get();
 
-                mDetailsRow.setImageBitmap(this.context, cover);
+                getDetailsRow().setImageBitmap(this.context, cover);
 
                 Palette palette = Palette.generate(cover);
                 Palette.Swatch swatch = palette.getDarkVibrantSwatch();

@@ -280,6 +280,12 @@ public class ArtistsDetailsFragment extends BrowseFragment {
                 .into(mTarget);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Picasso.with(getActivity()).cancelRequest(mTarget);
+    }
+
     private void setBackgroundBitmap(Bitmap bitmap) {
         Drawable bitmapDrawable = new BitmapDrawable(getResources(), bitmap);
         mBackgroundManager.setDrawable(bitmapDrawable);
@@ -291,12 +297,15 @@ public class ArtistsDetailsFragment extends BrowseFragment {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    if (!isAdded() || getActivity() == null) {
+                        return;
+                    }
                     setBackgroundBitmap(bitmap);
                 }
             });
 
             // set background based on the color palette
-            Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+            Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
                 public void onGenerated(Palette palette) {
                     setFastLaneBackgroundColor(palette);
                 }

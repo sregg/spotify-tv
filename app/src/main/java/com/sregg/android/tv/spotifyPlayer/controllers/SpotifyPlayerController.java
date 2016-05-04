@@ -1,11 +1,7 @@
 package com.sregg.android.tv.spotifyPlayer.controllers;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.media.MediaMetadata;
-import android.media.session.MediaSession;
-import android.os.Build;
+import android.media.AudioManager;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -22,7 +18,6 @@ import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
-import com.squareup.picasso.Picasso;
 import com.sregg.android.tv.spotifyPlayer.BusProvider;
 import com.sregg.android.tv.spotifyPlayer.Constants;
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
@@ -36,7 +31,6 @@ import com.sregg.android.tv.spotifyPlayer.events.PlayerStateChanged;
 import com.sregg.android.tv.spotifyPlayer.settings.UserPreferences;
 import com.sregg.android.tv.spotifyPlayer.utils.Utils;
 
-import java.io.IOException;
 import java.util.List;
 
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -45,6 +39,7 @@ import kaaes.spotify.webapi.android.models.TrackSimple;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import timber.log.Timber;
 
 
 /**
@@ -52,42 +47,36 @@ import retrofit.client.Response;
  * <p>Fires OTTO playback events like {@link com.sregg.android.tv.spotifyPlayer.events.OnPlay}, {@link com.sregg.android.tv.spotifyPlayer.events.OnPause}, etc..</p>
  * <p>Also updates the Now Playing Card in the Home Screen</p>
  */
-public class SpotifyPlayerController implements PlayerNotificationCallback, ConnectionStateCallback {
+public class SpotifyPlayerController implements PlayerNotificationCallback, ConnectionStateCallback, AudioManager.OnAudioFocusChangeListener {
 
     public static final String TAG = "SpotifyPlayerController";
 
     private static final int SKIP_DURATION_MS = 10 * 1000;
 
     private final Player mPlayer;
-    private final MediaSession mNowPlayingSession;
     private final SpotifyService mSpotifyService;
     private final Handler mHandler;
+
+    private final MediaPlayerSessionController mediaSessionController;
 
     private ContentState mContentState;
 
     private boolean mIsShuffleOn = false;
+    private final AudioManager audioManager;
 
     public SpotifyPlayerController(Player player, SpotifyService spotifyService) {
         Context context = SpotifyTvApplication.getInstance().getApplicationContext();
 
         mHandler = new Handler(context.getMainLooper());
 
+        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mPlayer = player;
 
         mPlayer.addPlayerNotificationCallback(this);
         mPlayer.addConnectionStateCallback(this);
         setPlayerBitrate(UserPreferences.getInstance(context).getBitrate());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            mNowPlayingSession = new MediaSession(context, TAG);
-            mNowPlayingSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS |
-                    MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
-
-            // for the MediaBrowserService
-            //setSessionToken(mNowPlayingSession.getSessionToken());
-        } else {
-            mNowPlayingSession = null;
-        }
+        mediaSessionController = new MediaPlayerSessionController(context, this);
 
         mSpotifyService = spotifyService;
 
@@ -99,32 +88,27 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         mContentState = new ContentState("", "", null, null);
     }
 
-    public void play(String currentObjectUri, List<String> trackUris, List<TrackSimple> tracks) {
+    public void play(@Nullable String currentObjectUri, List<String> trackUris, @Nullable List<TrackSimple> tracks) {
         if (!SpotifyTvApplication.isCurrentUserPremium()) {
             Toast.makeText(SpotifyTvApplication.getInstance().getApplicationContext(), "You need a premium Spotify account to play music on this app", Toast.LENGTH_SHORT).show();
         } else {
             mContentState = new ContentState(currentObjectUri, trackUris.get(0), trackUris, tracks);
-            mPlayer.play(trackUris);
-            startNowPlayingSession();
+
+            if (requestAudioFocus()) {
+                mPlayer.play(trackUris);
+            }
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void startNowPlayingSession() {
-        if (mNowPlayingSession != null && !mNowPlayingSession.isActive()) {
-            mNowPlayingSession.setActive(true);
-            mNowPlayingSession.setCallback(new MediaButtonReceiver(this));
-        }
+    private boolean requestAudioFocus() {
+        int result = audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        return result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
     }
 
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void stopNowPlayingSession() {
-        if (mNowPlayingSession != null && mNowPlayingSession.isActive()) {
-            mNowPlayingSession.setActive(false);
-            mNowPlayingSession.setCallback(null);
-        }
+    private void loseAudioFocus() {
+        audioManager.abandonAudioFocus(this);
     }
+
 
     public void togglePauseResume() {
         mPlayer.getPlayerState(new PlayerStateCallback() {
@@ -132,19 +116,21 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
             public void onPlayerState(PlayerState playerState) {
                 if (playerState.playing) {
                     mPlayer.pause();
-                } else {
+                    loseAudioFocus();
+                } else if (requestAudioFocus()) {
                     mPlayer.resume();
                 }
             }
         });
     }
 
-    public @Nullable
+    public
+    @Nullable
     ContentState getPlayingState() {
         return mContentState;
     }
 
-    public void getPlayerState(@NonNull  PlayerStateCallback callback){
+    public void getPlayerState(@NonNull PlayerStateCallback callback) {
         mPlayer.getPlayerState(callback);
     }
 
@@ -153,7 +139,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     }
 
     public void terminate() {
-        stopNowPlayingSession();
+        mediaSessionController.stopNowPlayingSession();
         Spotify.destroyPlayer(mPlayer);
     }
 
@@ -168,18 +154,22 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
             case PLAY:
                 BusProvider.post(new OnPlay(mContentState));
                 Answers.getInstance().logCustom(new CustomEvent(Constants.ANSWERS_EVENT_PLAYER_PLAY));
+                mediaSessionController.updateNowPlayingSession(playerState,mContentState);
                 break;
             case PAUSE:
                 BusProvider.post(new OnPause(mContentState));
                 Answers.getInstance().logCustom(new CustomEvent(Constants.ANSWERS_EVENT_PLAYER_PAUSE));
+                loseAudioFocus();
+                mediaSessionController.updateNowPlayingSession(playerState, mContentState);
                 break;
             case TRACK_CHANGED:
                 trackNowPlayingTrack(playerState.trackUri);
                 Answers.getInstance().logCustom(new CustomEvent(Constants.ANSWERS_EVENT_PLAYER_TRACK_CHANGE));
                 break;
             case END_OF_CONTEXT:
-                stopNowPlayingSession();
+                mediaSessionController.stopNowPlayingSession();
                 resetPlayingState();
+                loseAudioFocus();
                 break;
         }
 
@@ -191,11 +181,11 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         mSpotifyService.getTrack(Utils.getIdFromUri(currentTrackUri), new Callback<Track>() {
             @Override
             public void success(final Track track, Response response) {
-				mContentState.setCurrentTrack(track);
+                mContentState.setCurrentTrack(track);
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        updateNowPlayingMetadata(track);
+                        mediaSessionController.updateNowPlayingMetadata(track);
                         trackLastFm(track);
 
                         mHandler.post(new Runnable() {
@@ -215,35 +205,6 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         });
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void updateNowPlayingMetadata(Track track) {
-        if (mNowPlayingSession == null) {
-            return;
-        }
-
-        MediaMetadata.Builder metadataBuilder = new MediaMetadata.Builder();
-
-        // track title
-        metadataBuilder.putString(MediaMetadata.METADATA_KEY_TITLE,
-                track.name);
-
-        // artists
-        metadataBuilder.putString(MediaMetadata.METADATA_KEY_ARTIST,
-                Utils.getTrackArtists(track));
-
-        // album picture
-        try {
-            Bitmap bitmap = Picasso.with(SpotifyTvApplication.getInstance().getApplicationContext())
-                    .load(track.album.images.get(0).url)
-                    .get();
-            metadataBuilder.putBitmap(MediaMetadata.METADATA_KEY_ART,
-                    bitmap);
-        } catch (IOException e) {
-            Log.e(TAG, "Error downloading track picture for now playing card", e);
-        }
-
-        mNowPlayingSession.setMetadata(metadataBuilder.build());
-    }
 
     private void trackLastFm(final Track track) {
         try {
@@ -287,10 +248,13 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     public void onControlClick(Control control) {
         switch (control) {
             case PLAY:
-                mPlayer.resume();
+                if (requestAudioFocus()) {
+                    mPlayer.resume();
+                }
                 break;
             case PAUSE:
                 mPlayer.pause();
+                loseAudioFocus();
                 break;
             case NEXT:
                 mPlayer.skipToNext();
@@ -299,11 +263,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 mPlayer.skipToPrevious();
                 break;
             case STOP:
-                stopNowPlayingSession();
-                mPlayer.pause();
-                mPlayer.clearQueue();
-                resetPlayingState();
-                BusProvider.post(new OnTrackChanged(mContentState));
+                stopPlayer();
                 break;
             case SHUFFLE:
                 mIsShuffleOn = !mIsShuffleOn;
@@ -347,10 +307,40 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
         }
     }
 
+    private void stopPlayer() {
+        mediaSessionController.stopNowPlayingSession();
+        if (mPlayer != null) {
+            mPlayer.pause();
+            mPlayer.clearQueue();
+            resetPlayingState();
+        }
+        loseAudioFocus();
+        BusProvider.post(new OnTrackChanged(mContentState));
+    }
+
     public void setPlayerBitrate(PlaybackBitrate selectedBitrate) {
         if (mPlayer != null) {
             mPlayer.setPlaybackBitrate(selectedBitrate);
         }
     }
 
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                Timber.d("audio focus gained");
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+                Timber.d("audio focus lossed");
+                stopPlayer();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                Timber.d("audio focus lossed transient");
+                if (mPlayer != null) {
+                    mPlayer.pause();
+                }
+                break;
+        }
+    }
 }

@@ -2,6 +2,7 @@ package com.sregg.android.tv.spotifyPlayer.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v17.leanback.widget.Action;
 import android.support.v17.leanback.widget.OnItemViewClickedListener;
 import android.support.v17.leanback.widget.Presenter;
@@ -42,8 +43,6 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
-
-
         Intent intent = getActivity().getIntent();
 
         mPlaylistId = intent.getStringExtra(PlaylistActivity.ARG_PLAYLIST_ID);
@@ -74,18 +73,21 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
     }
 
     @Override
+    @Nullable
     protected List<TrackSimple> getTracks() {
         return mPlaylistTracks;
     }
 
     @Override
+    @Nullable
     protected List<String> getTrackUris() {
         return mPlaylistTrackUris;
     }
 
     @Override
+    @Nullable
     protected String getObjectUri() {
-        return mPlaylist.uri;
+        return null != mPlaylist ? mPlaylist.uri : null;
     }
 
     private void loadPlaylist() {
@@ -93,6 +95,9 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
         SpotifyTvApplication.getInstance().getSpotifyService().getPlaylist(mUserId, mPlaylistId, new Callback<Playlist>() {
             @Override
             public void success(final Playlist playlist, Response response) {
+                if (!isAdded()) {
+                    return;
+                }
                 mPlaylist = playlist;
 
                 mPlaylistTracks = new ArrayList<>(playlist.tracks.items.size());
@@ -129,7 +134,7 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
             //try to scroll to track row that is currently playing
             int playingTrackPosition = 0;
             for (TrackSimple track : mPlaylistTracks) {
-                if (track.id.equals(currentTrack.id)) {
+                if (currentTrack != null && track.id.equals(currentTrack.id)) {
                     playingTrackPosition = mPlaylistTracks.indexOf(track);
                     break;
                 }

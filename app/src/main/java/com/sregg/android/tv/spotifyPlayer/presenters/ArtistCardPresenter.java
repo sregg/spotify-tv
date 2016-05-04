@@ -1,15 +1,17 @@
 package com.sregg.android.tv.spotifyPlayer.presenters;
 
-import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
+
 import com.sregg.android.tv.spotifyPlayer.SpotifyTvApplication;
+import com.sregg.android.tv.spotifyPlayer.views.SpotifyCardView;
+
+import java.net.URI;
+
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
-
-import java.net.URI;
 
 /**
  * Created by simonreggiani on 15-01-31.
@@ -20,7 +22,7 @@ public class ArtistCardPresenter extends AbsCardPresenter {
         super.onBindViewHolder(viewHolder, item);
 
         final CardViewHolder cardViewHolder = (CardViewHolder) viewHolder;
-        final ImageCardView imageCardView = cardViewHolder.getImageCardView();
+        final SpotifyCardView imageCardView = cardViewHolder.getImageCardView();
 
         ArtistSimple artistSimple = (ArtistSimple) item;
 

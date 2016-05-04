@@ -18,11 +18,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.support.v17.leanback.widget.ImageCardView;
 import android.support.v17.leanback.widget.Presenter;
 import android.support.v7.graphics.Palette;
 import android.view.View;
 import android.view.ViewGroup;
+
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.sregg.android.tv.spotifyPlayer.R;
@@ -53,8 +53,8 @@ public abstract class AbsCardPresenter extends Presenter {
             mImageCardViewTarget = new PicassoImageCardViewTarget(spotifyCardView);
         }
 
-        public ImageCardView getImageCardView() {
-            return mSpotifyCardView.getImageCardView();
+        public SpotifyCardView getImageCardView() {
+            return mSpotifyCardView;
         }
 
         protected void updateCardViewImage(URI uri) {
@@ -84,10 +84,6 @@ public abstract class AbsCardPresenter extends Presenter {
 
         SpotifyCardView spotifyCardView = cardViewHolder.mSpotifyCardView;
 
-        // init image
-        ImageCardView imageCardView = spotifyCardView.getImageCardView();
-        int imageSize = spotifyCardView.getImageSize();
-        imageCardView.setMainImageDimensions(imageSize, imageSize);
 
         // set item
         spotifyCardView.setItem(item);
@@ -110,13 +106,11 @@ public abstract class AbsCardPresenter extends Presenter {
         spotifyCardView.setSelectedInfoAreaBackgroundColor(null);
 
         // reset image
-        ImageCardView imageCardView = spotifyCardView.getImageCardView();
-        imageCardView.setMainImage(null);
-        imageCardView.setBackground(null);
-        imageCardView.setInfoAreaBackground(null);
+        spotifyCardView.setMainImage(null);
+        spotifyCardView.setBackground(null);
+        spotifyCardView.setInfoAreaBackground(null);
 
         // reset badge and now playing
-        spotifyCardView.getBadgeView().setVisibility(View.GONE);
         spotifyCardView.getNowPlayingView().setVisibility(View.GONE);
     }
 
@@ -136,10 +130,10 @@ public abstract class AbsCardPresenter extends Presenter {
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
             // load the bitmap in the imageview
             Drawable bitmapDrawable = new BitmapDrawable(mSpotifyCardView.getContext().getResources(), bitmap);
-            mSpotifyCardView.getImageCardView().setMainImage(bitmapDrawable);
+            mSpotifyCardView.setMainImage(bitmapDrawable);
 
             // set background based on the color palette
-            Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+            new Palette.Builder(bitmap).generate(new Palette.PaletteAsyncListener() {
                 public void onGenerated(Palette palette) {
                     Palette.Swatch swatch = palette.getDarkVibrantSwatch();
 
@@ -156,7 +150,7 @@ public abstract class AbsCardPresenter extends Presenter {
 
         @Override
         public void onBitmapFailed(Drawable drawable) {
-            mSpotifyCardView.getImageCardView().setMainImage(drawable);
+            mSpotifyCardView.setMainImage(drawable);
         }
 
         @Override

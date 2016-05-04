@@ -115,6 +115,10 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
         SpotifyTvApplication.getInstance().getSpotifyService().getAlbum(mAlbumId, new Callback<Album>() {
             @Override
             public void success(final Album album, Response response) {
+                if (isAdded() || getActivity() == null) {
+                    return;
+                }
+
                 mAlbum = album;
                 mAlbumTrackUris = Utils.getTrackUrisFromTrackPager(mAlbum.tracks);
                 onContentLoaded(album);
@@ -131,18 +135,4 @@ public class AlbumDetailsFragment extends TracksDetailsFragment {
             }
         });
     }
-
-//    private void setupDetails(Album album) {
-//        DetailsOverviewRow detailsRow = new DetailsOverviewRow(album);
-//
-//        detailsRow.addAction(new Action(
-//                ACTION_PLAY_ALBUM,
-//                getResources().getString(R.string.lb_playback_controls_play),
-//                null,
-//                getActivity().getResources().getDrawable(R.drawable.lb_ic_play)
-//        ));
-
-//
-//        setDetailsRow(detailsRow);
-//    }
 }

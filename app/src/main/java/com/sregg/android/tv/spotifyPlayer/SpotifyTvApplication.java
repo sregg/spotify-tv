@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.crashlytics.android.core.CrashlyticsCore;
@@ -28,6 +29,7 @@ import kaaes.spotify.webapi.android.models.UserPrivate;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import timber.log.Timber;
 
 /**
  * Created by simonreggiani on 15-01-18.
@@ -65,6 +67,12 @@ public class SpotifyTvApplication extends Application {
 
         CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
         Fabric.with(this, new Crashlytics.Builder().core(core).build());
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(new Timber.DebugTree());
+        } else {
+            Timber.plant(new CrashReportingTree());
+        }
 
         sInstance = this;
     }
@@ -164,6 +172,25 @@ public class SpotifyTvApplication extends Application {
         } else if (item instanceof Category) {
             Category category = (Category) item;
             CategoryActivity.launch(activity, category.id, category.name);
+        }
+    }
+
+    private static class CrashReportingTree extends Timber.Tree {
+        @Override
+        protected void log(int priority, String tag, String message, Throwable t) {
+            if (priority == Log.VERBOSE || priority == Log.DEBUG) {
+                return;
+            }
+
+            CrashlyticsCore.getInstance().log(priority, tag, message);
+
+            if (t != null) {
+                if (priority == Log.ERROR) {
+                    CrashlyticsCore.getInstance().logException(t);
+                } else if (priority == Log.WARN) {
+                    CrashlyticsCore.getInstance().log(t.getMessage());
+                }
+            }
         }
     }
 }

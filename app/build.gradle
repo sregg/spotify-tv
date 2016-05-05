@@ -5,7 +5,9 @@ apply plugin: 'spoon'
 apply plugin: 'com.github.ben-manes.versions'
 
 repositories {
+    mavenCentral()
     maven { url 'https://maven.fabric.io/public' }
+    maven { url "https://jitpack.io" }
 }
 
 buildscript {
@@ -86,7 +88,7 @@ dependencies {
     // spotify
     compile 'com.spotify.sdk:spotify-player:1.0.0-beta12@aar'
     compile 'com.spotify.sdk:spotify-auth:1.0.0-beta12@aar'
-    compile project(':spotify-api')
+    compile 'com.github.kaaes:spotify-web-api-android:0.4.1'
 
     // retrofit okhttp
     compile 'com.squareup.retrofit:retrofit:1.9.0'

@@ -6,6 +6,7 @@ package com.sregg.android.tv.spotifyPlayer;
 public class Constants {
     public static final String MARKET_FROM_TOKEN = "from_token";
     public static final int PAGE_LIMIT = 50;
+    public static final int PAGE_LIMIT_PLAYLIST_TRACKS = 100;
     public static final int MAX_SONGS_PLAYED = 100;
 
     public static final String ANSWERS_CONTENT_NAME = "playlist";

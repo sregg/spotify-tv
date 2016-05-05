@@ -18,8 +18,11 @@ import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistDetailsPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.PlaylistTrackRowPresenter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.TrackSimple;
@@ -105,15 +108,37 @@ public class PlaylistDetailsFragment extends TracksDetailsFragment {
                 }
                 mPlaylist = playlist;
 
-                mPlaylistTracks = new ArrayList<>(playlist.tracks.items.size());
-                mPlaylistTrackUris = new ArrayList<>(playlist.tracks.items.size());
-                for (PlaylistTrack playlistTrack : playlist.tracks.items) {
+
+                mPlaylistTracks = new ArrayList<>(playlist.tracks.total);
+                mPlaylistTrackUris = new ArrayList<>(playlist.tracks.total);
+                loadPlaylistTracks(0);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
+    }
+
+    private void loadPlaylistTracks(final int offset) {
+        HashMap<String, Object> options = new HashMap<>();
+        options.put(SpotifyService.OFFSET, Integer.toString(offset));
+        options.put(SpotifyService.LIMIT, Integer.toString(Constants.PAGE_LIMIT_PLAYLIST_TRACKS));
+        SpotifyTvApplication.getInstance().getSpotifyService().getPlaylistTracks(mUserId, mPlaylistId, options, new Callback<Pager<PlaylistTrack>>() {
+            @Override
+            public void success(Pager<PlaylistTrack> playlistTrackPager, Response response) {
+                for (PlaylistTrack playlistTrack : playlistTrackPager.items) {
                     mPlaylistTracks.add(playlistTrack.track);
                     mPlaylistTrackUris.add(playlistTrack.track.uri);
                 }
 
-                onContentLoaded();
-                scrollToCurrentTrack();
+                if (playlistTrackPager.next != null) {
+                    loadPlaylistTracks(playlistTrackPager.offset + Constants.PAGE_LIMIT);
+                } else {
+                    onContentLoaded();
+                    scrollToCurrentTrack();
+                }
             }
 
             @Override

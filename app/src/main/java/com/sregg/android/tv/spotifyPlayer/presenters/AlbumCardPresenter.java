@@ -30,37 +30,49 @@ public class AlbumCardPresenter extends AbsCardPresenter {
         // name
         imageCardView.setTitleText(albumSimple.name);
 
-        // Load real album (not simple) from API
-        SpotifyTvApplication app = SpotifyTvApplication.getInstance();
-        app.getSpotifyService().getAlbum(albumSimple.id, new Callback<Album>() {
-            @Override
-            public void success(final Album album, Response response) {
-                // artists
-                final StringBuilder artists = new StringBuilder();
-                for (ArtistSimple artist : album.artists) {
-                    if (artists.length() > 0) {
-                        artists.append(", ");
-                    }
-                    artists.append(artist.name);
+        if (albumSimple instanceof Album) {
+            // if full album object, display info
+            setupFullAlbumInfo(((Album) albumSimple), imageCardView, cardViewHolder);
+        } else {
+            // if not, reset the info views
+            imageCardView.setContentText("");
+
+            // and load the full object from API
+            SpotifyTvApplication.getInstance().getSpotifyService().getAlbum(albumSimple.id, new Callback<Album>() {
+                @Override
+                public void success(final Album album, Response response) {
+                    setupFullAlbumInfo(album, imageCardView, cardViewHolder);
                 }
 
-                // image
-                final String imageUrl = album.images.get(0).url;
+                @Override
+                public void failure(RetrofitError error) {
 
-                // run on UI thread
-                imageCardView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        imageCardView.setContentText(artists);
+                }
+            });
+        }
 
-                        cardViewHolder.updateCardViewImage(URI.create(imageUrl));
-                    }
-                });
+    }
+
+    private void setupFullAlbumInfo(Album album, final SpotifyCardView imageCardView, final CardViewHolder cardViewHolder) {
+        // artists
+        final StringBuilder artists = new StringBuilder();
+        for (ArtistSimple artist : album.artists) {
+            if (artists.length() > 0) {
+                artists.append(", ");
             }
+            artists.append(artist.name);
+        }
 
+        // image
+        final String imageUrl = album.images.get(0).url;
+
+        // run on UI thread
+        imageCardView.post(new Runnable() {
             @Override
-            public void failure(RetrofitError error) {
+            public void run() {
+                imageCardView.setContentText(artists);
 
+                cardViewHolder.updateCardViewImage(URI.create(imageUrl));
             }
         });
     }

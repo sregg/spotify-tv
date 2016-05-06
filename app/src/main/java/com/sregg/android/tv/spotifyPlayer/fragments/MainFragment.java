@@ -63,13 +63,13 @@ import java.util.List;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.AlbumSimple;
-import kaaes.spotify.webapi.android.models.ArtistSimple;
+import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.CategoriesPager;
 import kaaes.spotify.webapi.android.models.FeaturedPlaylists;
 import kaaes.spotify.webapi.android.models.NewReleases;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
+import kaaes.spotify.webapi.android.models.SavedAlbum;
 import kaaes.spotify.webapi.android.models.SavedTrack;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.TrackSimple;
@@ -86,14 +86,16 @@ public class MainFragment extends BrowseFragment {
     private ArrayObjectAdapter mFeaturedPlaylistsAdapter = new ArrayObjectAdapter(new PlaylistSimpleCardPresenter());
     private ArrayObjectAdapter mCategoriesAdapter = new ArrayObjectAdapter(new CategoryCardPresenter());
     private PagingAdapter mPlaylistsAdapter;
-    private ArrayObjectAdapter mSavedSongsAdapter = new ArrayObjectAdapter(new TrackCardPresenter());
-    private ArrayObjectAdapter mSavedAlbumsAdapter = new ArrayObjectAdapter(new AlbumCardPresenter());
+    private PagingAdapter mSavedAlbumsAdapter;
+    private PagingAdapter mSavedSongsAdapter;
     private ArrayObjectAdapter mSavedArtistsAdapter = new ArrayObjectAdapter(new ArtistCardPresenter());
     private ArrayObjectAdapter mRowsAdapter;
     private HeaderItem mNowPlayingHeader;
 
     private ListRow mNowPlayingListRow;
     private boolean mPlaylistsLoading;
+    private boolean mMyAlbumsLoading;
+    private boolean mMySongsLoading;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -312,29 +314,39 @@ public class MainFragment extends BrowseFragment {
         // Albums row
         boolean showMyAlbums = isSectionEnabled(R.string.my_albums);
         if (showMyAlbums) {
+            mSavedAlbumsAdapter = new PagingAdapter(new AlbumCardPresenter()) {
+                @Override
+                public void onLoadMore(int offset) {
+                    loadMyAlbums(offset);
+                }
+            };
+
             HeaderItem albumsHeader = new HeaderItem(0, getString(R.string.my_albums));
             mRowsAdapter.add(new ListRow(albumsHeader, mSavedAlbumsAdapter));
+            loadMyAlbums();
         }
 
         // Artists row
-        boolean showMyArtists = isSectionEnabled(R.string.my_artists);
-        if (showMyArtists) {
-            HeaderItem artistsHeader = new HeaderItem(0, getString(R.string.my_artists));
-            mRowsAdapter.add(new ListRow(artistsHeader, mSavedArtistsAdapter));
-        }
+        // TODO
+//        boolean showMyArtists = isSectionEnabled(R.string.my_artists);
+//        if (showMyArtists) {
+//            HeaderItem artistsHeader = new HeaderItem(0, getString(R.string.my_artists));
+//            mRowsAdapter.add(new ListRow(artistsHeader, mSavedArtistsAdapter));
+//        }
 
         // Songs row
         boolean showMySongs = isSectionEnabled(R.string.my_songs);
         if (showMySongs) {
+            mSavedSongsAdapter = new PagingAdapter(new TrackCardPresenter()) {
+                @Override
+                public void onLoadMore(int offset) {
+                    loadMySongs(offset);
+                }
+            };
             HeaderItem songsHeader = new HeaderItem(0, getString(R.string.my_songs));
             mRowsAdapter.add(new ListRow(songsHeader, mSavedSongsAdapter));
+            loadMySongs();
         }
-
-        // load saved songs
-        if (showMyAlbums || showMyArtists || showMySongs) {
-            loadSavedSongs();
-        }
-
     }
 
     private void loadPlaylists() {
@@ -350,7 +362,7 @@ public class MainFragment extends BrowseFragment {
         Map<String, Object> options = new HashMap<>();
         options.put(SpotifyService.OFFSET, offset);
         options.put(SpotifyService.LIMIT, Constants.PAGE_LIMIT);
-        getSpotifyService().getPlaylists(SpotifyTvApplication.getCurrentUserId(), options, new Callback<Pager<PlaylistSimple>>() {
+        getSpotifyService().getMyPlaylists(options, new Callback<Pager<PlaylistSimple>>() {
             @Override
             public void success(Pager<PlaylistSimple> playlistPager, Response response) {
                 mPlaylistsAdapter.addAll(playlistPager.total, mPlaylistsAdapter.size(), playlistPager.items);
@@ -364,60 +376,64 @@ public class MainFragment extends BrowseFragment {
         });
     }
 
-
-    private void loadSavedSongs() {
-        mSavedSongsAdapter.clear();
-        mSavedAlbumsAdapter.clear();
-        mSavedArtistsAdapter.clear();
-
-        List<String> albumIds = new ArrayList<>();
-        List<String> artistIds = new ArrayList<>();
-        loadPage(0, albumIds, artistIds);
+    private void loadMyAlbums() {
+        loadMyAlbums(0);
     }
 
-    private void loadPage(int offset, final List<String> albumIds, final List<String> artistIds) {
+    private void loadMyAlbums(int offset) {
+        if (mMyAlbumsLoading){
+            return;
+        }
+
+        mMyAlbumsLoading = true;
+        Map<String, Object> options = new HashMap<>();
+        options.put(SpotifyService.OFFSET, offset);
+        options.put(SpotifyService.LIMIT, Constants.PAGE_LIMIT);
+        getSpotifyService().getMySavedAlbums(options, new Callback<Pager<SavedAlbum>>() {
+            @Override
+            public void success(Pager<SavedAlbum> savedAlbumPager, Response response) {
+                List<Album> albums = new ArrayList<>(savedAlbumPager.items.size());
+                for (SavedAlbum savedAlbum : savedAlbumPager.items) {
+                    albums.add(savedAlbum.album);
+                }
+                mSavedAlbumsAdapter.addAll(savedAlbumPager.total, mSavedAlbumsAdapter.size(), albums);
+                mMyAlbumsLoading = false;
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                mMyAlbumsLoading = false;
+            }
+        });
+    }
+
+    private void loadMySongs() {
+        loadMySongs(0);
+    }
+
+    private void loadMySongs(int offset) {
+        if (mMySongsLoading){
+            return;
+        }
+
+        mMySongsLoading = true;
         Map<String, Object> options = new HashMap<>();
         options.put(SpotifyService.OFFSET, offset);
         options.put(SpotifyService.LIMIT, Constants.PAGE_LIMIT);
         getSpotifyService().getMySavedTracks(options, new Callback<Pager<SavedTrack>>() {
             @Override
             public void success(Pager<SavedTrack> savedTrackPager, Response response) {
-                ArrayList<Track> songs = new ArrayList<>();
-                ArrayList<AlbumSimple> albums = new ArrayList<>();
-                ArrayList<ArtistSimple> artists = new ArrayList<>();
-                for (final SavedTrack savedTrack : savedTrackPager.items) {
-                    // add saved track
-                    songs.add(savedTrack.track);
-
-                    // add album if not already added
-                    AlbumSimple album = savedTrack.track.album;
-                    if (!albumIds.contains(album.id)) {
-                        albums.add(album);
-                        albumIds.add(album.id);
-                    }
-
-                    // add artists if not already added
-                    for (ArtistSimple artist : savedTrack.track.artists) {
-                        if (!artistIds.contains(artist.id)) {
-                            artists.add(artist);
-                            artistIds.add(artist.id);
-                        }
-                    }
+                List<Track> tracks = new ArrayList<>(savedTrackPager.items.size());
+                for (SavedTrack savedTrack : savedTrackPager.items) {
+                    tracks.add(savedTrack.track);
                 }
-
-                mSavedSongsAdapter.addAll(mSavedSongsAdapter.size(), songs);
-                mSavedAlbumsAdapter.addAll(mSavedAlbumsAdapter.size(), albums);
-                mSavedArtistsAdapter.addAll(mSavedArtistsAdapter.size(), artists);
-
-                // load next page
-                if (savedTrackPager.next != null) {
-                    loadPage(savedTrackPager.offset + Constants.PAGE_LIMIT, albumIds, artistIds);
-                }
+                mSavedSongsAdapter.addAll(savedTrackPager.total, mSavedSongsAdapter.size(), tracks);
+                mMySongsLoading = false;
             }
 
             @Override
             public void failure(RetrofitError error) {
-
+                mMySongsLoading = false;
             }
         });
     }

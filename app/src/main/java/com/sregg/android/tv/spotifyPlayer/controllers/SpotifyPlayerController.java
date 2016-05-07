@@ -250,22 +250,22 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
 
     @Override
     public void onPlaybackError(ErrorType errorType, String s) {
-
+        Timber.w(s);
     }
 
     @Override
     public void onLoggedIn() {
-
+        Timber.w("Logged In");
     }
 
     @Override
     public void onLoggedOut() {
-
+        Timber.w("Logged Out");
     }
 
     @Override
     public void onLoginFailed(Throwable throwable) {
-
+        Timber.e(throwable, "onLoginFailed");
     }
 
     @Override
@@ -275,7 +275,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
 
     @Override
     public void onConnectionMessage(String s) {
-
+        Timber.w(s);
     }
 
     public void onControlClick(Control control) {

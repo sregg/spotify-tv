@@ -40,8 +40,8 @@ import com.sregg.android.tv.spotifyPlayer.activities.SearchActivity;
 import com.sregg.android.tv.spotifyPlayer.adapters.PagingAdapter;
 import com.sregg.android.tv.spotifyPlayer.controllers.SpotifyPlayerController;
 import com.sregg.android.tv.spotifyPlayer.enums.Control;
-import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
 import com.sregg.android.tv.spotifyPlayer.events.ContentState;
+import com.sregg.android.tv.spotifyPlayer.events.OnTrackChanged;
 import com.sregg.android.tv.spotifyPlayer.presenters.AlbumCardPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.ArtistCardPresenter;
 import com.sregg.android.tv.spotifyPlayer.presenters.CategoryCardPresenter;
@@ -64,6 +64,7 @@ import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
+import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.CategoriesPager;
 import kaaes.spotify.webapi.android.models.FeaturedPlaylists;
 import kaaes.spotify.webapi.android.models.NewReleases;
@@ -96,6 +97,7 @@ public class MainFragment extends BrowseFragment {
     private boolean mPlaylistsLoading;
     private boolean mMyAlbumsLoading;
     private boolean mMySongsLoading;
+    private ArrayList<String> allArtistUris;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -327,12 +329,11 @@ public class MainFragment extends BrowseFragment {
         }
 
         // Artists row
-        // TODO
-//        boolean showMyArtists = isSectionEnabled(R.string.my_artists);
-//        if (showMyArtists) {
-//            HeaderItem artistsHeader = new HeaderItem(0, getString(R.string.my_artists));
-//            mRowsAdapter.add(new ListRow(artistsHeader, mSavedArtistsAdapter));
-//        }
+        boolean showMyArtists = isSectionEnabled(R.string.my_artists);
+        if (showMyArtists) {
+            HeaderItem artistsHeader = new HeaderItem(0, getString(R.string.my_artists));
+            mRowsAdapter.add(new ListRow(artistsHeader, mSavedArtistsAdapter));
+        }
 
         // Songs row
         boolean showMySongs = isSectionEnabled(R.string.my_songs);
@@ -380,7 +381,7 @@ public class MainFragment extends BrowseFragment {
         loadMyAlbums(0);
     }
 
-    private void loadMyAlbums(int offset) {
+    private void loadMyAlbums(final int offset) {
         if (mMyAlbumsLoading){
             return;
         }
@@ -393,10 +394,24 @@ public class MainFragment extends BrowseFragment {
             @Override
             public void success(Pager<SavedAlbum> savedAlbumPager, Response response) {
                 List<Album> albums = new ArrayList<>(savedAlbumPager.items.size());
+                List<ArtistSimple> artists = new ArrayList<>(savedAlbumPager.items.size());
+
+                // keep track of all artists to avoid duplicates
+                if (offset == 0) {
+                    allArtistUris = new ArrayList<>(savedAlbumPager.items.size());
+                }
+
                 for (SavedAlbum savedAlbum : savedAlbumPager.items) {
                     albums.add(savedAlbum.album);
+                    for (ArtistSimple artist : savedAlbum.album.artists) {
+                        if (!allArtistUris.contains(artist.id)) {
+                            artists.add(artist);
+                            allArtistUris.add(artist.id);
+                        }
+                    }
                 }
                 mSavedAlbumsAdapter.addAll(savedAlbumPager.total, mSavedAlbumsAdapter.size(), albums);
+                mSavedArtistsAdapter.addAll(mSavedArtistsAdapter.size(), artists);
                 mMyAlbumsLoading = false;
             }
 

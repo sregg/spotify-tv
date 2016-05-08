@@ -12,6 +12,7 @@ import com.spotify.sdk.android.player.PlaybackBitrate;
 public class UserPreferences {
     private static final String SHARED_PREFS_NAME = "UserPrefs";
     private static final String PREF_KEY_BITRATE = "bitrate";
+    private static final String PREF_KEY_SHUFFLE = "shuffle";
     private static final String PREF_KEY_LASTFM_USERNAME = "lastfm_username";
     private static final String PREF_KEY_LASTFM_PASSWORD = "lastfm_password";
     private static final String PREF_KEY_SECTION_ENABLED = "section_enabled";
@@ -37,6 +38,14 @@ public class UserPreferences {
     public PlaybackBitrate getBitrate() {
         String valueString = mSharedPreferences.getString(PREF_KEY_BITRATE, PlaybackBitrate.BITRATE_NORMAL.name());
         return PlaybackBitrate.valueOf(valueString);
+    }
+
+    public void setShuffle(boolean shuffle) {
+        mSharedPreferences.edit().putBoolean(PREF_KEY_SHUFFLE, shuffle).apply();
+    }
+
+    public boolean getShuffle() {
+        return mSharedPreferences.getBoolean(PREF_KEY_SHUFFLE, false);
     }
 
     public void setLastFmUsername(String username) {

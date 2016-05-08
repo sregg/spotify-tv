@@ -51,7 +51,7 @@
 
         <provider
             android:name=".providers.SearchProvider"
-            android:authorities="com.sregg.android.tv.spotifyPlayer"
+            android:authorities="${applicationId}"
             android:enabled="true"
             android:exported="true" />
 

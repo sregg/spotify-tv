@@ -59,23 +59,25 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     private final Handler mHandler;
 
     private final MediaPlayerSessionController mediaSessionController;
+    private final UserPreferences mUserPreferences;
 
     private ContentState mContentState;
 
-    private boolean mIsShuffleOn = false;
     private final AudioManager audioManager;
+    private final Context context;
 
     public SpotifyPlayerController(Player player, SpotifyService spotifyService) {
-        Context context = SpotifyTvApplication.getInstance().getApplicationContext();
-
+        context = SpotifyTvApplication.getInstance().getApplicationContext();
         mHandler = new Handler(context.getMainLooper());
+        mUserPreferences = UserPreferences.getInstance(context);
 
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mPlayer = player;
 
         mPlayer.addPlayerNotificationCallback(this);
         mPlayer.addConnectionStateCallback(this);
-        setPlayerBitrate(UserPreferences.getInstance(context).getBitrate());
+        setPlayerBitrate(mUserPreferences.getBitrate());
+        setShuffle(mUserPreferences.getShuffle());
 
         mediaSessionController = new MediaPlayerSessionController(context, this);
 
@@ -110,6 +112,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
 
             if (requestAudioFocus()) {
                 mPlayer.play(playConfig);
+                setShuffle(isShuffleOn());
             }
         }
     }
@@ -158,7 +161,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     }
 
     public boolean isShuffleOn() {
-        return mIsShuffleOn;
+        return mUserPreferences.getShuffle();
     }
 
     public void terminate() {
@@ -247,22 +250,22 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
 
     @Override
     public void onPlaybackError(ErrorType errorType, String s) {
-
+        Timber.w(s);
     }
 
     @Override
     public void onLoggedIn() {
-
+        Timber.w("Logged In");
     }
 
     @Override
     public void onLoggedOut() {
-
+        Timber.w("Logged Out");
     }
 
     @Override
     public void onLoginFailed(Throwable throwable) {
-
+        Timber.e(throwable, "onLoginFailed");
     }
 
     @Override
@@ -272,7 +275,7 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
 
     @Override
     public void onConnectionMessage(String s) {
-
+        Timber.w(s);
     }
 
     public void onControlClick(Control control) {
@@ -296,9 +299,10 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
                 stopPlayer();
                 break;
             case SHUFFLE:
-                mIsShuffleOn = !mIsShuffleOn;
-                mPlayer.setShuffle(mIsShuffleOn);
-                BusProvider.post(new OnShuffleChanged(mIsShuffleOn));
+                boolean shuffle = !isShuffleOn();
+                mUserPreferences.setShuffle(shuffle);
+                setShuffle(shuffle);
+                BusProvider.post(new OnShuffleChanged(shuffle));
 
                 // reload current object if not null
                 if (!TextUtils.isEmpty(mContentState.getCurrentObjectUri())) {
@@ -351,6 +355,12 @@ public class SpotifyPlayerController implements PlayerNotificationCallback, Conn
     public void setPlayerBitrate(PlaybackBitrate selectedBitrate) {
         if (mPlayer != null) {
             mPlayer.setPlaybackBitrate(selectedBitrate);
+        }
+    }
+
+    public void setShuffle(boolean shuffle) {
+        if (mPlayer != null) {
+            mPlayer.setShuffle(shuffle);
         }
     }
 

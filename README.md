@@ -1,4 +1,14 @@
-[![Circle CI](https://circleci.com/gh/sregg/spotify-tv/tree/master.svg?style=svg)](https://circleci.com/gh/sregg/spotify-tv/tree/master)
+# !!! DEPRECATED !!!
+
+The official Spotify app for Android TV is finally here!
+
+https://play.google.com/store/apps/details?id=com.spotify.tv.android﻿
+
+As a result, I won't be working on this project anymore.
+If you want to keep working on it (e.g. you feel it's better than the official one), please let me know.
+
+Thanks everyone for collaborating on that project.﻿
+
 
 # TV Player for Spotify
 Unofficial Spotify app for Android TV
